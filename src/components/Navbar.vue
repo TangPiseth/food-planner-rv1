@@ -495,7 +495,7 @@ export default {
 
 /* Mobile Offcanvas Menu */
 .offcanvas {
-  background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
   width: 320px !important;
   max-width: 85vw !important;
@@ -524,26 +524,28 @@ export default {
 .offcanvas-header {
   background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
   border-bottom: none;
-  padding: 24px 28px;
+  padding: 28px 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-height: 70px;
+  min-height: 80px;
 }
 
 .offcanvas-title {
   color: white !important;
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   display: flex;
   align-items: center;
   
   i {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
   }
 }
 
 .offcanvas-header .btn-close {
   filter: brightness(0) invert(1);
-  opacity: 0.8;
+  opacity: 0.9;
+  width: 1.2rem;
+  height: 1.2rem;
   
   &:hover {
     opacity: 1;
@@ -551,7 +553,7 @@ export default {
 }
 
 .offcanvas-body {
-  padding: 16px;
+  padding: 20px 16px;
 }
 
 .offcanvas-body .navbar-nav {
@@ -560,26 +562,27 @@ export default {
 
 .offcanvas-body .nav-item {
   width: 100%;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .offcanvas-body .nav-link {
   color: #1a1a1a !important;
-  padding: 16px 18px;
+  padding: 18px 20px;
   font-weight: 500;
-  border-radius: 12px;
+  border-radius: 14px;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   background: transparent;
   border: 2px solid transparent;
-  min-height: 56px;
+  min-height: 60px;
+  letter-spacing: -0.2px;
 
   i {
     color: #2e7d32;
-    width: 28px;
-    font-size: 1.3rem;
+    width: 32px;
+    font-size: 1.4rem;
   }
 
   &:hover {
@@ -604,31 +607,32 @@ export default {
 .offcanvas-body hr {
   border-color: rgba(46, 125, 50, 0.15);
   opacity: 1;
-  margin: 12px 0;
+  margin: 16px 0;
 }
 
 /* iPhone and small mobile specific */
 @media (max-width: 390px) {
   .offcanvas {
-    width: 90vw !important;
+    width: 92vw !important;
   }
   
   .offcanvas-title {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
   }
   
   .offcanvas-body .nav-link {
-    font-size: 1.05rem;
-    padding: 15px 16px;
+    font-size: 1.15rem;
+    padding: 16px 18px;
+    min-height: 58px;
   }
   
   .navbar-toggler {
-    font-size: 1.05rem;
-    padding: 0.6rem 1.1rem;
+    font-size: 1.1rem;
+    padding: 0.65rem 1.2rem;
   }
   
   .logo-glass-bubble .navbar-brand {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
   }
 }
 
@@ -694,55 +698,135 @@ export default {
 
 @media (max-width: 768px) {
   #mainNav {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(8px);
-    padding: 12px 0;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(12px);
+    padding: 14px 0;
+    -webkit-backdrop-filter: blur(12px);
   }
   
   .logo-glass-bubble {
-    padding: 8px 16px;
+    padding: 10px 18px;
 
     .navbar-brand {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
     }
   }
   
   .navbar-toggler {
-    padding: 0.6rem 1.2rem;
-    font-size: 1.1rem;
-    min-height: 48px;
-    min-width: 90px;
+    padding: 0.7rem 1.3rem;
+    font-size: 1.15rem;
+    min-height: 52px;
+    min-width: 100px;
+    font-weight: 600;
+    border-radius: 14px;
   }
 }
 
 @media (max-width: 576px) {
   #mainNav {
     background: rgba(255, 255, 255, 0.98) !important;
-    padding: 10px 0;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 12px 0;
   }
 
   .logo-glass-bubble {
-    padding: 8px 16px;
+    padding: 10px 18px;
 
     .navbar-brand {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
+      font-weight: 700;
     }
   }
 
   .navbar-toggler {
-    padding: 0.65rem 1.3rem;
-    font-size: 1.15rem;
-    min-height: 50px;
-    min-width: 95px;
+    padding: 0.75rem 1.4rem;
+    font-size: 1.2rem;
+    min-height: 54px;
+    min-width: 105px;
+    font-weight: 600;
     
     i {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
     }
   }
   
   .container {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  #mainNav {
+    padding: 10px 0;
+  }
+
+  .logo-glass-bubble {
+    padding: 10px 16px;
+    border-radius: 16px;
+
+    .navbar-brand {
+      font-size: 1.45rem;
+    }
+  }
+
+  .navbar-toggler {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    min-height: 56px;
+    min-width: 110px;
+    border-radius: 16px;
+    
+    i {
+      font-size: 1.3rem;
+      margin-left: 8px;
+    }
+  }
+  
+  .offcanvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .offcanvas-header {
+    padding: 24px 20px;
+    min-height: 85px;
+  }
+  
+  .offcanvas-title {
+    font-size: 1.7rem;
+    
+    i {
+      font-size: 1.8rem;
+    }
+  }
+  
+  .offcanvas-body {
+    padding: 20px;
+  }
+  
+  .offcanvas-body .nav-link {
+    font-size: 1.2rem;
+    padding: 18px 20px;
+    min-height: 62px;
+    border-radius: 16px;
+    
+    i {
+      width: 36px;
+      font-size: 1.5rem;
+    }
+  }
+  
+  .offcanvas-body hr {
+    margin: 20px 0;
+  }
+  
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 }
 

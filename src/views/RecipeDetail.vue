@@ -84,7 +84,7 @@
               <div class="info-card-content">
                 <i class="fa-solid fa-star"></i>
                 <h4>Rating</h4>
-                <p>{{ recipe.rating }}/5</p>
+                <p>{{ displayRating }}/5 <span v-if="totalReviews > 0" class="review-count">({{ totalReviews }})</span></p>
               </div>
             </div>
           </div>
@@ -215,37 +215,98 @@
           <h3 class="section-title-main">
             <i class="fa-solid fa-sparkles"></i> You Might Also Like
           </h3>
-          <div class="related-recipes-grid">
-            <div class="related-recipe-card" v-for="relatedRecipe in suggestedRecipes" :key="relatedRecipe.id">
-              <div class="recipe-card-glass">
-                <div class="glass-filter"></div>
-                <div class="glass-overlay"></div>
-                <div class="glass-specular"></div>
-                <div class="recipe-card-content">
-                  <div class="recipe-card-image">
-                    <img :src="relatedRecipe.image" :alt="relatedRecipe.title" />
-                  </div>
-                  <div class="recipe-card-body">
-                    <span class="recipe-type-badge">{{ relatedRecipe.type.toLowerCase().replace('_', ' ') }}</span>
-                    <h4 class="recipe-card-title">{{ relatedRecipe.title }}</h4>
-                    <p class="recipe-card-desc">{{ relatedRecipe.description }}</p>
-                    <div class="recipe-card-footer">
-                      <span class="recipe-time">
-                        <i class="fa-solid fa-clock"></i> {{ relatedRecipe.cookingTime }} mins
-                      </span>
-                      <router-link :to="'/recipes/' + relatedRecipe.id" class="recipe-card-link">View</router-link>
+          
+          <!-- Slider Container -->
+          <div class="related-slider-container">
+            <!-- Left Navigation Button -->
+            <button 
+              class="slider-nav-btn slider-nav-prev" 
+              @click="prevSlide" 
+              :disabled="currentSlide === 0"
+              aria-label="Previous recipes"
+            >
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <!-- Slider Track -->
+            <div class="related-slider-wrapper">
+              <div 
+                class="related-slider-track" 
+                :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
+              >
+                <!-- Slide Pages -->
+                <div 
+                  class="related-slider-page" 
+                  v-for="(page, pageIndex) in sliderPages" 
+                  :key="pageIndex"
+                >
+                  <div class="related-recipes-grid">
+                    <div class="related-recipe-card" v-for="relatedRecipe in page" :key="relatedRecipe.id">
+                      <div class="recipe-card-glass">
+                        <div class="glass-filter"></div>
+                        <div class="glass-overlay"></div>
+                        <div class="glass-specular"></div>
+                        <div class="recipe-card-content">
+                          <div class="recipe-card-image">
+                            <img :src="relatedRecipe.image" :alt="relatedRecipe.title" />
+                          </div>
+                          <div class="recipe-card-body">
+                            <span class="recipe-type-badge">{{ relatedRecipe.type.toLowerCase().replace('_', ' ') }}</span>
+                            <h4 class="recipe-card-title">{{ relatedRecipe.title }}</h4>
+                            <p class="recipe-card-desc">{{ relatedRecipe.description }}</p>
+                            <div class="recipe-card-footer">
+                              <span class="recipe-time">
+                                <i class="fa-solid fa-clock"></i> {{ relatedRecipe.cookingTime }} mins
+                              </span>
+                              <router-link :to="'/recipes/' + relatedRecipe.id" class="recipe-card-link">View</router-link>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <!-- Right Navigation Button -->
+            <button 
+              class="slider-nav-btn slider-nav-next" 
+              @click="nextSlide" 
+              :disabled="currentSlide === totalSlides - 1"
+              aria-label="Next recipes"
+            >
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Page Indicators -->
+          <div class="slider-indicators">
+            <button 
+              v-for="(page, index) in totalSlides" 
+              :key="index"
+              class="slider-dot"
+              :class="{ active: currentSlide === index }"
+              @click="goToSlide(index)"
+              :aria-label="`Go to page ${index + 1}`"
+            ></button>
           </div>
         </div>
 
         <!-- Review Components -->
         <div class="reviews-container">
-          <RecipeReviewForm :recipeId="recipe.id" @review-submitted="handleNewReview" />
-          <RecipeReviews ref="reviewsComponent" :recipeId="recipe.id" />
+          <RecipeReviewForm 
+            ref="reviewFormComponent"
+            :recipeId="recipe.id" 
+            :recipeTitle="recipe.title"
+            @review-submitted="handleNewReview" 
+          />
+          <RecipeReviews 
+            ref="reviewsComponent" 
+            :recipeId="recipe.id" 
+            @edit-review="handleEditReview"
+            @review-deleted="handleReviewDeleted"
+          />
         </div>
       </div>
     </div>
@@ -255,6 +316,7 @@
 <script>
 import { fetchRecipe, getSuggestedRecipes } from "@/services/recipeService";
 import { createGroceryList, addRecipeToList, isAuthenticated } from "@/services/groceryListService";
+import { getRecipeRating } from "@/services/reviewService";
 import RecipeReviewForm from '@/components/RecipeReviewForm.vue';
 import RecipeReviews from '@/components/RecipeReviews.vue'
 
@@ -277,7 +339,30 @@ export default {
       loading: false,
       showToast: false,
       toastMessage: '',
+      averageRating: 0,
+      totalReviews: 0,
+      currentSlide: 0,
+      recipesPerPage: 3,
     };
+  },
+
+  computed: {
+    displayRating() {
+      if (this.totalReviews > 0) {
+        return this.averageRating;
+      }
+      return this.recipe?.rating || 0;
+    },
+    sliderPages() {
+      const pages = [];
+      for (let i = 0; i < this.suggestedRecipes.length; i += this.recipesPerPage) {
+        pages.push(this.suggestedRecipes.slice(i, i + this.recipesPerPage));
+      }
+      return pages;
+    },
+    totalSlides() {
+      return this.sliderPages.length;
+    }
   },
 
   watch: {
@@ -288,14 +373,20 @@ export default {
         // Reset the current recipe
         this.recipe = null;
         this.loading = true;
+        this.averageRating = 0;
+        this.totalReviews = 0;
         
         try {
           // Fetch new recipe from API
           this.recipe = await fetchRecipe(newId);
 
           if (this.recipe) {
-            // Get suggested recipes based on category/cuisine
-            this.suggestedRecipes = await getSuggestedRecipes(this.recipe, 4);
+            // Get suggested recipes based on category/cuisine (max 9 for slider)
+            this.suggestedRecipes = await getSuggestedRecipes(this.recipe, 9);
+            this.currentSlide = 0; // Reset slider position
+            
+            // Fetch real rating from reviews database
+            await this.fetchRating();
           }
         } catch (error) {
           console.error('Error fetching recipe:', error);
@@ -308,11 +399,51 @@ export default {
 
   // Remove the mounted hook since we're using the watcher now
   methods: {
+    nextSlide() {
+      if (this.currentSlide < this.totalSlides - 1) {
+        this.currentSlide++;
+      }
+    },
+    prevSlide() {
+      if (this.currentSlide > 0) {
+        this.currentSlide--;
+      }
+    },
+    goToSlide(index) {
+      this.currentSlide = index;
+    },
+    async fetchRating() {
+      try {
+        const result = await getRecipeRating(this.id);
+        if (result.success) {
+          this.averageRating = result.averageRating;
+          this.totalReviews = result.totalReviews;
+        }
+      } catch (error) {
+        console.error('Error fetching rating:', error);
+      }
+    },
     handleNewReview(reviewData) {
       // Pass the new review to the reviews component
       if (this.$refs.reviewsComponent) {
         this.$refs.reviewsComponent.addReview(reviewData);
       }
+      // Refresh the rating
+      this.fetchRating();
+    },
+    handleEditReview(review) {
+      // Scroll to the review form
+      if (this.$refs.reviewFormComponent) {
+        this.$refs.reviewFormComponent.$el.scrollIntoView({ behavior: 'smooth' });
+      }
+    },
+    handleReviewDeleted(reviewId) {
+      // Refresh the review form to allow creating a new review
+      if (this.$refs.reviewFormComponent) {
+        this.$refs.reviewFormComponent.checkExistingReview();
+      }
+      // Refresh the rating
+      this.fetchRating();
     },
     goBack() {
       this.$router.go(-1);
@@ -834,9 +965,96 @@ export default {
   color: #2e7d32;
 }
 
+/* Slider Container */
+.related-slider-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.related-slider-wrapper {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.related-slider-track {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.related-slider-page {
+  min-width: 100%;
+  padding: 0 4px;
+}
+
+/* Slider Navigation Buttons */
+.slider-nav-btn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(46, 125, 50, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  color: #2e7d32;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.slider-nav-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: white;
+  border-color: transparent;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+}
+
+.slider-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Page Indicators */
+.slider-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.slider-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(46, 125, 50, 0.4);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.slider-dot:hover {
+  border-color: #2e7d32;
+  background: rgba(46, 125, 50, 0.2);
+}
+
+.slider-dot.active {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  border-color: transparent;
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.4);
+}
+
 .related-recipes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
@@ -1029,11 +1247,18 @@ export default {
   }
 
   .related-recipes-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .recipe-card-image {
     height: 150px;
+  }
+
+  /* Slider responsive - tablet */
+  .slider-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
   }
 }
 
@@ -1076,6 +1301,32 @@ export default {
 
   .recipe-details-text {
     font-size: 13px;
+  }
+
+  /* Slider responsive - mobile */
+  .related-slider-container {
+    gap: 8px;
+  }
+
+  .slider-nav-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .related-recipes-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .slider-indicators {
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .slider-dot {
+    width: 10px;
+    height: 10px;
   }
 }
 
@@ -1275,28 +1526,7 @@ export default {
   margin: 0;
 }
 
-/* Related Recipes */
-.section-title-main {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 32px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.section-title-main i {
-  color: #2e7d32;
-}
-
-.related-recipes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
+/* Related Recipes - Second set removed, see main styles above */
 
 .related-recipe-card {
   position: relative;
@@ -1708,6 +1938,12 @@ export default {
   .recipe-info-grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+.review-count {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #666 !important;
 }
 </style>
 

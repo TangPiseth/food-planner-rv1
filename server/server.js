@@ -6,6 +6,7 @@ const connectDB = require('./db');
 const authRoutes = require('./authRoutes');
 const mealPlanRoutes = require('./mealPlanRoutes');
 const groceryListRoutes = require('./groceryListRoutes');
+const reviewRoutes = require('./reviewRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/meal-plans', mealPlanRoutes);
 app.use('/api/grocery-lists', groceryListRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

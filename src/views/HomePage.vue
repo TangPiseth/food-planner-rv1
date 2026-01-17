@@ -339,19 +339,50 @@ export default {
 @media (max-width: 768px) {
   .fixed-bg-section {
     height: auto;
-    min-height: 50vh;
+    min-height: auto;
     background-attachment: scroll;
-    padding: 40px 0;
+    padding: 50px 0;
   }
   
   .fixed-bg-section .content {
-    padding: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .fixed-bg-section h2 {
+    font-size: 1.8rem !important;
+  }
+  
+  .fixed-bg-section p.lead {
+    font-size: 1rem !important;
   }
   
   .fixed-bg-section .row .col-4 {
     flex: 0 0 100%;
     max-width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .fixed-bg-section .card-title {
+    font-size: 2rem !important;
+  }
+  
+  .fixed-bg-section .card-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .fixed-bg-section {
+    padding: 40px 0;
+  }
+  
+  .fixed-bg-section h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .fixed-bg-section .card-title {
+    font-size: 1.8rem !important;
   }
 }
 
@@ -363,7 +394,9 @@ export default {
 /* Hero Banner - Responsive */
 @media (max-width: 768px) {
   .headmast {
-    height: 80vh !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    padding: 60px 0 40px;
   }
   
   .banner-txt {
@@ -371,11 +404,43 @@ export default {
   }
   
   .banner-txt h2 {
-    font-size: 1.5rem !important;
+    font-size: 1.3rem !important;
+    padding: 10px 0 !important;
   }
   
   .banner-txt h1 {
-    font-size: 2.5rem !important;
+    font-size: 2.8rem !important;
+    line-height: 1.2;
+  }
+  
+  .banner-txt p {
+    font-size: 1.1rem !important;
+    line-height: 1.6;
+    padding: 0 10px;
+  }
+  
+  .banner-txt hr {
+    width: 70% !important;
+    margin: 15px auto;
+  }
+  
+  .scroll-indicator {
+    margin-top: 30px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .headmast {
+    min-height: 100vh !important;
+    padding: 50px 0 30px;
+  }
+  
+  .banner-txt h2 {
+    font-size: 1.1rem !important;
+  }
+  
+  .banner-txt h1 {
+    font-size: 2.2rem !important;
   }
   
   .banner-txt p {
@@ -625,6 +690,7 @@ export default {
 @media (max-width: 768px) {
   .wcu-content {
     padding: 0;
+    text-align: center;
   }
 
   .wcu-title {
@@ -636,27 +702,69 @@ export default {
   }
 
   .wcu-glass-image-card {
-    height: 300px;
+    height: 280px;
+    margin-bottom: 30px;
+  }
+
+  .wcu-feature-item {
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    font-size: 1.3rem;
+  }
+
+  .feature-content h4 {
+    font-size: 1.1rem;
+  }
+
+  .feature-content p {
+    font-size: 0.95rem;
+  }
+  
+  .why-choose-us {
+    padding: 50px 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .wcu-title {
+    font-size: 1.5rem;
+  }
+
+  .wcu-subtitle {
+    font-size: 0.95rem;
     margin-bottom: 24px;
+  }
+
+  .wcu-glass-image-card {
+    height: 240px;
   }
 
   .wcu-feature-item {
     padding: 16px;
-    gap: 12px;
+    gap: 14px;
+    flex-direction: column;
+    text-align: center;
   }
 
   .feature-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
+    width: 55px;
+    height: 55px;
+    min-width: 55px;
+    font-size: 1.4rem;
   }
 
   .feature-content h4 {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .feature-content p {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -693,6 +801,48 @@ export default {
 .customer-rating .fa-star-half-alt {
   color: #ffc107;
   /* Star color */
+}
+
+/* Customer Rating Responsive */
+@media (max-width: 768px) {
+  .customer-rating {
+    padding: 50px 20px;
+    background-attachment: scroll;
+  }
+  
+  .customer-rating h2 {
+    font-size: 1.8rem !important;
+  }
+  
+  .customer-rating p.fs-5 {
+    font-size: 1rem !important;
+    line-height: 1.6;
+    padding: 0 10px;
+  }
+  
+  .customer-rating .fa-star,
+  .customer-rating .fa-star-half-alt {
+    font-size: 1.5rem !important;
+  }
+  
+  .rating-glass-link {
+    padding: 14px 32px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-rating {
+    padding: 40px 15px;
+  }
+  
+  .customer-rating h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .customer-rating p.fs-5 {
+    font-size: 0.95rem !important;
+  }
 }
 
 /* Rating Glass Link */
@@ -979,18 +1129,66 @@ export default {
 
 @media (max-width: 768px) {
   .service-glass-card {
-    min-height: 340px;
+    min-height: 320px;
+  }
+
+  .service-glass-card .service-content {
+    padding: 28px 24px;
+    gap: 12px;
+  }
+
+  .service-icon-wrapper {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 12px;
+  }
+
+  .service-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .service-title {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+
+  .service-text {
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  .service-btn {
+    padding: 12px 32px;
+    font-size: 1rem;
+  }
+  
+  .services-section h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  .services-section p.lead {
+    font-size: 1rem !important;
+  }
+  
+  .services-section p.lead br {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-glass-card {
+    min-height: 300px;
   }
 
   .service-glass-card .service-content {
     padding: 24px 20px;
-    gap: 10px;
   }
 
   .service-icon-wrapper {
-    width: 85px;
-    height: 85px;
-    margin-bottom: 10px;
+    width: 80px;
+    height: 80px;
   }
 
   .service-icon {
@@ -999,18 +1197,24 @@ export default {
   }
 
   .service-title {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
+    font-size: 1.2rem;
   }
 
   .service-text {
-    font-size: 0.8rem;
-    margin-bottom: 12px;
+    font-size: 0.9rem;
   }
 
   .service-btn {
-    padding: 8px 24px;
-    font-size: 0.85rem;
+    padding: 10px 28px;
+    font-size: 0.95rem;
+  }
+  
+  .services-section h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  .services-section .mb-5 {
+    margin-bottom: 2rem !important;
   }
 }
 
@@ -1211,8 +1415,12 @@ export default {
 
 /* Responsive Design for Newsletter */
 @media (max-width: 768px) {
+  .newsletter-section {
+    padding: 50px 0;
+  }
+  
   .newsletter-content {
-    padding: 24px;
+    padding: 24px 20px;
   }
 
   .newsletter-title {
@@ -1221,6 +1429,7 @@ export default {
 
   .newsletter-subtitle {
     font-size: 1rem;
+    margin-bottom: 24px;
   }
 
   .newsletter-input-group {
@@ -1231,10 +1440,35 @@ export default {
   .newsletter-input-wrapper {
     max-width: 100%;
     flex-basis: 100%;
+    height: 54px;
+  }
+  
+  .newsletter-input {
+    font-size: 1rem;
   }
 
   .newsletter-btn {
     width: 100%;
+    height: 54px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .newsletter-section {
+    padding: 40px 0;
+  }
+  
+  .newsletter-content {
+    padding: 20px 15px;
+  }
+
+  .newsletter-title {
+    font-size: 1.5rem;
+  }
+
+  .newsletter-subtitle {
+    font-size: 0.95rem;
   }
 }
 
@@ -1303,12 +1537,34 @@ export default {
 
 @media (max-width: 768px) {
   .mouse {
-    width: 22px;
-    height: 36px;
+    width: 24px;
+    height: 38px;
   }
   
   .scroll-text {
     font-size: 0.8rem;
+    letter-spacing: 1.5px;
+  }
+  
+  .scroll-indicator {
+    margin-top: 25px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mouse {
+    width: 22px;
+    height: 34px;
+  }
+  
+  .mouse-wheel {
+    width: 3px;
+    height: 6px;
+    margin-top: 6px;
+  }
+  
+  .scroll-text {
+    font-size: 0.75rem;
   }
 }
 </style>
