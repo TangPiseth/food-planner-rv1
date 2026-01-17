@@ -9,9 +9,10 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - 🛒 **Grocery Lists** - Auto-generate shopping lists from meal plans
 - 📝 **Blog Section** - Read and share food-related articles
 - 👤 **User Authentication** - Secure login and registration with JWT
-- ⭐ **Recipe Reviews** - Rate and review recipes
+- ⭐ **Recipe Reviews** - Rate, review, edit, and delete your recipe reviews
+- 💬 **Review System** - Full CRUD operations with real-time rating aggregation
 - 📱 **Responsive Design** - Works on desktop, tablet, and mobile
-- 🔍 **Advanced Filters** - Filter recipes by category, ingredients, and more
+- 🔍 **Advanced Filters** - Filter recipes by category, cuisine, and search
 
 ## 🛠️ Tech Stack
 
@@ -31,7 +32,7 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - **Mongoose** - MongoDB object modeling
 - **JWT** - JSON Web Tokens for authentication
 - **Bcrypt** - Password hashing
-- **Firebase** - Authentication and cloud services
+- **CORS** - Cross-origin resource sharing
 
 ## 📋 Prerequisites
 
@@ -73,11 +74,6 @@ PORT=3001
 
 # JWT Secret (use a strong, random string in production)
 JWT_SECRET=your_jwt_secret_key_here
-
-# Firebase Configuration (if using Firebase)
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
 ```
 
 **Important:** Never commit your `.env` file to version control. It's already included in `.gitignore`.
@@ -94,10 +90,10 @@ If using MongoDB locally:
    sudo systemctl start mongod
    ```
 
-2. (Optional) Seed the database with sample data:
+2. (Optional) Seed the database with sample reviews:
    ```bash
-   # Add your seed script here if available
-   npm run seed
+   # Seed 29,700+ reviews across recipes
+   node server/seedReviews.js
    ```
 
 ## 🎮 Running the Application
@@ -146,19 +142,31 @@ food-planner-rv1/
 │   ├── models/         # MongoDB models
 │   │   ├── User.js
 │   │   ├── MealPlan.js
-│   │   └── GroceryList.js
+│   │   ├── GroceryList.js
+│   │   └── Review.js
 │   ├── authRoutes.js   # Authentication routes
 │   ├── mealPlanRoutes.js
 │   ├── groceryListRoutes.js
+│   ├── reviewRoutes.js # Review CRUD routes
+│   ├── seedReviews.js  # Review seeding script
 │   ├── db.js           # Database connection
 │   └── server.js       # Express server setup
 ├── src/                # Frontend source code
 │   ├── assets/         # Static assets (CSS, images)
 │   ├── components/     # Vue components
 │   │   ├── blogs/      # Blog-related components
-│   │   └── recipes/    # Recipe-related components
+│   │   ├── recipes/    # Recipe-related components
+│   │   ├── RecipeReviewForm.vue
+│   │   ├── RecipeReviews.vue
+│   │   ├── Navbar.vue
+│   │   └── Footer.vue
 │   ├── router/         # Vue Router configuration
 │   ├── services/       # API service modules
+│   │   ├── authService.js
+│   │   ├── recipeService.js
+│   │   ├── reviewService.js
+│   │   ├── mealPlanService.js
+│   │   └── groceryListService.js
 │   ├── views/          # Page components
 │   ├── App.vue         # Root component
 │   └── main.js         # Application entry point
@@ -188,6 +196,15 @@ food-planner-rv1/
 - `POST /api/grocery-lists` - Create grocery list (requires auth)
 - `PUT /api/grocery-lists/:id` - Update grocery list (requires auth)
 - `DELETE /api/grocery-lists/:id` - Delete grocery list (requires auth)
+
+### Reviews
+- `GET /api/reviews/recipe/:recipeId` - Get all reviews for a recipe (public)
+- `GET /api/reviews/rating/:recipeId` - Get average rating for a recipe (public)
+- `POST /api/reviews/ratings/batch` - Get ratings for multiple recipes (public)
+- `POST /api/reviews` - Create a review (requires auth)
+- `PUT /api/reviews/:id` - Update a review (requires auth)
+- `DELETE /api/reviews/:id` - Delete a review (requires auth)
+- `GET /api/reviews/user` - Get current user's reviews (requires auth)
 
 ### Health Check
 - `GET /api/health` - Server health check
@@ -247,7 +264,7 @@ This project is private and proprietary.
 
 ## 👨‍💻 Developer
 
-Developed with ❤️ for better meal planning
+Developed with Elite & Piseth for better meal planning
 
 ## 📞 Support
 
