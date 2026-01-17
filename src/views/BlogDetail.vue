@@ -228,4 +228,66 @@ ul.list-unstyled li a:hover {
 .page-navigation .next-page .page-info .date-details span.create-date {
   font-weight: 500;
 }
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .display-4 {
+    font-size: 2rem !important;
+  }
+  
+  .card-body {
+    padding: 2rem 1.5rem !important;
+  }
+  
+  .lead {
+    font-size: 1rem !important;
+  }
+  
+  .comments h3 {
+    font-size: 1.3rem;
+  }
+  
+  .mt-5 {
+    margin-top: 2rem !important;
+  }
+  
+  .row .col-sm-6 {
+    margin-bottom: 15px;
+  }
+  
+  blockquote {
+    padding: 1.5rem !important;
+  }
+  
+  .list-unstyled li {
+    display: block !important;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .display-4 {
+    font-size: 1.75rem !important;
+  }
+  
+  .card-body {
+    padding: 1.5rem 1rem !important;
+  }
+  
+  .row.border-top .col-sm-8,
+  .row.border-top .col-sm-4 {
+    text-align: center !important;
+    margin-bottom: 15px;
+  }
+  
+  .list-unstyled.d-flex {
+    justify-content: center !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .display-4 {
+    font-size: 2.5rem !important;
+  }
+}
 </style>

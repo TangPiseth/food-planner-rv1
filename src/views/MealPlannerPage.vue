@@ -129,6 +129,7 @@
 <script>
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { getMealPlans, createMealPlan, deleteMealPlan } from '@/services/mealPlanService';
 
 export default {
   name: "MealPlanner",
@@ -140,6 +141,7 @@ export default {
         date: "",
       },
       meals: [],
+      loading: false,
     };
   },
   computed: {
@@ -152,19 +154,52 @@ export default {
     },
   },
   methods: {
-    addMeal() {
+    async addMeal() {
       if (this.newMeal.name && this.newMeal.time && this.newMeal.date) {
-        this.meals.push({ ...this.newMeal });
-        this.newMeal = { name: "", time: "", date: "" };
+        try {
+          const mealPlan = await createMealPlan(this.newMeal);
+          this.meals.push(mealPlan);
+          this.newMeal = { name: "", time: "", date: "" };
+        } catch (error) {
+          console.error('Error adding meal:', error);
+          if (error.response?.status === 401) {
+            alert('Please login to save meal plans');
+            this.$router.push('/login');
+          } else {
+            alert('Error adding meal. Please try again.');
+          }
+        }
       }
     },
-    removeMeal(date, index) {
-      this.groupedMeals[date].splice(index, 1);
-      this.meals = Object.values(this.groupedMeals).flat();
+    async removeMeal(date, index) {
+      const meal = this.groupedMeals[date][index];
+      try {
+        await deleteMealPlan(meal._id);
+        this.groupedMeals[date].splice(index, 1);
+        this.meals = Object.values(this.groupedMeals).flat();
+      } catch (error) {
+        console.error('Error removing meal:', error);
+        alert('Error removing meal. Please try again.');
+      }
     },
+    async loadMealPlans() {
+      this.loading = true;
+      try {
+        this.meals = await getMealPlans();
+      } catch (error) {
+        console.error('Error loading meal plans:', error);
+        if (error.response?.status === 401) {
+          // User not logged in, that's okay
+          this.meals = [];
+        }
+      } finally {
+        this.loading = false;
+      }
+    }
   },
   mounted() {
     AOS.init({ duration: 1000 });
+    this.loadMealPlans();
   },
 };
 </script>
@@ -648,6 +683,32 @@ export default {
   .empty-state p {
     font-size: 1rem;
   }
+  
+  .meal-planner-hero h1 {
+    font-size: 2rem !important;
+  }
+  
+  .meal-planner-hero p {
+    font-size: 1rem !important;
+  }
+  
+  .breadcrumb-section {
+    padding: 15px 0;
+  }
+  
+  .meal-planner-section {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  
+  .meal-form-glass-card h3 {
+    font-size: 1.3rem;
+  }
+  
+  .meal-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 576px) {
@@ -665,6 +726,15 @@ export default {
 
   .empty-state p {
     font-size: 0.95rem;
+  }
+  
+  .meal-planner-hero {
+    padding: 30px 0 !important;
+  }
+  
+  .col-lg-8, .col-md-10, .col-sm-12 {
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }
 </style>

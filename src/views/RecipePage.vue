@@ -202,5 +202,46 @@ body {
   .hero {
     padding: 40px 20px;
   }
+  
+  .breadcrumb-section {
+    padding: 15px 0;
+  }
+  
+  .recipe-hero-section {
+    padding: 20px 0;
+  }
+  
+  .recipe-content-section {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  
+  .col-lg-9 {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .pagination {
+    margin-top: 25px;
+  }
+  
+  .page-link {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.1rem;
+  }
+  
+  .hero {
+    padding: 50px 20px;
+  }
 }
 </style>

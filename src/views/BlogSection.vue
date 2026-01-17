@@ -64,5 +64,45 @@
   .bg-white {
     background-color: #ffffff !important;
   }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .display-4 {
+      font-size: 2rem !important;
+    }
+    
+    .lead {
+      font-size: 1rem !important;
+    }
+    
+    .py-5 {
+      padding-top: 2rem !important;
+      padding-bottom: 2rem !important;
+    }
+    
+    .bg-white {
+      padding: 15px 0 !important;
+    }
+    
+    .mb-5 {
+      margin-bottom: 2rem !important;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .display-4 {
+      font-size: 1.75rem !important;
+    }
+    
+    .lead {
+      font-size: 0.95rem !important;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .display-4 {
+      font-size: 2.5rem !important;
+    }
+  }
   </style>
   

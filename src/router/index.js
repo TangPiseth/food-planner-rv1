@@ -8,6 +8,9 @@ import ContactPage from '../views/ContactPage.vue';
 import AboutPage from '../views/AboutPage.vue';
 import FaqPage from '@/views/FaqPage.vue';
 import TermsPage from '@/views/TermsPage.vue';
+import LoginPage from '@/views/LoginPage.vue';
+import RegisterPage from '@/views/RegisterPage.vue';
+import ProfilePage from '@/views/ProfilePage.vue';
 // import BlogPage from '@/views/BlogSection.vue';
 // import BlogDetail from '@/views/BlogDetail.vue';
 
@@ -15,13 +18,31 @@ const routes = [
   { path: '/', redirect: '/home-page' },
   { path: '/home-page', name: 'Home', component: HomePage },
   { path: '/recipes', name: 'Recipes', component: RecipePage },
-  { path: '/meal-planner', name: 'MealPlanner', component: MealPlannerPage },
-  { path: '/grocery-list', name: 'GroceryList', component: GroceryListPage },
+  { 
+    path: '/meal-planner', 
+    name: 'MealPlanner', 
+    component: MealPlannerPage,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/grocery-list', 
+    name: 'GroceryList', 
+    component: GroceryListPage,
+    meta: { requiresAuth: true }
+  },
   { path: '/recipes/:id', name: 'RecipeDetail', component: RecipeDetail, props: true },
   { path: '/contact', name: 'Contact', component: ContactPage },
   { path: '/about', name: 'About', component: AboutPage },
   { path: '/faq', name: 'Faq', component: FaqPage },
   { path: '/terms', name: 'Terms', component: TermsPage },
+  { path: '/login', name: 'Login', component: LoginPage },
+  { path: '/register', name: 'Register', component: RegisterPage },
+  { 
+    path: '/profile', 
+    name: 'Profile', 
+    component: ProfilePage,
+    meta: { requiresAuth: true }
+  },
   // { path: '/blog', name: 'Blog', component: BlogPage },
   // { path: '/blog/:id', name: 'BlogDetail', component: BlogDetail, props: true },
   //{ path: '/:catchAll(.*)', redirect: '/home-page' }, // catch all routes and redirect to home page.
@@ -36,6 +57,22 @@ const router = createRouter({
     } else {
       return { top: 0, behavior: 'smooth' };
     }
+  }
+});
+
+// Navigation guard to protect routes
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const token = localStorage.getItem('authToken');
+  
+  if (requiresAuth && !token) {
+    // Redirect to login if route requires auth and user is not logged in
+    next({
+      name: 'Login',
+      query: { redirect: to.fullPath } // Save the intended destination
+    });
+  } else {
+    next();
   }
 });
 

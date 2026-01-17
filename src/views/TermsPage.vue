@@ -780,4 +780,71 @@ export default {
     font-size: 14px;
   }
 }
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .terms-hero-section {
+    padding: 40px 0;
+  }
+  
+  .hero-content {
+    padding: 20px;
+  }
+  
+  .back-btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+  
+  .toc-title {
+    font-size: 1.3rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
+  
+  .section-text {
+    font-size: 0.95rem;
+  }
+  
+  .terms-content-section {
+    padding: 30px 0;
+  }
+  
+  .highlight-box {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .terms-hero-section {
+    padding: 30px 0;
+  }
+  
+  .section-number {
+    font-size: 1.5rem;
+  }
+  
+  .toc-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero-title {
+    font-size: 2.5rem !important;
+  }
+}
 </style>

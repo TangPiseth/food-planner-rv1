@@ -452,4 +452,66 @@ export default {
         height: 18px;
     }
 }
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.2rem !important;
+  }
+  
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .faq-hero-section {
+    padding: 30px 0 !important;
+  }
+  
+  .faq-content-section {
+    padding-top: 30px !important;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .section-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .faq-question {
+    font-size: 0.95rem;
+  }
+  
+  .faq-icon {
+    font-size: 1.2rem;
+  }
+  
+  .glass-faq-item {
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-title {
+    font-size: 1.8rem !important;
+  }
+  
+  .faq-hero-section {
+    padding: 20px 0 !important;
+  }
+  
+  .faq-question {
+    font-size: 0.9rem;
+  }
+  
+  .glass-content {
+    padding: 15px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero-title {
+    font-size: 2.5rem !important;
+  }
+}
 </style>

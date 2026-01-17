@@ -761,6 +761,44 @@ export default {
     .form-title {
         font-size: 1.5rem;
     }
+    
+    .breadcrumb-section {
+        padding: 30px 0 !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .contact-info-section {
+        padding-top: 30px !important;
+    }
+    
+    .glass-card {
+        margin-bottom: 20px;
+    }
+    
+    .glass-card h3 {
+        font-size: 1.1rem;
+    }
+    
+    .glass-card p {
+        font-size: 0.9rem;
+    }
+    
+    .contact-form-section {
+        padding-top: 30px !important;
+        padding-bottom: 30px !important;
+    }
+    
+    .glass-accordion .accordion-button {
+        font-size: 0.9rem;
+        padding: 12px;
+    }
+    
+    .glass-accordion-body {
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 576px) {
@@ -782,6 +820,25 @@ export default {
 
     .form-control-glass {
         font-size: 0.9rem;
+    }
+    
+    .breadcrumb-section {
+        padding: 20px 0 !important;
+    }
+    
+    .contact-info-section .col-lg-4,
+    .contact-info-section .col-md-6 {
+        margin-bottom: 15px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .hero-title {
+        font-size: 2.5rem !important;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
     }
 }
 

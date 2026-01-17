@@ -88,6 +88,7 @@
 
 <script>
 import GroceryList from '@/components/GroceryList.vue';
+import { getGroceryLists, createGroceryList, deleteGroceryList } from '@/services/groceryListService';
 
 export default {
   components: {
@@ -98,24 +99,60 @@ export default {
       newListName: '',
       newListDate: '',
       groceryLists: [],
+      loading: false,
     };
   },
   methods: {
-    addNewList() {
+    async addNewList() {
       if (this.newListName && this.newListDate) {
-        this.groceryLists.push({
-          name: this.newListName,
-          date: this.newListDate,
-          items: [],
-        });
-        this.newListName = '';
-        this.newListDate = '';
+        try {
+          const newList = await createGroceryList({
+            name: this.newListName,
+            date: this.newListDate,
+            items: []
+          });
+          this.groceryLists.unshift(newList);
+          this.newListName = '';
+          this.newListDate = '';
+        } catch (error) {
+          console.error('Error adding list:', error);
+          if (error.response?.status === 401) {
+            alert('Please login to save grocery lists');
+            this.$router.push('/login');
+          } else {
+            alert('Error adding list. Please try again.');
+          }
+        }
       }
     },
-    removeList(index) {
-      this.groceryLists.splice(index, 1);
+    async removeList(index) {
+      try {
+        const list = this.groceryLists[index];
+        await deleteGroceryList(list._id);
+        this.groceryLists.splice(index, 1);
+      } catch (error) {
+        console.error('Error removing list:', error);
+        alert('Error removing list. Please try again.');
+      }
     },
+    async loadGroceryLists() {
+      this.loading = true;
+      try {
+        this.groceryLists = await getGroceryLists();
+      } catch (error) {
+        console.error('Error loading grocery lists:', error);
+        if (error.response?.status === 401) {
+          // User not logged in, that's okay
+          this.groceryLists = [];
+        }
+      } finally {
+        this.loading = false;
+      }
+    }
   },
+  mounted() {
+    this.loadGroceryLists();
+  }
 };
 </script>
 
@@ -434,6 +471,32 @@ export default {
   .empty-state p {
     font-size: 1rem;
   }
+  
+  .grocery-hero-section h1 {
+    font-size: 2rem !important;
+  }
+  
+  .grocery-hero-section p {
+    font-size: 1rem !important;
+  }
+  
+  .breadcrumb-section {
+    padding: 15px 0;
+  }
+  
+  .grocery-section {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  
+  .grocery-form-glass-card h3 {
+    font-size: 1.3rem;
+  }
+  
+  .grocery-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 576px) {
@@ -451,6 +514,15 @@ export default {
 
   .empty-state p {
     font-size: 0.95rem;
+  }
+  
+  .grocery-hero-section {
+    padding: 30px 0 !important;
+  }
+  
+  .col-lg-8, .col-md-10, .col-sm-12 {
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }
 </style>

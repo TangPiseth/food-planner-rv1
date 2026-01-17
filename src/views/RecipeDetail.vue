@@ -1,5 +1,15 @@
 <template>
   <div class="recipe-detail-page" data-aos="fade-up">
+    <!-- Toast Notification - at root level for proper z-index -->
+    <teleport to="body">
+      <transition name="toast-fade">
+        <div v-if="showToast" class="toast-notification">
+          <i class="fa-solid fa-check-circle"></i>
+          <span>{{ toastMessage }}</span>
+        </div>
+      </transition>
+    </teleport>
+
     <!-- SVG Filters -->
     <svg style="display: none">
       <filter id="glass-distortion-recipe-hero">
@@ -16,8 +26,26 @@
       </filter>
     </svg>
 
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-container">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading recipe details...</p>
+    </div>
+
+    <!-- Recipe Not Found -->
+    <div v-else-if="!recipe" class="not-found-container">
+      <div class="container text-center py-5">
+        <i class="fa-solid fa-utensils fa-3x text-muted mb-3"></i>
+        <h2>Recipe Not Found</h2>
+        <p class="text-muted">The recipe you're looking for doesn't exist or has been removed.</p>
+        <button @click="goBack" class="btn btn-success mt-3">Go Back</button>
+      </div>
+    </div>
+
     <!-- Hero Section -->
-    <div class="recipe-hero-section" v-if="recipe">
+    <div class="recipe-hero-section" v-else-if="recipe">
       <div class="hero-gradient-bg"></div>
       <div class="container">
         <button @click="goBack" class="back-btn">
@@ -115,9 +143,14 @@
             <div class="glass-overlay"></div>
             <div class="glass-specular"></div>
             <div class="section-content">
-              <h3 class="section-title">
-                <i class="fa-solid fa-leaf"></i> Ingredients
-              </h3>
+              <div class="section-title-with-button">
+                <h3 class="section-title">
+                  <i class="fa-solid fa-leaf"></i> Ingredients
+                </h3>
+                <button class="add-to-list-btn" @click="addIngredientsToNewList">
+                  <i class="fa-solid fa-cart-plus"></i> Add to Grocery List
+                </button>
+              </div>
               <div class="ingredients-list">
                 <div class="ingredient-item" v-for="(ingredient, index) in recipe.ingredients" :key="index">
                   <input class="ingredient-checkbox" type="checkbox" :id="'ingredient-' + index" />
@@ -210,15 +243,18 @@
         </div>
 
         <!-- Review Components -->
-        <RecipeReviewForm />
-        <RecipeReviews :recipeId="recipe.id" />
+        <div class="reviews-container">
+          <RecipeReviewForm :recipeId="recipe.id" @review-submitted="handleNewReview" />
+          <RecipeReviews ref="reviewsComponent" :recipeId="recipe.id" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { fetchRecipe } from "@/services/recipeService";
+import { fetchRecipe, getSuggestedRecipes } from "@/services/recipeService";
+import { createGroceryList, addRecipeToList, isAuthenticated } from "@/services/groceryListService";
 import RecipeReviewForm from '@/components/RecipeReviewForm.vue';
 import RecipeReviews from '@/components/RecipeReviews.vue'
 
@@ -238,6 +274,9 @@ export default {
     return {
       recipe: null,
       suggestedRecipes: [],
+      loading: false,
+      showToast: false,
+      toastMessage: '',
     };
   },
 
@@ -248,34 +287,20 @@ export default {
       handler: async function(newId) {
         // Reset the current recipe
         this.recipe = null;
+        this.loading = true;
         
-        // Fetch new recipe
-        this.recipe = await fetchRecipe(newId);
+        try {
+          // Fetch new recipe from API
+          this.recipe = await fetchRecipe(newId);
 
-        // Get suggested recipes
-        const allRecipes = await Promise.all(
-          Array.from({ length: 20 }, (_, i) => fetchRecipe((i + 1).toString()))
-        );
-
-        // Filter out current recipe and get suggestions
-        this.suggestedRecipes = allRecipes
-          .filter(r => r.id !== newId) // Remove current recipe
-          .filter(r =>
-            r.type === this.recipe.type || // Same type
-            r.course === this.recipe.course // Or same course
-          )
-          .sort(() => Math.random() - 0.5) // Shuffle
-          .slice(0, 4); // Get first 4
-
-        // If we don't have enough suggestions, add random recipes
-        if (this.suggestedRecipes.length < 4) {
-          const remainingRecipes = allRecipes
-            .filter(r => r.id !== newId)
-            .filter(r => !this.suggestedRecipes.find(sr => sr.id === r.id))
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 4 - this.suggestedRecipes.length);
-
-          this.suggestedRecipes = [...this.suggestedRecipes, ...remainingRecipes];
+          if (this.recipe) {
+            // Get suggested recipes based on category/cuisine
+            this.suggestedRecipes = await getSuggestedRecipes(this.recipe, 4);
+          }
+        } catch (error) {
+          console.error('Error fetching recipe:', error);
+        } finally {
+          this.loading = false;
         }
       }
     }
@@ -283,14 +308,90 @@ export default {
 
   // Remove the mounted hook since we're using the watcher now
   methods: {
+    handleNewReview(reviewData) {
+      // Pass the new review to the reviews component
+      if (this.$refs.reviewsComponent) {
+        this.$refs.reviewsComponent.addReview(reviewData);
+      }
+    },
     goBack() {
       this.$router.go(-1);
     },
+    async addIngredientsToNewList() {
+      // Check if user is authenticated first
+      if (!isAuthenticated()) {
+        this.toastMessage = 'Please login to add ingredients to grocery list';
+        this.showToast = true;
+        setTimeout(() => {
+          this.showToast = false;
+          this.$router.push('/login');
+        }, 2000);
+        return;
+      }
+
+      try {
+        // Create a new grocery list with the recipe name
+        const newList = await createGroceryList({
+          name: this.recipe.title,
+          date: new Date().toISOString(),
+          items: []
+        });
+
+        // Parse ingredients into items
+        const items = this.recipe.ingredients.map(ingredient => {
+          return {
+            name: ingredient,
+            quantity: 1,
+            unit: 'pcs'
+          };
+        });
+
+        // Add ingredients to the newly created list
+        await addRecipeToList(newList._id, items);
+        
+        // Show success toast
+        this.toastMessage = `${this.recipe.title} added to your grocery list!`;
+        this.showToast = true;
+
+        // Hide toast after 2 seconds
+        setTimeout(() => {
+          this.showToast = false;
+        }, 2000);
+
+      } catch (error) {
+        console.error('Error adding ingredients:', error);
+        if (error.response?.status === 401) {
+          this.toastMessage = 'Please login to add ingredients';
+          this.showToast = true;
+          setTimeout(() => {
+            this.showToast = false;
+            this.$router.push('/login');
+          }, 2000);
+        } else {
+          this.toastMessage = 'Error adding ingredients. Please try again.';
+          this.showToast = true;
+          setTimeout(() => {
+            this.showToast = false;
+          }, 2000);
+        }
+      }
+    }
   },
 };
 </script>
 
 <style scoped>
+/* Loading and Not Found States */
+.loading-container,
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding-top: 80px;
+}
+
 /* Hero Section */
 .recipe-detail-page {
   padding-top: 80px;
@@ -385,7 +486,8 @@ export default {
 }
 
 .recipe-image-container {
-  margin-bottom: 48px;
+  max-width: 600px;
+  margin: 0 auto 48px;
   border-radius: 32px;
   overflow: hidden;
 }
@@ -1431,5 +1533,228 @@ export default {
   .recipe-details-text {
     font-size: 13px;
   }
+}
+/* Ingredients Section Button */
+.section-title-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.add-to-list-btn {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+.add-to-list-btn:hover {
+  background: linear-gradient(135deg, #1b5e20 0%, #0d3817 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.3);
+}
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.toast-notification i {
+  font-size: 20px;
+}
+
+/* Reviews Container */
+.reviews-container {
+  max-width: 800px;
+  margin: 60px auto 40px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .recipe-title {
+    font-size: 2rem !important;
+  }
+  
+  .reviews-container {
+    margin: 40px auto 20px;
+  }
+  
+  .recipe-hero-section {
+    padding: 40px 0;
+  }
+  
+  .hero-content {
+    padding: 20px;
+  }
+  
+  .recipe-image-container {
+    margin-bottom: 30px;
+  }
+  
+  .recipe-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+  
+  .info-card h4 {
+    font-size: 0.9rem;
+  }
+  
+  .info-card p {
+    font-size: 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-title-with-button {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .add-to-list-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .back-btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+  
+  .recipe-content-section {
+    padding: 30px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .recipe-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .recipe-hero-section {
+    padding: 30px 0;
+  }
+  
+  .recipe-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recipe-badge {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+  }
+  
+  .meta-author, .meta-date {
+    font-size: 0.85rem;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .recipe-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .recipe-info-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+</style>
+
+<!-- Global styles for teleported toast -->
+<style>
+.toast-notification {
+  position: fixed !important;
+  bottom: 30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%) !important;
+  color: white !important;
+  padding: 16px 24px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(46, 125, 50, 0.4) !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  animation: toastSlideUp 0.3s ease-out !important;
+}
+
+@keyframes toastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.toast-notification i {
+  font-size: 20px !important;
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
 }
 </style>

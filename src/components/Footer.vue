@@ -161,12 +161,18 @@ export default {
       trendingRecipes: []
     };
   },
-  created() {
+  async created() {
     // Get trending recipes when component is created
-    this.trendingRecipes = getTrendingRecipes(4).map(recipe => ({
-      ...recipe,
-      isNew: this.isNewRecipe(recipe.date) // Add logic to check if recipe is new
-    }));
+    try {
+      const recipes = await getTrendingRecipes(4);
+      this.trendingRecipes = recipes.map(recipe => ({
+        ...recipe,
+        isNew: this.isNewRecipe(recipe.date) // Add logic to check if recipe is new
+      }));
+    } catch (error) {
+      console.error('Error fetching trending recipes:', error);
+      this.trendingRecipes = [];
+    }
   },
   methods: {
     isNewRecipe(date) {
@@ -326,6 +332,43 @@ export default {
 
     .social-text {
         display: none;
+    }
+    
+    .social-media-section {
+        flex-direction: column;
+        padding: 20px !important;
+        gap: 15px;
+    }
+    
+    .footer-links-section .col-md-3,
+    .footer-links-section .col-md-2,
+    .footer-links-section .col-lg-2,
+    .footer-links-section .col-lg-3,
+    .footer-links-section .col-lg-4,
+    .footer-links-section .col-xl-2,
+    .footer-links-section .col-xl-3 {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    
+    .footer-links-section h6 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+    
+    .footer-links-section p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .social-media-section {
+        padding: 25px !important;
+    }
+    
+    .footer-links-section .col-md-3,
+    .footer-links-section .col-md-2 {
+        margin-bottom: 20px;
     }
 }
 
