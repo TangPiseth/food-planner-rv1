@@ -14,6 +14,107 @@
                 <p class="fw-semibold">Username: {{ currentUser?.username }}</p>
               </div>
 
+              <!-- My Reviews Section -->
+              <div class="profile-section mb-4">
+                <h4 class="section-title">
+                  <i class="fas fa-star me-2"></i>My Reviews ({{ userReviews.length }})
+                </h4>
+                
+                <!-- Loading state -->
+                <div v-if="reviewsLoading" class="text-center py-4">
+                  <div class="spinner-border spinner-border-sm text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="text-muted small mt-2 mb-0">Loading your reviews...</p>
+                </div>
+
+                <!-- Reviews list -->
+                <div v-else-if="userReviews.length > 0" class="reviews-list">
+                  <div 
+                    class="review-item" 
+                    v-for="review in paginatedReviews" 
+                    :key="review.id"
+                  >
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div class="flex-grow-1">
+                        <router-link 
+                          :to="`/recipe/${review.recipeId}`" 
+                          class="review-recipe-title"
+                        >
+                          {{ review.recipeTitle || 'Recipe' }}
+                        </router-link>
+                        <div class="review-meta">
+                          <span class="stars">
+                            <i class="fas fa-star" v-for="n in review.rating" :key="'full-'+n"></i>
+                            <i class="far fa-star" v-for="n in (5 - review.rating)" :key="'empty-'+n"></i>
+                          </span>
+                          <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+                        </div>
+                        <p class="review-comment">{{ review.comment }}</p>
+                      </div>
+                      <div class="review-actions">
+                        <router-link 
+                          :to="`/recipe/${review.recipeId}`" 
+                          class="btn btn-sm btn-outline-primary"
+                          title="View & Edit"
+                        >
+                          <i class="fas fa-edit"></i>
+                        </router-link>
+                        <button 
+                          class="btn btn-sm btn-outline-danger"
+                          @click="confirmDeleteReview(review)"
+                          title="Delete"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Pagination -->
+                  <nav v-if="totalReviewPages > 1" aria-label="Reviews pagination" class="mt-3">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                      <li class="page-item" :class="{ disabled: reviewCurrentPage === 1 }">
+                        <button class="page-link" @click="changeReviewPage(reviewCurrentPage - 1)">Prev</button>
+                      </li>
+                      <li class="page-item" v-for="page in totalReviewPages" :key="page" :class="{ active: page === reviewCurrentPage }">
+                        <button class="page-link" @click="changeReviewPage(page)">{{ page }}</button>
+                      </li>
+                      <li class="page-item" :class="{ disabled: reviewCurrentPage === totalReviewPages }">
+                        <button class="page-link" @click="changeReviewPage(reviewCurrentPage + 1)">Next</button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+
+                <!-- No reviews -->
+                <div v-else class="text-center py-4">
+                  <i class="fas fa-comments fa-2x text-muted mb-2"></i>
+                  <p class="text-muted mb-2">You haven't written any reviews yet.</p>
+                  <router-link to="/recipes" class="btn btn-success btn-sm">
+                    <i class="fas fa-utensils me-2"></i>Browse Recipes
+                  </router-link>
+                </div>
+              </div>
+
+              <!-- Delete Confirmation Modal -->
+              <div v-if="showDeleteModal" class="modal-overlay" @click.self="cancelDelete">
+                <div class="delete-modal">
+                  <div class="modal-icon">
+                    <i class="fas fa-trash-alt"></i>
+                  </div>
+                  <h5 class="fw-bold mb-2">Delete Review?</h5>
+                  <p class="text-muted mb-3">Are you sure you want to delete your review for "{{ reviewToDelete?.recipeTitle }}"?</p>
+                  <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-outline-secondary" @click="cancelDelete">Cancel</button>
+                    <button class="btn btn-danger" @click="deleteReviewConfirmed" :disabled="isDeleting">
+                      <span v-if="isDeleting" class="spinner-border spinner-border-sm me-1"></span>
+                      {{ isDeleting ? 'Deleting...' : 'Delete' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <!-- Update Username Section -->
               <div class="profile-section mb-4">
                 <h4 class="section-title">
@@ -171,6 +272,7 @@
 
 <script>
 import { getCurrentUser, isAuthenticated, updateUsername, updateUserPassword } from '@/services/authService'
+import { getUserReviews, deleteReview } from '@/services/reviewService'
 
 export default {
   name: 'ProfilePage',
@@ -189,7 +291,25 @@ export default {
       usernameError: '',
       usernameSuccess: '',
       passwordError: '',
-      passwordSuccess: ''
+      passwordSuccess: '',
+      // Reviews data
+      userReviews: [],
+      reviewsLoading: false,
+      reviewCurrentPage: 1,
+      reviewsPerPage: 3,
+      showDeleteModal: false,
+      reviewToDelete: null,
+      isDeleting: false
+    }
+  },
+  computed: {
+    totalReviewPages() {
+      return Math.ceil(this.userReviews.length / this.reviewsPerPage);
+    },
+    paginatedReviews() {
+      const start = (this.reviewCurrentPage - 1) * this.reviewsPerPage;
+      const end = start + this.reviewsPerPage;
+      return this.userReviews.slice(start, end);
     }
   },
   async mounted() {
@@ -201,9 +321,81 @@ export default {
     this.currentUser = await getCurrentUser()
     if (!this.currentUser) {
       this.$router.push('/login')
+      return
     }
+
+    // Load user's reviews
+    await this.loadUserReviews()
   },
   methods: {
+    async loadUserReviews() {
+      this.reviewsLoading = true
+      try {
+        const result = await getUserReviews()
+        if (result.success) {
+          this.userReviews = result.reviews
+        } else {
+          console.error('Failed to load reviews:', result.error)
+        }
+      } catch (error) {
+        console.error('Error loading reviews:', error)
+      }
+      this.reviewsLoading = false
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return ''
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    },
+
+    changeReviewPage(page) {
+      if (page >= 1 && page <= this.totalReviewPages) {
+        this.reviewCurrentPage = page
+      }
+    },
+
+    confirmDeleteReview(review) {
+      this.reviewToDelete = review
+      this.showDeleteModal = true
+    },
+
+    cancelDelete() {
+      this.showDeleteModal = false
+      this.reviewToDelete = null
+    },
+
+    async deleteReviewConfirmed() {
+      if (!this.reviewToDelete) return
+
+      this.isDeleting = true
+      try {
+        const result = await deleteReview(this.reviewToDelete.id)
+        if (result.success) {
+          // Remove from local list
+          const index = this.userReviews.findIndex(r => r.id === this.reviewToDelete.id)
+          if (index !== -1) {
+            this.userReviews.splice(index, 1)
+          }
+          // Adjust page if needed
+          if (this.paginatedReviews.length === 0 && this.reviewCurrentPage > 1) {
+            this.reviewCurrentPage--
+          }
+        } else {
+          console.error('Failed to delete review:', result.error)
+        }
+      } catch (error) {
+        console.error('Error deleting review:', error)
+      }
+
+      this.isDeleting = false
+      this.showDeleteModal = false
+      this.reviewToDelete = null
+    },
+
     async handleUpdateUsername() {
       this.usernameLoading = true
       this.usernameError = ''
@@ -372,6 +564,141 @@ export default {
   border-radius: 10px;
   border: none;
 }
+
+/* Reviews Section Styles */
+.reviews-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.review-item {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(46, 125, 50, 0.1);
+  transition: all 0.2s ease;
+}
+
+.review-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.review-recipe-title {
+  font-weight: 600;
+  color: #2e7d32;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.review-recipe-title:hover {
+  text-decoration: underline;
+}
+
+.review-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.review-meta .stars {
+  color: #ffc107;
+}
+
+.review-meta .stars .far {
+  color: #ddd;
+}
+
+.review-date {
+  color: #6c757d;
+}
+
+.review-comment {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.review-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.review-actions .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* Delete Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.delete-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(220, 53, 69, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.modal-icon i {
+  font-size: 1.5rem;
+  color: #dc3545;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: none;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
+}
+
+/* Pagination Styles */
+.page-link {
+  color: #2e7d32;
+  cursor: pointer;
+}
+
+.page-link:hover {
+  color: #1b5e20;
+  background-color: rgba(46, 125, 50, 0.1);
+}
+
+.page-item.active .page-link {
+  background-color: #2e7d32;
+  border-color: #2e7d32;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
   .profile-page {

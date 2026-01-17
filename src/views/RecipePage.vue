@@ -105,7 +105,7 @@ body {
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
   position: relative;
   overflow: hidden;
-  padding: 40px 0;
+  padding: 10px 0;
 }
 
 .recipe-hero-section::before {
@@ -142,7 +142,6 @@ body {
   text-align: center;
   padding: 60px 20px;
   border-radius: 28px;
-  margin-bottom: 30px;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
 

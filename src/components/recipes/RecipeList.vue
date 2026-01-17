@@ -21,15 +21,28 @@
               <div class="search-glass-overlay"></div>
               <div class="search-glass-specular"></div>
             </div>
-            <div class="recipe-sort-wrapper">
-              <select v-model="sortOption" class="recipe-sort-select">
-                <option value="latest">Sort by Latest</option>
-                <option value="popular">Sort by Popular</option>
-                <option value="rating">Sort by Rating</option>
-              </select>
-              <div class="sort-glass-filter"></div>
-              <div class="sort-glass-overlay"></div>
-              <div class="sort-glass-specular"></div>
+            <div class="d-flex gap-3 flex-wrap">
+              <div class="recipe-sort-wrapper">
+                <select v-model="selectedCategory" class="recipe-sort-select" @change="handleCategoryChange">
+                  <option value="">All Categories</option>
+                  <option v-for="category in categories" :key="category.strCategory" :value="category.strCategory">
+                    {{ category.strCategory }}
+                  </option>
+                </select>
+                <div class="sort-glass-filter"></div>
+                <div class="sort-glass-overlay"></div>
+                <div class="sort-glass-specular"></div>
+              </div>
+              <div class="recipe-sort-wrapper">
+                <select v-model="sortOption" class="recipe-sort-select">
+                  <option value="latest">Sort by Latest</option>
+                  <option value="popular">Sort by Popular</option>
+                  <option value="rating">Sort by Rating</option>
+                </select>
+                <div class="sort-glass-filter"></div>
+                <div class="sort-glass-overlay"></div>
+                <div class="sort-glass-specular"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -72,7 +85,7 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import RecipeItem from './RecipeItem.vue';
-import { getMultipleRandomMeals, searchMeals } from '@/services/recipeService';
+import { getMultipleRandomMeals, searchMeals, getCategories, filterByCategory } from '@/services/recipeService';
 
 export default {
     components: {
@@ -82,6 +95,8 @@ export default {
         return {
             searchQuery: '',
             sortOption: 'latest',
+            selectedCategory: '',
+            categories: [],
             currentPage: 1,
             recipes: [],
             loading: false,
@@ -133,6 +148,7 @@ export default {
             this.searchTimeout = setTimeout(async () => {
                 this.loading = true;
                 this.currentPage = 1;
+                this.selectedCategory = ''; // Reset category when searching
                 try {
                     if (this.searchQuery.trim()) {
                         this.recipes = await searchMeals(this.searchQuery);
@@ -145,6 +161,29 @@ export default {
                     this.loading = false;
                 }
             }, 500);
+        },
+        async handleCategoryChange() {
+            this.loading = true;
+            this.currentPage = 1;
+            this.searchQuery = ''; // Reset search when filtering by category
+            try {
+                if (this.selectedCategory) {
+                    this.recipes = await filterByCategory(this.selectedCategory);
+                } else {
+                    this.recipes = await getMultipleRandomMeals(72);
+                }
+            } catch (error) {
+                console.error('Error filtering by category:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        async fetchCategories() {
+            try {
+                this.categories = await getCategories();
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
         }
     },
     watch: {
@@ -154,7 +193,10 @@ export default {
     },
     async mounted() {
         AOS.init();
-        await this.fetchRecipes();
+        await Promise.all([
+            this.fetchRecipes(),
+            this.fetchCategories()
+        ]);
     }
 };
 </script>
