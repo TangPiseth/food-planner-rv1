@@ -125,7 +125,7 @@
                                 <div id="flush-collapseThree" class="accordion-collapse collapse"
                                     data-bs-parent="#accordionFlushExample">
                                     <div class="accordion-body glass-accordion-body">
-                                        Our office is located at 123 Main Street, Richmond Hill, New York 11419.
+                                        Our office is located at Phnom Penh 120201, Cambodia.
                                     </div>
                                 </div>
                             </div>
