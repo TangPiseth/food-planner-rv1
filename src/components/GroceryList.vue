@@ -15,21 +15,24 @@
 
         <div class="list-content">
           <!-- List Header -->
-          <div class="list-header">
+          <div class="list-header" @click="toggleExpanded">
             <div class="list-title-section">
-              <h3 class="list-title">{{ list.name }}</h3>
-              <p class="list-date">{{ formatDate(list.date) }}</p>
+              <div class="title-with-toggle">
+                <i class="fa-solid expand-icon" :class="isExpanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                <h3 class="list-title">{{ list.name }}</h3>
+              </div>
+              <p class="list-date">{{ formatDate(list.date) }} • {{ list.items.length }} items</p>
             </div>
-            <div class="list-actions">
+            <div class="list-actions" @click.stop>
               <button @click="toggleRename" class="action-btn rename-btn" title="Rename list">
                 <i class="fa-solid fa-pen"></i>
               </button>
               <button @click="removeList" class="action-btn delete-btn" title="Delete list">
                 <i class="fa-solid fa-trash"></i>
               </button>
-              <div class="select-all-wrapper">
-                <input class="form-check-input" type="checkbox" v-model="selectAll" @change="toggleAllItems" id="selectAll">
-                <label class="form-check-label" for="selectAll">Mark all</label>
+              <div v-if="isExpanded" class="select-all-wrapper">
+                <input class="form-check-input" type="checkbox" v-model="selectAll" @change="toggleAllItems" :id="'selectAll-' + list._id">
+                <label class="form-check-label" :for="'selectAll-' + list._id">Mark all</label>
               </div>
             </div>
           </div>
@@ -43,55 +46,62 @@
             </div>
           </div>
 
-          <!-- Add Item Section -->
-          <div class="add-item-section">
-            <div class="add-item-form">
-              <input 
-                type="text" 
-                v-model="newItem" 
-                class="glass-input" 
-                placeholder="Add new item" 
-                @keyup.enter="addItem"
-              />
-              <input 
-                type="number" 
-                v-model="newQuantity" 
-                class="glass-input quantity-input" 
-                placeholder="Qty" 
-                min="1" 
-                @keyup.enter="addItem"
-              />
-              <select v-model="newUnit" class="glass-select">
-                <option disabled value="">Unit</option>
-                <option>kg</option>
-                <option>lb</option>
-                <option>pcs</option>
-              </select>
-              <button @click="addItem" class="add-item-btn">Add</button>
-            </div>
-          </div>
-
-          <!-- Items List -->
-          <div v-if="list.items.length > 0" class="items-list">
-            <div v-for="(item, index) in list.items" :key="index" class="grocery-item" :class="{ 'item-checked': item.checked }">
-              <div class="item-content">
-                <input class="item-checkbox" type="checkbox" v-model="item.checked" @change="updateItemStatus(item)" />
-                <span class="item-text" :class="{ 'text-strikethrough': item.checked }">
-                  {{ item.name }} - {{ item.quantity }} {{ item.unit }}
-                </span>
+          <!-- Collapsible Content -->
+          <transition name="expand">
+            <div v-show="isExpanded" class="collapsible-content">
+              <!-- Add Item Section -->
+              <div class="add-item-section">
+                <div class="add-item-form">
+                  <input 
+                    type="text" 
+                    v-model="newItem" 
+                    class="glass-input" 
+                    placeholder="Add new item" 
+                    @keyup.enter="addItem"
+                  />
+                  <input 
+                    type="number" 
+                    v-model="newQuantity" 
+                    class="glass-input quantity-input" 
+                    placeholder="Qty" 
+                    min="1" 
+                    @keyup.enter="addItem"
+                  />
+                  <select v-model="newUnit" class="glass-select">
+                    <option disabled value="">Unit</option>
+                    <option>kg</option>
+                    <option>lb</option>
+                    <option>pcs</option>
+                  </select>
+                  <button @click="addItem" class="add-item-btn">Add</button>
+                </div>
               </div>
-              <button @click="removeItem(index)" class="item-remove-btn">Remove</button>
+
+              <!-- Items List -->
+              <div v-if="list.items.length > 0" class="items-list">
+                <div v-for="(item, index) in list.items" :key="index" class="grocery-item" :class="{ 'item-checked': item.checked }">
+                  <div class="item-content">
+                    <input class="item-checkbox" type="checkbox" v-model="item.checked" @change="updateItemStatus(item)" />
+                    <span class="item-text" :class="{ 'text-strikethrough': item.checked }">
+                      {{ item.name }} - {{ item.quantity }} {{ item.unit }}
+                    </span>
+                  </div>
+                  <button @click="removeItem(index)" class="item-remove-btn">Remove</button>
+                </div>
+              </div>
+              <div v-else class="items-empty">
+                <p class="text-muted">No items added yet</p>
+              </div>
             </div>
-          </div>
-          <div v-else class="items-empty">
-            <p class="text-muted">No items added yet</p>
-          </div>
+          </transition>
         </div>
       </div>
     </div>
   </template>
   
   <script>
+  import { updateGroceryList, addItemToList } from '@/services/groceryListService';
+
   export default {
     props: {
       list: {
@@ -107,36 +117,71 @@
         selectAll: false,
         isRenaming: false,
         newListName: '',
+        isExpanded: false,
       };
     },
     methods: {
-      addItem() {
+      async addItem() {
         if (this.newItem && this.newQuantity > 0 && this.newUnit) {
-          this.list.items.push({ name: this.newItem, quantity: this.newQuantity, unit: this.newUnit, checked: false });
-          this.newItem = '';
-          this.newQuantity = 1;
-          this.newUnit = '';
+          try {
+            const updatedList = await addItemToList(this.list._id, {
+              name: this.newItem,
+              quantity: this.newQuantity,
+              unit: this.newUnit
+            });
+            this.list.items = updatedList.items;
+            this.newItem = '';
+            this.newQuantity = 1;
+            this.newUnit = '';
+          } catch (error) {
+            console.error('Error adding item:', error);
+            alert('Error adding item. Please try again.');
+          }
         }
       },
-      removeItem(index) {
+      async removeItem(index) {
         this.list.items.splice(index, 1);
+        await this.saveList();
       },
-      updateItemStatus(item) {
+      async updateItemStatus(item) {
         if (!item.checked) {
           this.selectAll = false;
         }
+        await this.saveList();
       },
-      toggleAllItems() {
+      async toggleAllItems() {
         this.list.items.forEach(item => (item.checked = this.selectAll));
+        await this.saveList();
       },
       toggleRename() {
         this.isRenaming = !this.isRenaming;
       },
-      renameList() {
+      async renameList() {
         if (this.newListName) {
-          this.list.name = this.newListName;
-          this.newListName = '';
-          this.isRenaming = false;
+          try {
+            const updatedList = await updateGroceryList(this.list._id, {
+              name: this.newListName,
+              date: this.list.date,
+              items: this.list.items
+            });
+            this.list.name = updatedList.name;
+            this.newListName = '';
+            this.isRenaming = false;
+          } catch (error) {
+            console.error('Error renaming list:', error);
+            alert('Error renaming list. Please try again.');
+          }
+        }
+      },
+      async saveList() {
+        try {
+          await updateGroceryList(this.list._id, {
+            name: this.list.name,
+            date: this.list.date,
+            items: this.list.items
+          });
+        } catch (error) {
+          console.error('Error saving list:', error);
         }
       },
       removeList() {
@@ -146,6 +191,9 @@
         if (!date) return 'No date';
         const dateObj = new Date(date);
         return dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      },
+      toggleExpanded() {
+        this.isExpanded = !this.isExpanded;
       },
     },
   };
@@ -212,9 +260,30 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 0;
     padding-bottom: 20px;
     border-bottom: 2px solid rgba(46, 125, 50, 0.15);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin: -32px -32px 0;
+    padding: 32px;
+    border-radius: 28px 28px 0 0;
+  }
+
+  .list-header:hover {
+    background: rgba(46, 125, 50, 0.03);
+  }
+
+  .title-with-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .expand-icon {
+    font-size: 14px;
+    color: #2e7d32;
+    transition: transform 0.3s ease;
   }
 
   .list-title-section {
@@ -651,6 +720,32 @@
     to {
       opacity: 1;
     }
+  }
+
+  /* Collapsible Content */
+  .collapsible-content {
+    padding-top: 24px;
+  }
+
+  /* Expand Transition */
+  .expand-enter-active,
+  .expand-leave-active {
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .expand-enter-from,
+  .expand-leave-to {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+  }
+
+  .expand-enter-to,
+  .expand-leave-from {
+    opacity: 1;
+    max-height: 2000px;
+    padding-top: 24px;
   }
   </style>
   

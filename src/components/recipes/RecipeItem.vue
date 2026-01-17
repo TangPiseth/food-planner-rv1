@@ -32,7 +32,7 @@
             </div>
             <div class="card-footer bg-transparent border-0 px-4 pb-4">
               <small class="d-flex align-items-center gap-2">
-                <a href="#"><img :src="recipe.authorImage" alt="post-profile" class="img-fluid rounded-circle post-profile"></a>
+                <a href="#"><img :src="authorImageSrc" alt="post-profile" class="img-fluid rounded-circle post-profile"></a>
                 <a class="text-decoration-none text-dark" href="#">{{ recipe.author }}</a>
                 <span>/</span> {{ recipe.date }}
               </small>
@@ -61,6 +61,10 @@ export default {
     },
     emptyStars() {
       return 5 - Math.ceil(this.recipe.rating);
+    },
+    authorImageSrc() {
+      // Use recipe image as fallback for author image from API
+      return this.recipe.authorImage || this.recipe.image || require('@/assets/img/person.png');
     },
   },
 };

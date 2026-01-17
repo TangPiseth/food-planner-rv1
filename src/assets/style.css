@@ -29,3 +29,117 @@ video {
 nav {
     transition: 0.25s ease-in-out;
 }
+
+/* ============================================
+   RESPONSIVE STYLES - GLOBAL
+   ============================================ */
+
+/* Base responsive utilities */
+.container {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Mobile First - Base styles (up to 767px) */
+@media (max-width: 767px) {
+    /* Typography */
+    h1, .display-1 {
+        font-size: 2rem !important;
+    }
+    
+    h2, .display-2 {
+        font-size: 1.75rem !important;
+    }
+    
+    h3, .display-3 {
+        font-size: 1.5rem !important;
+    }
+    
+    h4, .display-4 {
+        font-size: 1.25rem !important;
+    }
+    
+    h5, .display-5 {
+        font-size: 1.1rem !important;
+    }
+    
+    .lead {
+        font-size: 1rem !important;
+    }
+    
+    /* Spacing */
+    .py-5 {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+    
+    .my-5 {
+        margin-top: 2rem !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Container padding */
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    /* Images */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Cards */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Hide desktop-only elements */
+    .d-mobile-none {
+        display: none !important;
+    }
+}
+
+/* Tablet styles (768px to 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* Typography */
+    h1, .display-1 {
+        font-size: 2.5rem !important;
+    }
+    
+    h2, .display-2 {
+        font-size: 2rem !important;
+    }
+    
+    h3, .display-3 {
+        font-size: 1.75rem !important;
+    }
+    
+    h4, .display-4 {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Container adjustments */
+    .container {
+        max-width: 90%;
+    }
+    
+    /* Grid adjustments */
+    .col-md-6 {
+        width: 50%;
+    }
+}
+
+/* Desktop styles (1025px and up) */
+@media (min-width: 1025px) {
+    .container {
+        max-width: 1200px;
+    }
+}

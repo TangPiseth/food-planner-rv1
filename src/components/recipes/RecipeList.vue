@@ -35,7 +35,19 @@
         </div>
 
         <!-- Recipe Cards Grid -->
-        <div class="row g-4">
+        <div v-if="loading" class="text-center py-5">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading delicious recipes...</p>
+        </div>
+        
+        <div v-else-if="recipes.length === 0" class="text-center py-5">
+            <i class="fa-solid fa-utensils fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No recipes found. Try a different search term.</p>
+        </div>
+        
+        <div v-else class="row g-4">
             <RecipeItem v-for="recipe in filteredRecipes" :key="recipe.id" :recipe="recipe" />
         </div>
 
@@ -60,6 +72,7 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import RecipeItem from './RecipeItem.vue';
+import { getMultipleRandomMeals, searchMeals } from '@/services/recipeService';
 
 export default {
     components: {
@@ -70,35 +83,17 @@ export default {
             searchQuery: '',
             sortOption: 'latest',
             currentPage: 1,
-            recipes: [
-                { id: 1, title: 'Amok Fish', description: 'A traditional Cambodian dish with coconut and spices.', image: require('@/assets/img/AmokFish.jpg'), popularity: 5, rating: 4.8, category: 'Main Course', author: 'Elite', date: 'June 20, 2019', authorImage: require('@/assets/img/person.png') },
-                { id: 2, title: 'Beef Lok Lak', description: 'A flavorful stir-fried beef dish everyone loves.', image: require('@/assets/img/LokLak.jpg'), popularity: 4, rating: 4.5, category: 'Main Course', author: 'Piseth', date: 'July 01, 2019', authorImage: require('@/assets/img/person.png') },
-                { id: 3, title: 'Num Banh Chok', description: 'Khmer noodles with green curry sauce.', image: require('@/assets/img/NBChok.jpg'), popularity: 3, rating: 4.6, category: 'Main Course', author: 'Veasna', date: 'September 19, 2019', authorImage: require('@/assets/img/person.png') },
-                { id: 4, title: 'Kuy Teav', description: 'A popular Cambodian noodle soup.', image: require('@/assets/img/KuyTeav.jpg'), popularity: 2, rating: 4.3, category: 'Main Course', author: 'Thida', date: 'May 23, 2020', authorImage: require('@/assets/img/person.png') },
-                { id: 5, title: 'Bai Sach Chrouk', description: 'Pork and rice dish with pickled vegetables.', image: require('@/assets/img/BSJruk.jpg'), popularity: 5, rating: 4.7, category: 'Main Course', author: 'Sokha', date: 'August 12, 2020', authorImage: require('@/assets/img/person.png') },
-                { id: 6, title: 'Trey Chien Choun', description: 'Deep-fried fish with a tangy tamarind sauce.', image: require('@/assets/img/TCChoun.jpg'), popularity: 1, rating: 4.1, category: 'Main Course', author: 'Thida', date: 'August 12, 2020', authorImage: require('@/assets/img/person.png') },
-                { id: 7, title: 'Cha Houy Teuk', description: 'A refreshing Cambodian dessert with coconut milk and jelly.', image: require('@/assets/img/CHTeuk.jpg'), popularity: 4, rating: 4.4, category: 'Dessert', author: 'Panha', date: 'October 23, 2020', authorImage: require('@/assets/img/person.png') },
-                { id: 8, title: 'Prahok Ktis', description: 'A spicy dip made with fermented fish paste.', image: require('@/assets/img/PHKtis.jpg'), popularity: 3, rating: 4.5, category: 'Appetizer', author: 'Raksa', date: 'October 31, 2021', authorImage: require('@/assets/img/person.png') },
-                { id: 9, title: 'Samlor Korko', description: 'A hearty soup with vegetables and fish.', image: require('@/assets/img/SKKo.jpg'), popularity: 2, rating: 4.2, category: 'Appetizer', author: 'Elite', date: 'November 09, 2021', authorImage: require('@/assets/img/person.png') },
-                { id: 10, title: 'Bruschetta', description: 'Toasted bread topped with a fresh mix of vegies drizzled with olive oil and balsamic glaze.', image: require('@/assets/img/BSCHTA.jpg'), popularity: 1, rating: 4.0, category: 'Appetizer', author: 'Youim', date: 'December 25, 2021', authorImage: require('@/assets/img/person.png') },
-                { id: 11, title: 'Bok Lahong', description: 'Green papaya salad with peanuts and dried shrimp.', image: require('@/assets/img/BLHong.jpg'), popularity: 5, rating: 4.9, category: 'Appetizer', author: 'Youim', date: 'January 01, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 12, title: 'Kralan', description: 'Bamboo sticky rice cooked in a bamboo tube.', image: require('@/assets/img/Kralan.jpg'), popularity: 4, rating: 4.3, category: 'Dessert', author: 'Tey', date: 'February 14, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 13, title: 'Sach Ko Ang', description: 'Grilled beef skewers with a tangy lime and pepper dipping sauce.', image: require('@/assets/img/SKAng.jpg'), popularity: 3, rating: 4.1, category: 'Dessert', author: 'Sa', date: 'February 15, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 14, title: 'Mango Sticky Rice', description: 'Sweet sticky rice topped with fresh mango slices and drizzled with coconut milk.', image: require('@/assets/img/MSRice.jpg'), popularity: 2, rating: 4.4, category: 'Dessert', author: 'Piseth', date: 'March 01, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 15, title: 'Trey Chha Kreung', description: 'Stir-fried fish with lemongrass and kroeung.', image: require('@/assets/img/TCKR.jpg'), popularity: 5, rating: 4.6, category: 'Main Course', author: 'Veasna', date: 'March 15, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 16, title: 'Num Pang Sach', description: 'Lightly flamed bread with meat and veggie fillings.', image: require('@/assets/img/NPS.jpg'), popularity: 5, rating: 3.8, category: 'Dessert', author: 'Sa', date: 'April 01, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 17, title: 'Num Pang Siv Mai', description: 'Num Pang Sach but with Siv Mai sauce to dip.', image: require('@/assets/img/NPSM.jpg'), popularity: 3, rating: 4.1, category: 'Dessert', author: 'Panha', date: 'April 15, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 18, title: 'Somlor Machu Kroeung', description: 'A tangy Cambodian soup made with tamarind, lemongrass, and fish.', image: require('@/assets/img/SMKR.jpg'), popularity: 4, rating: 4.4, category: 'Dessert', author: 'HuyKheang', date: 'May 01, 2022', authorImage: require('@/assets/img/person.png') },
-                { id: 19, title: 'Banana Blossom Salad', description: 'A refreshing salad made with banana blossoms, herbs, and a tangy dressing.', image: require('@/assets/img/BBSalad.jpg'), popularity: 3, rating: 4.5, category: 'Dessert', author: 'HuyKheang', date: 'July 23, 2022', authorImage: require('@/assets/img/person.png')  },
-                { id: 20, title: 'Khmer Scallion Pancakes', description: 'Crispy pancakes with scallions, perfect as an appetizer or snack.', image: require('@/assets/img/KSPC.jpg'), popularity: 2, rating: 4.3, category: 'Dessert', author: 'Elite', date: 'September 01, 2024', authorImage: require('@/assets/img/person.png') },
-            ]
+            recipes: [],
+            loading: false,
+            searchTimeout: null
         };
     },
     computed: {
         filteredRecipes() {
-            let filtered = this.recipes.filter(recipe => recipe.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
+            let filtered = [...this.recipes];
+            
             if (this.sortOption === 'latest') {
-                filtered = filtered.reverse();
+                // Keep original order (already random/latest from API)
             } else if (this.sortOption === 'popular') {
                 filtered = filtered.sort((a, b) => b.popularity - a.popularity);
             } else if (this.sortOption === 'rating') {
@@ -110,7 +105,7 @@ export default {
             return filtered.slice(start, end);
         },
         totalPages() {
-            return Math.ceil(this.recipes.length / 9);
+            return Math.ceil(this.recipes.length / 9) || 1;
         }
     },
     methods: {
@@ -119,12 +114,47 @@ export default {
                 this.currentPage = page;
             }
         },
-        searchRecipes() {
-            this.currentPage = 1;
+        async fetchRecipes() {
+            this.loading = true;
+            try {
+                this.recipes = await getMultipleRandomMeals(72);
+            } catch (error) {
+                console.error('Error fetching recipes:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        async handleSearch() {
+            // Debounce search
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+            
+            this.searchTimeout = setTimeout(async () => {
+                this.loading = true;
+                this.currentPage = 1;
+                try {
+                    if (this.searchQuery.trim()) {
+                        this.recipes = await searchMeals(this.searchQuery);
+                    } else {
+                        this.recipes = await getMultipleRandomMeals(72);
+                    }
+                } catch (error) {
+                    console.error('Error searching recipes:', error);
+                } finally {
+                    this.loading = false;
+                }
+            }, 500);
         }
     },
-    mounted() {
+    watch: {
+        searchQuery() {
+            this.handleSearch();
+        }
+    },
+    async mounted() {
         AOS.init();
+        await this.fetchRecipes();
     }
 };
 </script>

@@ -12,6 +12,14 @@
           <hr class="text-white mx-auto" style="width: 50%;">
           <p class="fs-5 mt-4" style="text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);">“Simplify your meals, amplify your
             life.”</p>
+          
+          <!-- Scroll Down Indicator -->
+          <div class="scroll-indicator mt-5">
+            <div class="mouse">
+              <div class="mouse-wheel"></div>
+            </div>
+            <p class="scroll-text mt-3">Scroll Down</p>
+          </div>
         </div>
       </div>
     </section>
@@ -327,9 +335,62 @@ export default {
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
+/* Fixed Background Section - Responsive */
+@media (max-width: 768px) {
+  .fixed-bg-section {
+    height: auto;
+    min-height: 50vh;
+    background-attachment: scroll;
+    padding: 40px 0;
+  }
+  
+  .fixed-bg-section .content {
+    padding: 15px;
+  }
+  
+  .fixed-bg-section .row .col-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
 /* Headmast Section Image Fade */
 .headmast img {
   filter: brightness(80%);
+}
+
+/* Hero Banner - Responsive */
+@media (max-width: 768px) {
+  .headmast {
+    height: 80vh !important;
+  }
+  
+  .banner-txt {
+    padding: 0 20px !important;
+  }
+  
+  .banner-txt h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .banner-txt h1 {
+    font-size: 2.5rem !important;
+  }
+  
+  .banner-txt p {
+    font-size: 1rem !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .banner-txt h2 {
+    font-size: 2rem !important;
+  }
+  
+  .banner-txt h1 {
+    font-size: 3rem !important;
+  }
 }
 
 /* Special Offers */
@@ -1174,6 +1235,80 @@ export default {
 
   .newsletter-btn {
     width: 100%;
+  }
+}
+
+/* Scroll Down Indicator */
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 1s ease-in-out 1.5s both;
+}
+
+.mouse {
+  width: 26px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.mouse-wheel {
+  width: 4px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+  margin-top: 8px;
+  animation: scroll 1.5s infinite;
+}
+
+.scroll-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+  margin-top: 1rem;
+}
+
+@keyframes scroll {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .mouse {
+    width: 22px;
+    height: 36px;
+  }
+  
+  .scroll-text {
+    font-size: 0.8rem;
   }
 }
 </style>

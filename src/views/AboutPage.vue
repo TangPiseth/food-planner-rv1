@@ -89,12 +89,6 @@
                                     <h5 class="chef-name fw-bold">{{ chef.name }}</h5>
                                     <p class="chef-role">{{ chef.role }}</p>
                                 </div>
-                                <div class="chef-social">
-                                    <a v-for="social in chef.social" :key="social.platform" :href="social.url"
-                                        class="social-icon">
-                                        <i :class="'ri-' + social.platform + '-fill ri-lg'"></i>
-                                    </a>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -113,21 +107,11 @@
             name: "Tang Elite",
             role: "Developer & Frontend Designer",
             img: require('@/assets/img/person-e.png'),
-            social: [
-              { platform: "facebook", url: "#" },
-              { platform: "twitter", url: "#" },
-              { platform: "linkedin", url: "#" },
-            ],
           },
           {
             name: "Tang Piseth",
             role: "Developer & Backend Engineer",
             img: require('@/assets/img/person-p.png'),
-            social: [
-              { platform: "facebook", url: "#" },
-              { platform: "twitter", url: "#" },
-              { platform: "linkedin", url: "#" },
-            ],
           }
         ],
       };
@@ -435,6 +419,40 @@
         width: 120px;
         height: 120px;
     }
+    
+    .breadcrumb-section {
+        padding: 30px 0 !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .story-section {
+        padding-top: 30px !important;
+        padding-bottom: 30px !important;
+    }
+    
+    .story-badge {
+        font-size: 0.75rem;
+    }
+    
+    .story-text {
+        font-size: 0.95rem;
+    }
+    
+    .chefs-section {
+        padding-top: 30px !important;
+        padding-bottom: 30px !important;
+    }
+    
+    .chefs-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .glass-image-card {
+        margin-bottom: 30px;
+    }
 }
 
 @media (max-width: 576px) {
@@ -462,6 +480,44 @@
 
     .chef-name {
         font-size: 1.1rem;
+    }
+    
+    .breadcrumb-section {
+        padding: 20px 0 !important;
+    }
+    
+    .story-section {
+        padding-top: 20px !important;
+        padding-bottom: 20px !important;
+    }
+    
+    .chefs-section {
+        padding-top: 20px !important;
+        padding-bottom: 20px !important;
+    }
+    
+    .social-icon {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .hero-title {
+        font-size: 2.5rem !important;
+    }
+    
+    .story-title {
+        font-size: 2rem;
+    }
+    
+    .chefs-title {
+        font-size: 2rem;
+    }
+    
+    .chef-image {
+        width: 130px;
+        height: 130px;
     }
 }
 </style>
