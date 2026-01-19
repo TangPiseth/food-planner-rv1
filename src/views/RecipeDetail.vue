@@ -147,9 +147,15 @@
                 <h3 class="section-title">
                   <i class="fa-solid fa-leaf"></i> Ingredients
                 </h3>
-                <button class="add-to-list-btn" @click="addIngredientsToNewList">
-                  <i class="fa-solid fa-cart-plus"></i> Add to Grocery List
-                </button>
+                <div class="action-buttons">
+                  <button class="download-pdf-btn" @click="downloadPDF" :disabled="isGeneratingPDF">
+                    <i :class="isGeneratingPDF ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-file-pdf'"></i>
+                    {{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}
+                  </button>
+                  <button class="add-to-list-btn" @click="addIngredientsToNewList">
+                    <i class="fa-solid fa-cart-plus"></i> Add to Grocery List
+                  </button>
+                </div>
               </div>
               <div class="ingredients-list">
                 <div class="ingredient-item" v-for="(ingredient, index) in recipe.ingredients" :key="index">
@@ -318,7 +324,8 @@ import { fetchRecipe, getSuggestedRecipes } from "@/services/recipeService";
 import { createGroceryList, addRecipeToList, isAuthenticated } from "@/services/groceryListService";
 import { getRecipeRating } from "@/services/reviewService";
 import RecipeReviewForm from '@/components/RecipeReviewForm.vue';
-import RecipeReviews from '@/components/RecipeReviews.vue'
+import RecipeReviews from '@/components/RecipeReviews.vue';
+import jsPDF from 'jspdf';
 
 export default {
   components: {
@@ -343,6 +350,7 @@ export default {
       totalReviews: 0,
       currentSlide: 0,
       recipesPerPage: 3,
+      isGeneratingPDF: false,
     };
   },
 
@@ -399,6 +407,237 @@ export default {
 
   // Remove the mounted hook since we're using the watcher now
   methods: {
+    async downloadPDF() {
+      if (this.isGeneratingPDF) return;
+      
+      this.isGeneratingPDF = true;
+      this.toastMessage = 'Generating your recipe PDF...';
+      this.showToast = true;
+
+      try {
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 20;
+        const contentWidth = pageWidth - (margin * 2);
+        let y = margin;
+
+        // Helper function to add text with word wrap
+        const addWrappedText = (text, x, startY, maxWidth, lineHeight = 6) => {
+          const lines = pdf.splitTextToSize(text, maxWidth);
+          let currentY = startY;
+          lines.forEach(line => {
+            if (currentY > pageHeight - margin) {
+              pdf.addPage();
+              currentY = margin;
+            }
+            pdf.text(line, x, currentY);
+            currentY += lineHeight;
+          });
+          return currentY;
+        };
+
+        // Check if we need a new page
+        const checkNewPage = (neededHeight) => {
+          if (y + neededHeight > pageHeight - margin) {
+            pdf.addPage();
+            y = margin;
+          }
+        };
+
+        // ========== HEADER ==========
+        pdf.setFillColor(46, 125, 50); // Green header bar
+        pdf.rect(0, 0, pageWidth, 35, 'F');
+        
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(24);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('EatsBuddy', margin, 18);
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        pdf.text(dateStr, pageWidth - margin - pdf.getTextWidth(dateStr), 18);
+        
+        pdf.setFontSize(11);
+        pdf.text('Your Recipe Collection', margin, 28);
+
+        y = 50;
+
+        // ========== RECIPE TITLE ==========
+        pdf.setTextColor(26, 26, 26);
+        pdf.setFontSize(22);
+        pdf.setFont('helvetica', 'bold');
+        y = addWrappedText(this.recipe.title, margin, y, contentWidth, 9);
+        
+        // Author and Type
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100, 100, 100);
+        y += 3;
+        pdf.text(`by ${this.recipe.author}  |  ${this.recipe.type || 'Recipe'}`, margin, y);
+        y += 12;
+
+        // ========== INFO BOX ==========
+        pdf.setFillColor(241, 248, 233); // Light green background
+        pdf.roundedRect(margin, y, contentWidth, 28, 3, 3, 'F');
+        
+        const infoY = y + 10;
+        const colWidth = contentWidth / 4;
+        
+        pdf.setFontSize(9);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text('Rating', margin + 10, infoY);
+        pdf.text('Servings', margin + colWidth + 10, infoY);
+        pdf.text('Total Time', margin + colWidth * 2 + 10, infoY);
+        pdf.text('Calories', margin + colWidth * 3 + 10, infoY);
+        
+        pdf.setFontSize(13);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(46, 125, 50);
+        pdf.text(`${this.displayRating}/5`, margin + 10, infoY + 10);
+        pdf.text(`${this.recipe.servings || 'N/A'}`, margin + colWidth + 10, infoY + 10);
+        pdf.text(`${(this.recipe.prepTime || 0) + (this.recipe.cookingTime || 0)} min`, margin + colWidth * 2 + 10, infoY + 10);
+        pdf.text(`${this.recipe.calories || 'N/A'}`, margin + colWidth * 3 + 10, infoY + 10);
+        
+        y += 38;
+
+        // ========== DETAILS ROW ==========
+        pdf.setFillColor(255, 248, 225); // Light yellow
+        pdf.roundedRect(margin, y, contentWidth, 12, 2, 2, 'F');
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(80, 80, 80);
+        const details = `Course: ${this.recipe.course || 'N/A'}    |    Cuisine: ${this.recipe.cuisine || 'N/A'}    |    Difficulty: ${this.recipe.difficulty || 'N/A'}`;
+        pdf.text(details, margin + 8, y + 8);
+        y += 22;
+
+        // ========== INGREDIENTS SECTION ==========
+        checkNewPage(40);
+        
+        pdf.setFillColor(46, 125, 50);
+        pdf.rect(margin, y, 4, 10, 'F'); // Green accent bar
+        
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(46, 125, 50);
+        pdf.text('Ingredients', margin + 8, y + 7);
+        y += 16;
+
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(51, 51, 51);
+        
+        if (this.recipe.ingredients && this.recipe.ingredients.length > 0) {
+          this.recipe.ingredients.forEach((ingredient) => {
+            checkNewPage(8);
+            pdf.setFillColor(200, 200, 200);
+            pdf.circle(margin + 3, y - 1.5, 1.5, 'F');
+            y = addWrappedText(ingredient, margin + 10, y, contentWidth - 10, 6);
+            y += 2;
+          });
+        }
+        y += 8;
+
+        // ========== INSTRUCTIONS SECTION ==========
+        checkNewPage(40);
+        
+        pdf.setFillColor(46, 125, 50);
+        pdf.rect(margin, y, 4, 10, 'F');
+        
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(46, 125, 50);
+        pdf.text('Instructions', margin + 8, y + 7);
+        y += 16;
+
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(51, 51, 51);
+        
+        if (this.recipe.instructions) {
+          y = addWrappedText(this.recipe.instructions, margin, y, contentWidth, 6);
+        }
+        y += 10;
+
+        // ========== CHEF'S TIPS (if exists) ==========
+        if (this.recipe.chefsTips) {
+          checkNewPage(30);
+          
+          pdf.setFillColor(227, 242, 253); // Light blue
+          const tipsHeight = Math.max(20, pdf.splitTextToSize(this.recipe.chefsTips, contentWidth - 16).length * 6 + 16);
+          pdf.roundedRect(margin, y, contentWidth, tipsHeight, 3, 3, 'F');
+          
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(21, 101, 192);
+          pdf.text("Chef's Tips", margin + 8, y + 10);
+          
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'normal');
+          addWrappedText(this.recipe.chefsTips, margin + 8, y + 18, contentWidth - 16, 6);
+          y += tipsHeight + 10;
+        }
+
+        // ========== NOTES (if exists) ==========
+        if (this.recipe.notes && this.recipe.notes.length > 0) {
+          checkNewPage(30);
+          
+          pdf.setFillColor(255, 243, 224); // Light orange
+          const notesText = this.recipe.notes.join('\n• ');
+          const notesHeight = Math.max(20, pdf.splitTextToSize('• ' + notesText, contentWidth - 16).length * 6 + 16);
+          pdf.roundedRect(margin, y, contentWidth, notesHeight, 3, 3, 'F');
+          
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(230, 81, 0);
+          pdf.text('Notes', margin + 8, y + 10);
+          
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'normal');
+          addWrappedText('• ' + notesText, margin + 8, y + 18, contentWidth - 16, 6);
+          y += notesHeight + 10;
+        }
+
+        // ========== FOOTER ==========
+        const totalPages = pdf.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.setPage(i);
+          pdf.setFontSize(9);
+          pdf.setTextColor(150, 150, 150);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+          pdf.text('www.eatsbuddy.com', pageWidth - margin, pageHeight - 10, { align: 'right' });
+        }
+
+        // Download the PDF
+        const fileName = this.recipe.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        pdf.save(`${fileName}_recipe.pdf`);
+
+        this.showToast = false;
+        setTimeout(() => {
+          this.toastMessage = 'Recipe PDF downloaded successfully!';
+          this.showToast = true;
+          setTimeout(() => {
+            this.showToast = false;
+          }, 2000);
+        }, 100);
+
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        this.showToast = false;
+        setTimeout(() => {
+          this.toastMessage = 'Error generating PDF. Please try again.';
+          this.showToast = true;
+          setTimeout(() => {
+            this.showToast = false;
+          }, 3000);
+        }, 100);
+      } finally {
+        this.isGeneratingPDF = false;
+      }
+    },
     nextSlide() {
       if (this.currentSlide < this.totalSlides - 1) {
         this.currentSlide++;
@@ -1774,6 +2013,40 @@ export default {
   gap: 12px;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.download-pdf-btn {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+}
+
+.download-pdf-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.3);
+}
+
+.download-pdf-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .add-to-list-btn {
   background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
   color: white;
@@ -1880,6 +2153,12 @@ export default {
     align-items: flex-start;
   }
 
+  .action-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .download-pdf-btn,
   .add-to-list-btn {
     width: 100%;
     justify-content: center;
