@@ -24,6 +24,7 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - **Swiper** - Modern touch slider
 - **AOS** - Animate on scroll library
 - **Axios** - HTTP client for API requests
+- **jsPDF** - PDF generation for recipes and grocery lists
 
 ### Backend
 - **Node.js** - JavaScript runtime
@@ -61,17 +62,17 @@ This will install all dependencies for both frontend and backend.
 
 ### 3. Environment Configuration
 
-Create a `.env` file in the `server/` directory by copying the example:
+Create a `.env` file in the **root** directory by copying the example:
 
 ```bash
-cp server/.env.example server/.env
+cp server/.env.example .env
 ```
 
 Then edit `server/.env` with your own values:
 
 ```env
 # Server Configuration
-PORT=5000
+PORT=3001
 JWT_SECRET=your_jwt_secret_key_here
 
 # MongoDB Configuration (use your own MongoDB Atlas connection)
@@ -266,7 +267,7 @@ This project is private and proprietary.
 
 ## 👨‍💻 Developer
 
-Developed with ❤️ for better meal planning
+Developed with Elite & Piseth for better meal planning
 
 ## 📞 Support
 
