@@ -84,7 +84,7 @@
               <div class="info-card-content">
                 <i class="fa-solid fa-star"></i>
                 <h4>Rating</h4>
-                <p>{{ recipe.rating }}/5</p>
+                <p>{{ displayRating }}/5 <span v-if="totalReviews > 0" class="review-count">({{ totalReviews }})</span></p>
               </div>
             </div>
           </div>
@@ -147,9 +147,15 @@
                 <h3 class="section-title">
                   <i class="fa-solid fa-leaf"></i> Ingredients
                 </h3>
-                <button class="add-to-list-btn" @click="addIngredientsToNewList">
-                  <i class="fa-solid fa-cart-plus"></i> Add to Grocery List
-                </button>
+                <div class="action-buttons">
+                  <button class="download-pdf-btn" @click="downloadPDF" :disabled="isGeneratingPDF">
+                    <i :class="isGeneratingPDF ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-file-pdf'"></i>
+                    {{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}
+                  </button>
+                  <button class="add-to-list-btn" @click="addIngredientsToNewList">
+                    <i class="fa-solid fa-cart-plus"></i> Add to Grocery List
+                  </button>
+                </div>
               </div>
               <div class="ingredients-list">
                 <div class="ingredient-item" v-for="(ingredient, index) in recipe.ingredients" :key="index">
@@ -215,37 +221,98 @@
           <h3 class="section-title-main">
             <i class="fa-solid fa-sparkles"></i> You Might Also Like
           </h3>
-          <div class="related-recipes-grid">
-            <div class="related-recipe-card" v-for="relatedRecipe in suggestedRecipes" :key="relatedRecipe.id">
-              <div class="recipe-card-glass">
-                <div class="glass-filter"></div>
-                <div class="glass-overlay"></div>
-                <div class="glass-specular"></div>
-                <div class="recipe-card-content">
-                  <div class="recipe-card-image">
-                    <img :src="relatedRecipe.image" :alt="relatedRecipe.title" />
-                  </div>
-                  <div class="recipe-card-body">
-                    <span class="recipe-type-badge">{{ relatedRecipe.type.toLowerCase().replace('_', ' ') }}</span>
-                    <h4 class="recipe-card-title">{{ relatedRecipe.title }}</h4>
-                    <p class="recipe-card-desc">{{ relatedRecipe.description }}</p>
-                    <div class="recipe-card-footer">
-                      <span class="recipe-time">
-                        <i class="fa-solid fa-clock"></i> {{ relatedRecipe.cookingTime }} mins
-                      </span>
-                      <router-link :to="'/recipes/' + relatedRecipe.id" class="recipe-card-link">View</router-link>
+          
+          <!-- Slider Container -->
+          <div class="related-slider-container">
+            <!-- Left Navigation Button -->
+            <button 
+              class="slider-nav-btn slider-nav-prev" 
+              @click="prevSlide" 
+              :disabled="currentSlide === 0"
+              aria-label="Previous recipes"
+            >
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <!-- Slider Track -->
+            <div class="related-slider-wrapper">
+              <div 
+                class="related-slider-track" 
+                :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
+              >
+                <!-- Slide Pages -->
+                <div 
+                  class="related-slider-page" 
+                  v-for="(page, pageIndex) in sliderPages" 
+                  :key="pageIndex"
+                >
+                  <div class="related-recipes-grid">
+                    <div class="related-recipe-card" v-for="relatedRecipe in page" :key="relatedRecipe.id">
+                      <div class="recipe-card-glass">
+                        <div class="glass-filter"></div>
+                        <div class="glass-overlay"></div>
+                        <div class="glass-specular"></div>
+                        <div class="recipe-card-content">
+                          <div class="recipe-card-image">
+                            <img :src="relatedRecipe.image" :alt="relatedRecipe.title" />
+                          </div>
+                          <div class="recipe-card-body">
+                            <span class="recipe-type-badge">{{ relatedRecipe.type.toLowerCase().replace('_', ' ') }}</span>
+                            <h4 class="recipe-card-title">{{ relatedRecipe.title }}</h4>
+                            <p class="recipe-card-desc">{{ relatedRecipe.description }}</p>
+                            <div class="recipe-card-footer">
+                              <span class="recipe-time">
+                                <i class="fa-solid fa-clock"></i> {{ relatedRecipe.cookingTime }} mins
+                              </span>
+                              <router-link :to="'/recipes/' + relatedRecipe.id" class="recipe-card-link">View</router-link>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <!-- Right Navigation Button -->
+            <button 
+              class="slider-nav-btn slider-nav-next" 
+              @click="nextSlide" 
+              :disabled="currentSlide === totalSlides - 1"
+              aria-label="Next recipes"
+            >
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Page Indicators -->
+          <div class="slider-indicators">
+            <button 
+              v-for="(page, index) in totalSlides" 
+              :key="index"
+              class="slider-dot"
+              :class="{ active: currentSlide === index }"
+              @click="goToSlide(index)"
+              :aria-label="`Go to page ${index + 1}`"
+            ></button>
           </div>
         </div>
 
         <!-- Review Components -->
         <div class="reviews-container">
-          <RecipeReviewForm :recipeId="recipe.id" @review-submitted="handleNewReview" />
-          <RecipeReviews ref="reviewsComponent" :recipeId="recipe.id" />
+          <RecipeReviewForm 
+            ref="reviewFormComponent"
+            :recipeId="recipe.id" 
+            :recipeTitle="recipe.title"
+            @review-submitted="handleNewReview" 
+          />
+          <RecipeReviews 
+            ref="reviewsComponent" 
+            :recipeId="recipe.id" 
+            @edit-review="handleEditReview"
+            @review-deleted="handleReviewDeleted"
+          />
         </div>
       </div>
     </div>
@@ -255,8 +322,10 @@
 <script>
 import { fetchRecipe, getSuggestedRecipes } from "@/services/recipeService";
 import { createGroceryList, addRecipeToList, isAuthenticated } from "@/services/groceryListService";
+import { getRecipeRating } from "@/services/reviewService";
 import RecipeReviewForm from '@/components/RecipeReviewForm.vue';
-import RecipeReviews from '@/components/RecipeReviews.vue'
+import RecipeReviews from '@/components/RecipeReviews.vue';
+import jsPDF from 'jspdf';
 
 export default {
   components: {
@@ -277,7 +346,31 @@ export default {
       loading: false,
       showToast: false,
       toastMessage: '',
+      averageRating: 0,
+      totalReviews: 0,
+      currentSlide: 0,
+      recipesPerPage: 3,
+      isGeneratingPDF: false,
     };
+  },
+
+  computed: {
+    displayRating() {
+      if (this.totalReviews > 0) {
+        return this.averageRating;
+      }
+      return this.recipe?.rating || 0;
+    },
+    sliderPages() {
+      const pages = [];
+      for (let i = 0; i < this.suggestedRecipes.length; i += this.recipesPerPage) {
+        pages.push(this.suggestedRecipes.slice(i, i + this.recipesPerPage));
+      }
+      return pages;
+    },
+    totalSlides() {
+      return this.sliderPages.length;
+    }
   },
 
   watch: {
@@ -288,14 +381,20 @@ export default {
         // Reset the current recipe
         this.recipe = null;
         this.loading = true;
+        this.averageRating = 0;
+        this.totalReviews = 0;
         
         try {
           // Fetch new recipe from API
           this.recipe = await fetchRecipe(newId);
 
           if (this.recipe) {
-            // Get suggested recipes based on category/cuisine
-            this.suggestedRecipes = await getSuggestedRecipes(this.recipe, 4);
+            // Get suggested recipes based on category/cuisine (max 9 for slider)
+            this.suggestedRecipes = await getSuggestedRecipes(this.recipe, 9);
+            this.currentSlide = 0; // Reset slider position
+            
+            // Fetch real rating from reviews database
+            await this.fetchRating();
           }
         } catch (error) {
           console.error('Error fetching recipe:', error);
@@ -308,11 +407,282 @@ export default {
 
   // Remove the mounted hook since we're using the watcher now
   methods: {
+    async downloadPDF() {
+      if (this.isGeneratingPDF) return;
+      
+      this.isGeneratingPDF = true;
+      this.toastMessage = 'Generating your recipe PDF...';
+      this.showToast = true;
+
+      try {
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 20;
+        const contentWidth = pageWidth - (margin * 2);
+        let y = margin;
+
+        // Helper function to add text with word wrap
+        const addWrappedText = (text, x, startY, maxWidth, lineHeight = 6) => {
+          const lines = pdf.splitTextToSize(text, maxWidth);
+          let currentY = startY;
+          lines.forEach(line => {
+            if (currentY > pageHeight - margin) {
+              pdf.addPage();
+              currentY = margin;
+            }
+            pdf.text(line, x, currentY);
+            currentY += lineHeight;
+          });
+          return currentY;
+        };
+
+        // Check if we need a new page
+        const checkNewPage = (neededHeight) => {
+          if (y + neededHeight > pageHeight - margin) {
+            pdf.addPage();
+            y = margin;
+          }
+        };
+
+        // ========== HEADER ==========
+        pdf.setFillColor(46, 125, 50); // Green header bar
+        pdf.rect(0, 0, pageWidth, 35, 'F');
+        
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(24);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('EatsBuddy', margin, 18);
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        pdf.text(dateStr, pageWidth - margin - pdf.getTextWidth(dateStr), 18);
+        
+        pdf.setFontSize(11);
+        pdf.text('Your Recipe Collection', margin, 28);
+
+        y = 50;
+
+        // ========== RECIPE TITLE ==========
+        pdf.setTextColor(26, 26, 26);
+        pdf.setFontSize(22);
+        pdf.setFont('helvetica', 'bold');
+        y = addWrappedText(this.recipe.title, margin, y, contentWidth, 9);
+        
+        // Author and Type
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100, 100, 100);
+        y += 3;
+        pdf.text(`by ${this.recipe.author}  |  ${this.recipe.type || 'Recipe'}`, margin, y);
+        y += 12;
+
+        // ========== INFO BOX ==========
+        pdf.setFillColor(241, 248, 233); // Light green background
+        pdf.roundedRect(margin, y, contentWidth, 28, 3, 3, 'F');
+        
+        const infoY = y + 10;
+        const colWidth = contentWidth / 4;
+        
+        pdf.setFontSize(9);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text('Rating', margin + 10, infoY);
+        pdf.text('Servings', margin + colWidth + 10, infoY);
+        pdf.text('Total Time', margin + colWidth * 2 + 10, infoY);
+        pdf.text('Calories', margin + colWidth * 3 + 10, infoY);
+        
+        pdf.setFontSize(13);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(46, 125, 50);
+        pdf.text(`${this.displayRating}/5`, margin + 10, infoY + 10);
+        pdf.text(`${this.recipe.servings || 'N/A'}`, margin + colWidth + 10, infoY + 10);
+        pdf.text(`${(this.recipe.prepTime || 0) + (this.recipe.cookingTime || 0)} min`, margin + colWidth * 2 + 10, infoY + 10);
+        pdf.text(`${this.recipe.calories || 'N/A'}`, margin + colWidth * 3 + 10, infoY + 10);
+        
+        y += 38;
+
+        // ========== DETAILS ROW ==========
+        pdf.setFillColor(255, 248, 225); // Light yellow
+        pdf.roundedRect(margin, y, contentWidth, 12, 2, 2, 'F');
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(80, 80, 80);
+        const details = `Course: ${this.recipe.course || 'N/A'}    |    Cuisine: ${this.recipe.cuisine || 'N/A'}    |    Difficulty: ${this.recipe.difficulty || 'N/A'}`;
+        pdf.text(details, margin + 8, y + 8);
+        y += 22;
+
+        // ========== INGREDIENTS SECTION ==========
+        checkNewPage(40);
+        
+        pdf.setFillColor(46, 125, 50);
+        pdf.rect(margin, y, 4, 10, 'F'); // Green accent bar
+        
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(46, 125, 50);
+        pdf.text('Ingredients', margin + 8, y + 7);
+        y += 16;
+
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(51, 51, 51);
+        
+        if (this.recipe.ingredients && this.recipe.ingredients.length > 0) {
+          this.recipe.ingredients.forEach((ingredient) => {
+            checkNewPage(8);
+            pdf.setFillColor(200, 200, 200);
+            pdf.circle(margin + 3, y - 1.5, 1.5, 'F');
+            y = addWrappedText(ingredient, margin + 10, y, contentWidth - 10, 6);
+            y += 2;
+          });
+        }
+        y += 8;
+
+        // ========== INSTRUCTIONS SECTION ==========
+        checkNewPage(40);
+        
+        pdf.setFillColor(46, 125, 50);
+        pdf.rect(margin, y, 4, 10, 'F');
+        
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(46, 125, 50);
+        pdf.text('Instructions', margin + 8, y + 7);
+        y += 16;
+
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(51, 51, 51);
+        
+        if (this.recipe.instructions) {
+          y = addWrappedText(this.recipe.instructions, margin, y, contentWidth, 6);
+        }
+        y += 10;
+
+        // ========== CHEF'S TIPS (if exists) ==========
+        if (this.recipe.chefsTips) {
+          checkNewPage(30);
+          
+          pdf.setFillColor(227, 242, 253); // Light blue
+          const tipsHeight = Math.max(20, pdf.splitTextToSize(this.recipe.chefsTips, contentWidth - 16).length * 6 + 16);
+          pdf.roundedRect(margin, y, contentWidth, tipsHeight, 3, 3, 'F');
+          
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(21, 101, 192);
+          pdf.text("Chef's Tips", margin + 8, y + 10);
+          
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'normal');
+          addWrappedText(this.recipe.chefsTips, margin + 8, y + 18, contentWidth - 16, 6);
+          y += tipsHeight + 10;
+        }
+
+        // ========== NOTES (if exists) ==========
+        if (this.recipe.notes && this.recipe.notes.length > 0) {
+          checkNewPage(30);
+          
+          pdf.setFillColor(255, 243, 224); // Light orange
+          const notesText = this.recipe.notes.join('\n• ');
+          const notesHeight = Math.max(20, pdf.splitTextToSize('• ' + notesText, contentWidth - 16).length * 6 + 16);
+          pdf.roundedRect(margin, y, contentWidth, notesHeight, 3, 3, 'F');
+          
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(230, 81, 0);
+          pdf.text('Notes', margin + 8, y + 10);
+          
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'normal');
+          addWrappedText('• ' + notesText, margin + 8, y + 18, contentWidth - 16, 6);
+          y += notesHeight + 10;
+        }
+
+        // ========== FOOTER ==========
+        const totalPages = pdf.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.setPage(i);
+          pdf.setFontSize(9);
+          pdf.setTextColor(150, 150, 150);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+          pdf.text('www.eatsbuddy.com', pageWidth - margin, pageHeight - 10, { align: 'right' });
+        }
+
+        // Download the PDF
+        const fileName = this.recipe.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        pdf.save(`${fileName}_recipe.pdf`);
+
+        this.showToast = false;
+        setTimeout(() => {
+          this.toastMessage = 'Recipe PDF downloaded successfully!';
+          this.showToast = true;
+          setTimeout(() => {
+            this.showToast = false;
+          }, 2000);
+        }, 100);
+
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        this.showToast = false;
+        setTimeout(() => {
+          this.toastMessage = 'Error generating PDF. Please try again.';
+          this.showToast = true;
+          setTimeout(() => {
+            this.showToast = false;
+          }, 3000);
+        }, 100);
+      } finally {
+        this.isGeneratingPDF = false;
+      }
+    },
+    nextSlide() {
+      if (this.currentSlide < this.totalSlides - 1) {
+        this.currentSlide++;
+      }
+    },
+    prevSlide() {
+      if (this.currentSlide > 0) {
+        this.currentSlide--;
+      }
+    },
+    goToSlide(index) {
+      this.currentSlide = index;
+    },
+    async fetchRating() {
+      try {
+        const result = await getRecipeRating(this.id);
+        if (result.success) {
+          this.averageRating = result.averageRating;
+          this.totalReviews = result.totalReviews;
+        }
+      } catch (error) {
+        console.error('Error fetching rating:', error);
+      }
+    },
     handleNewReview(reviewData) {
       // Pass the new review to the reviews component
       if (this.$refs.reviewsComponent) {
         this.$refs.reviewsComponent.addReview(reviewData);
       }
+      // Refresh the rating
+      this.fetchRating();
+    },
+    handleEditReview(review) {
+      // Scroll to the review form
+      if (this.$refs.reviewFormComponent) {
+        this.$refs.reviewFormComponent.$el.scrollIntoView({ behavior: 'smooth' });
+      }
+    },
+    handleReviewDeleted(reviewId) {
+      // Refresh the review form to allow creating a new review
+      if (this.$refs.reviewFormComponent) {
+        this.$refs.reviewFormComponent.checkExistingReview();
+      }
+      // Refresh the rating
+      this.fetchRating();
     },
     goBack() {
       this.$router.go(-1);
@@ -834,9 +1204,96 @@ export default {
   color: #2e7d32;
 }
 
+/* Slider Container */
+.related-slider-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.related-slider-wrapper {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.related-slider-track {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.related-slider-page {
+  min-width: 100%;
+  padding: 0 4px;
+}
+
+/* Slider Navigation Buttons */
+.slider-nav-btn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(46, 125, 50, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  color: #2e7d32;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.slider-nav-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: white;
+  border-color: transparent;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+}
+
+.slider-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Page Indicators */
+.slider-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.slider-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(46, 125, 50, 0.4);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.slider-dot:hover {
+  border-color: #2e7d32;
+  background: rgba(46, 125, 50, 0.2);
+}
+
+.slider-dot.active {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  border-color: transparent;
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.4);
+}
+
 .related-recipes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
@@ -1029,11 +1486,18 @@ export default {
   }
 
   .related-recipes-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .recipe-card-image {
     height: 150px;
+  }
+
+  /* Slider responsive - tablet */
+  .slider-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
   }
 }
 
@@ -1076,6 +1540,32 @@ export default {
 
   .recipe-details-text {
     font-size: 13px;
+  }
+
+  /* Slider responsive - mobile */
+  .related-slider-container {
+    gap: 8px;
+  }
+
+  .slider-nav-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .related-recipes-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .slider-indicators {
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .slider-dot {
+    width: 10px;
+    height: 10px;
   }
 }
 
@@ -1275,28 +1765,7 @@ export default {
   margin: 0;
 }
 
-/* Related Recipes */
-.section-title-main {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 32px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.section-title-main i {
-  color: #2e7d32;
-}
-
-.related-recipes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
+/* Related Recipes - Second set removed, see main styles above */
 
 .related-recipe-card {
   position: relative;
@@ -1544,6 +2013,40 @@ export default {
   gap: 12px;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.download-pdf-btn {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+}
+
+.download-pdf-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.3);
+}
+
+.download-pdf-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .add-to-list-btn {
   background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
   color: white;
@@ -1650,6 +2153,12 @@ export default {
     align-items: flex-start;
   }
 
+  .action-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .download-pdf-btn,
   .add-to-list-btn {
     width: 100%;
     justify-content: center;
@@ -1708,6 +2217,12 @@ export default {
   .recipe-info-grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+.review-count {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #666 !important;
 }
 </style>
 

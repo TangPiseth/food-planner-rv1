@@ -2,18 +2,72 @@
     <div class="recipe-reviews mt-4" data-aos="fade-up">
       <h4 class="fw-bold mb-3 review-title">Customer Reviews ({{ totalReviews }})</h4>
       
+      <!-- Delete Confirmation Modal -->
+      <div v-if="showDeleteModal" class="modal-overlay" @click.self="cancelDelete">
+        <div class="delete-modal">
+          <div class="modal-icon">
+            <i class="fa-solid fa-trash-alt"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Delete Review?</h5>
+          <p class="text-muted mb-3">Are you sure you want to delete this review? This action cannot be undone.</p>
+          <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-outline-secondary" @click="cancelDelete">Cancel</button>
+            <button class="btn btn-danger" @click="confirmDelete" :disabled="isDeleting">
+              <span v-if="isDeleting" class="spinner-border spinner-border-sm me-1"></span>
+              {{ isDeleting ? 'Deleting...' : 'Delete' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-4">
+        <div class="spinner-border spinner-border-sm text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted small mt-2 mb-0">Loading reviews...</p>
+      </div>
+      
       <!-- Reviews List -->
-      <div v-if="reviews.length > 0">
-        <div class="review-card mb-3 p-3 bg-white rounded-3 shadow-sm" v-for="review in reviews" :key="review.id">
+      <div v-else-if="paginatedReviews.length > 0">
+        <div 
+          class="review-card mb-3 p-3 bg-white rounded-3 shadow-sm" 
+          v-for="review in paginatedReviews" 
+          :key="review.id"
+          :class="{ 'user-review': isCurrentUserReview(review) }"
+        >
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
-              <h6 class="mb-1 fw-600">{{ review.name }}</h6>
+              <h6 class="mb-1 fw-600">
+                {{ review.username }}
+                <span v-if="isCurrentUserReview(review)" class="badge bg-success ms-2" style="font-size: 10px;">You</span>
+              </h6>
               <div class="text-muted" style="font-size: 12px;">
-                {{ formatDate(review.date) }}
+                {{ formatDate(review.createdAt) }}
+                <span v-if="review.updatedAt !== review.createdAt" class="ms-1">(edited)</span>
               </div>
             </div>
-            <div class="rating bg-success text-white px-2 py-1 rounded-pill" style="font-size: 12px;">
-              ⭐ {{ review.rating }}/5
+            <div class="d-flex align-items-center gap-2">
+              <div class="rating bg-success text-white px-2 py-1 rounded-pill" style="font-size: 12px;">
+                ⭐ {{ review.rating }}/5
+              </div>
+              <!-- Action buttons for user's own review -->
+              <div v-if="isCurrentUserReview(review)" class="review-actions">
+                <button 
+                  class="btn btn-sm btn-outline-primary action-btn" 
+                  @click="editReview(review)"
+                  title="Edit review"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-outline-danger action-btn" 
+                  @click="deleteReview(review)"
+                  title="Delete review"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
             </div>
           </div>
           <p class="mb-0" style="font-size: 14px; line-height: 1.6;">{{ review.comment }}</p>
@@ -48,6 +102,9 @@
   </template>
   
   <script>
+  import { getCurrentUser, isAuthenticated } from '@/services/authService';
+  import { getRecipeReviews, deleteReview } from '@/services/reviewService';
+
   export default {
     name: 'RecipeReviews',
     props: {
@@ -58,32 +115,14 @@
     },
     data() {
       return {
-        reviews: [
-          // Mock data - replace with actual API calls later
-          {
-            id: 1,
-            name: "John Doe",
-            rating: 5,
-            comment: "This recipe was amazing! My whole family loved it. The instructions were clear and easy to follow. Will definitely make it again!",
-            date: "2024-01-15"
-          },
-          {
-            id: 2,
-            name: "Jane Smith",
-            rating: 4,
-            comment: "Great recipe! I made a few modifications to suit my taste but the base recipe is solid. Would recommend.",
-            date: "2024-01-14"
-          },
-          {
-            id: 3,
-            name: "Mike Johnson",
-            rating: 5,
-            comment: "Perfect recipe! Turned out exactly as shown in the pictures. The timing was spot on.",
-            date: "2024-01-13"
-          }
-        ],
+        reviews: [],
         currentPage: 1,
-        reviewsPerPage: 5
+        reviewsPerPage: 5,
+        loading: false,
+        currentUser: null,
+        showDeleteModal: false,
+        reviewToDelete: null,
+        isDeleting: false
       }
     },
     computed: {
@@ -92,10 +131,16 @@
       },
       totalPages() {
         return Math.ceil(this.reviews.length / this.reviewsPerPage);
+      },
+      paginatedReviews() {
+        const start = (this.currentPage - 1) * this.reviewsPerPage;
+        const end = start + this.reviewsPerPage;
+        return this.reviews.slice(start, end);
       }
     },
     methods: {
       formatDate(dateString) {
+        if (!dateString) return '';
         return new Date(dateString).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
@@ -107,25 +152,84 @@
           this.currentPage = page;
         }
       },
+      isCurrentUserReview(review) {
+        return this.currentUser && review.userId === this.currentUser.id;
+      },
       addReview(reviewData) {
-        // Add the new review to the beginning of the list
-        this.reviews.unshift(reviewData);
-        // Reset to first page to show the new review
+        // Check if review already exists (update case)
+        const existingIndex = this.reviews.findIndex(r => r.id === reviewData.id);
+        if (existingIndex !== -1) {
+          // Update existing review
+          this.reviews.splice(existingIndex, 1, reviewData);
+        } else {
+          // Add new review to the beginning
+          this.reviews.unshift(reviewData);
+        }
         this.currentPage = 1;
       },
+      editReview(review) {
+        // Emit event to parent to switch form to edit mode
+        this.$emit('edit-review', review);
+      },
+      deleteReview(review) {
+        this.reviewToDelete = review;
+        this.showDeleteModal = true;
+      },
+      cancelDelete() {
+        this.showDeleteModal = false;
+        this.reviewToDelete = null;
+      },
+      async confirmDelete() {
+        if (!this.reviewToDelete) return;
+        
+        this.isDeleting = true;
+        const result = await deleteReview(this.reviewToDelete.id);
+        
+        if (result.success) {
+          // Remove review from list
+          const index = this.reviews.findIndex(r => r.id === this.reviewToDelete.id);
+          if (index !== -1) {
+            this.reviews.splice(index, 1);
+          }
+          // Notify parent that review was deleted
+          this.$emit('review-deleted', this.reviewToDelete.id);
+        } else {
+          console.error('Failed to delete review:', result.error);
+        }
+        
+        this.isDeleting = false;
+        this.showDeleteModal = false;
+        this.reviewToDelete = null;
+      },
       async fetchReviews() {
-        // In a real application, you would fetch reviews from your API here
-        // Example:
-        // try {
-        //   const response = await axios.get(`/api/recipes/${this.recipeId}/reviews`);
-        //   this.reviews = response.data;
-        // } catch (error) {
-        //   console.error('Error fetching reviews:', error);
-        // }
+        this.loading = true;
+        try {
+          const result = await getRecipeReviews(this.recipeId);
+          if (result.success) {
+            this.reviews = result.reviews;
+          } else {
+            console.error('Error fetching reviews:', result.error);
+            this.reviews = [];
+          }
+        } catch (error) {
+          console.error('Error fetching reviews:', error);
+          this.reviews = [];
+        }
+        this.loading = false;
       }
     },
-    created() {
-      this.fetchReviews();
+    async created() {
+      if (isAuthenticated()) {
+        this.currentUser = await getCurrentUser();
+      }
+      await this.fetchReviews();
+    },
+    watch: {
+      recipeId: {
+        async handler() {
+          await this.fetchReviews();
+        }
+      }
     }
   }
   </script>
@@ -155,6 +259,11 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
   }
 
+  .review-card.user-review {
+    border-left: 3px solid #2e7d32;
+    background: rgba(46, 125, 50, 0.03);
+  }
+
   .fw-600 {
     font-weight: 600;
   }
@@ -178,5 +287,69 @@
 
   .rating {
     font-weight: 600;
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .action-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .action-btn:hover {
+    transform: scale(1.05);
+  }
+
+  /* Delete Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+
+  .delete-modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .modal-icon i {
+    font-size: 1.5rem;
+    color: #dc3545;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border: none;
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
   }
   </style>

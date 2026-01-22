@@ -23,18 +23,16 @@
             <div class="card-body text-center px-4 pt-4">
               <a href="#" class="badge text-bg-success rounded-pill px-3 py-2 text-decoration-none">{{ recipe.category }}</a>
               <h5 class="card-title truncate-text fw-bold pt-3">{{ recipe.title }}</h5>
-              <p class="card-text text-muted truncate-text">{{ recipe.description }}</p>
               <div class="rating">
-                <span v-for="star in fullStars" :key="star" class="fa fa-star checked"></span>
-                <span v-if="hasHalfStar" class="fa fa-star-half-alt checked"></span>
-                <span v-for="star in emptyStars" :key="star" class="fa fa-star"></span>
+                <i class="fa fa-star"></i>
+                <span class="rating-number">{{ recipe.rating?.toFixed(1) || '0.0' }}</span>
               </div>
             </div>
             <div class="card-footer bg-transparent border-0 px-4 pb-4">
-              <small class="d-flex align-items-center gap-2">
-                <a href="#"><img :src="authorImageSrc" alt="post-profile" class="img-fluid rounded-circle post-profile"></a>
-                <a class="text-decoration-none text-dark" href="#">{{ recipe.author }}</a>
-                <span>/</span> {{ recipe.date }}
+              <small class="d-flex align-items-center justify-content-center gap-2">
+                <span class="author-name">{{ recipe.author }}</span>
+                <span class="divider">•</span>
+                <span class="date">{{ formatDate(recipe.date) }}</span>
               </small>
             </div>
           </div>
@@ -52,21 +50,30 @@ export default {
       required: true,
     },
   },
-  computed: {
-    fullStars() {
-      return Math.floor(this.recipe.rating);
-    },
-    hasHalfStar() {
-      return this.recipe.rating % 1 >= 0.1 && this.recipe.rating % 1 < 0.7;
-    },
-    emptyStars() {
-      return 5 - Math.ceil(this.recipe.rating);
-    },
-    authorImageSrc() {
-      // Use recipe image as fallback for author image from API
-      return this.recipe.authorImage || this.recipe.image || require('@/assets/img/person.png');
-    },
-  },
+  methods: {
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        // If it's not a valid date, try to parse common formats
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // Try to extract from strings like "January 15, 2026" or similar
+        const match = dateString.match(/(\w+)\s+(\d+),?\s*(\d{4})/);
+        if (match) {
+          const monthName = match[1].substring(0, 3);
+          const day = match[2].padStart(2, '0');
+          const year = match[3].substring(2);
+          return `${monthName}/${day}/${year}`;
+        }
+        return dateString; // Return as-is if can't parse
+      }
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = months[date.getMonth()];
+      const day = String(date.getDate()).padStart(2, '0');
+      const year = String(date.getFullYear()).substring(2);
+      return `${month}/${day}/${year}`;
+    }
+  }
 };
 </script>
 
@@ -206,47 +213,43 @@ export default {
   background: rgba(255, 255, 255, 0.3);
 }
 
-.post-profile {
-  width: 28px;
-  height: 28px;
-  border: 1.5px solid rgba(46, 125, 50, 0.3);
-  transition: all 0.3s ease;
+/* Styles for the rating */
+.rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0;
 }
 
-.post-profile:hover {
-  border-color: #2e7d32;
-  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
+.rating .fa-star {
+  color: #ffdf00;
+  font-size: 16px;
 }
 
+.rating-number {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* Footer styles */
 .card-footer small {
   color: #4a4a4a;
   font-weight: 500;
 }
 
-.card-footer a {
+.author-name {
   color: #1a1a1a;
-  text-decoration: none;
-  transition: color 0.3s ease;
+  font-weight: 600;
 }
 
-.card-footer a:hover {
-  color: #2e7d32;
+.divider {
+  color: #ccc;
 }
 
-/* Styles for the rating stars */
-.rating {
-  color: #ffd700;
-  margin: 12px 0;
-}
-
-.fa-star,
-.fa-star-half-alt {
-  font-size: 16px;
-  margin-right: 4px;
-}
-
-.checked {
-  color: #ffdf00;
+.date {
+  color: #666;
 }
 
 @media (max-width: 768px) {

@@ -319,15 +319,16 @@ export default {
 @media (max-width: 768px) {
     .social-icons-container {
         justify-content: center;
+        gap: 20px;
     }
 
     .social-glass-bubble {
-        width: 45px;
-        height: 45px;
+        width: 54px;
+        height: 54px;
     }
 
     .social-glass-bubble .icon-wrapper {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
     }
 
     .social-text {
@@ -336,8 +337,8 @@ export default {
     
     .social-media-section {
         flex-direction: column;
-        padding: 20px !important;
-        gap: 15px;
+        padding: 24px 20px !important;
+        gap: 16px;
     }
     
     .footer-links-section .col-md-3,
@@ -347,28 +348,170 @@ export default {
     .footer-links-section .col-lg-4,
     .footer-links-section .col-xl-2,
     .footer-links-section .col-xl-3 {
-        margin-bottom: 25px;
+        margin-bottom: 30px;
         text-align: center;
     }
     
     .footer-links-section h6 {
-        font-size: 1.1rem;
-        margin-bottom: 15px;
+        font-size: 1.2rem;
+        margin-bottom: 18px;
+        letter-spacing: 0.5px;
     }
     
     .footer-links-section p {
-        font-size: 0.9rem;
+        font-size: 1rem;
+        line-height: 1.8;
+        margin-bottom: 12px;
+    }
+    
+    .footer-links-section .nav-link {
+        font-size: 1.05rem;
+        padding: 8px 0;
+        display: inline-block;
+    }
+    
+    .copyright-section {
+        padding: 18px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .social-icons-container {
+        gap: 16px;
+    }
+
+    .social-glass-bubble {
+        width: 58px;
+        height: 58px;
+    }
+
+    .social-glass-bubble .icon-wrapper {
+        font-size: 1.5rem;
+    }
+    
+    .social-media-section {
+        padding: 28px 16px !important;
+    }
+    
+    .footer-links-section {
+        padding: 0 10px;
+    }
+    
+    .footer-links-section .container {
+        padding: 0 16px;
+    }
+    
+    .footer-links-section h6 {
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+    }
+    
+    .footer-links-section p {
+        font-size: 1.05rem;
+        line-height: 2;
+        margin-bottom: 14px;
+    }
+    
+    .footer-links-section .nav-link {
+        font-size: 1.1rem;
+        padding: 10px 0;
+    }
+    
+    .footer-links-section .col-md-3,
+    .footer-links-section .col-md-2 {
+        margin-bottom: 35px;
+    }
+    
+    .copyright-section {
+        padding: 20px 16px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .social-icons-container {
+        gap: 14px;
+        padding: 0 10px;
+    }
+
+    .social-glass-bubble {
+        width: 60px;
+        height: 60px;
+    }
+
+    .social-glass-bubble .icon-wrapper {
+        font-size: 1.6rem;
+    }
+    
+    .social-media-section {
+        padding: 30px 16px !important;
+    }
+    
+    .footer-links-section h6 {
+        font-size: 1.3rem;
+        margin-bottom: 22px;
+        font-weight: 700;
+    }
+    
+    .footer-links-section p {
+        font-size: 1.1rem;
+        line-height: 2.2;
+        margin-bottom: 16px;
+    }
+    
+    .footer-links-section .nav-link {
+        font-size: 1.15rem;
+        padding: 12px 0;
+        font-weight: 500;
+    }
+    
+    .footer-links-section i {
+        font-size: 1.1rem;
+    }
+    
+    .footer-links-section .col-md-3,
+    .footer-links-section .col-md-2 {
+        margin-bottom: 40px;
+    }
+    
+    .copyright-section {
+        padding: 22px 16px;
+        font-size: 1.05rem;
+        font-weight: 500;
     }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
     .social-media-section {
-        padding: 25px !important;
+        padding: 28px !important;
+    }
+    
+    .social-icons-container {
+        gap: 18px;
+    }
+    
+    .social-glass-bubble {
+        width: 52px;
+        height: 52px;
+    }
+    
+    .social-glass-bubble .icon-wrapper {
+        font-size: 1.4rem;
     }
     
     .footer-links-section .col-md-3,
     .footer-links-section .col-md-2 {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .footer-links-section h6 {
+        font-size: 1.15rem;
+    }
+    
+    .footer-links-section p {
+        font-size: 0.95rem;
+        line-height: 1.7;
     }
 }
 

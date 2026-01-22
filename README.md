@@ -24,6 +24,7 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - **Swiper** - Modern touch slider
 - **AOS** - Animate on scroll library
 - **Axios** - HTTP client for API requests
+- **jsPDF** - PDF generation for recipes and grocery lists
 
 ### Backend
 - **Node.js** - JavaScript runtime
@@ -61,22 +62,24 @@ This will install all dependencies for both frontend and backend.
 
 ### 3. Environment Configuration
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the **root** directory by copying the example:
 
 ```bash
-# MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017/food-planner
-# Or use MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/food-planner
-
-# Server Configuration
-PORT=3001
-
-# JWT Secret (use a strong, random string in production)
-JWT_SECRET=your_jwt_secret_key_here
+cp server/.env.example .env
 ```
 
-**Important:** Never commit your `.env` file to version control. It's already included in `.gitignore`.
+Then edit `server/.env` with your own values:
+
+```env
+# Server Configuration
+PORT=3001
+JWT_SECRET=your_jwt_secret_key_here
+
+# MongoDB Configuration (use your own MongoDB Atlas connection)
+MONGODB_URI=mongodb+srv://<username>:<password>@your-cluster.mongodb.net/food-planner?retryWrites=true&w=majority
+```
+
+**Important:** Never commit your `.env` file to version control. It contains sensitive credentials.
 
 ### 4. Database Setup
 
