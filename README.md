@@ -46,8 +46,8 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd food-planner-rv1
+git clone https://github.com/TangPiseth/Food-Planner.git
+cd Food-Planner
 ```
 
 ### 2. Install Dependencies
@@ -62,7 +62,7 @@ This will install all dependencies for both frontend and backend.
 
 Create a `.env` file in the root directory:
 
-```bash
+```env
 # MongoDB Configuration
 MONGODB_URI=mongodb://localhost:27017/food-planner
 # Or use MongoDB Atlas:
@@ -139,7 +139,7 @@ The production-ready files will be generated in the `dist/` directory.
 ## 📁 Project Structure
 
 ```
-food-planner-rv1/
+Food Planner/
 ├── public/              # Static files
 │   └── index.html      # HTML entry point
 ├── server/             # Backend server
@@ -230,6 +230,13 @@ devServer: {
 ```bash
 # Clear node_modules and reinstall
 rm -rf node_modules package-lock.json
+npm install
+```
+
+Windows (PowerShell) alternative:
+```powershell
+Remove-Item -Recurse -Force node_modules
+Remove-Item -Force package-lock.json
 npm install
 ```
 
