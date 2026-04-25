@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { getApiUrl } from './apiConfig';
 
-const API_URL = 'http://localhost:3001/api/grocery-lists';
+const API_URL = getApiUrl('/grocery-lists');
 
 // Get auth token from localStorage
 const getAuthHeader = () => {

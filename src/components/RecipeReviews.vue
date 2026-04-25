@@ -1,15 +1,17 @@
 <template>
     <div class="recipe-reviews mt-4" data-aos="fade-up">
       <h4 class="fw-bold mb-3 review-title">Customer Reviews ({{ totalReviews }})</h4>
+
+      <div v-if="loading" class="text-center py-3 text-muted">Loading reviews...</div>
       
       <!-- Reviews List -->
-      <div v-if="reviews.length > 0">
-        <div class="review-card mb-3 p-3 bg-white rounded-3 shadow-sm" v-for="review in reviews" :key="review.id">
+      <div v-else-if="reviews.length > 0">
+        <div class="review-card mb-3 p-3 bg-white rounded-3 shadow-sm" v-for="review in paginatedReviews" :key="review._id">
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
               <h6 class="mb-1 fw-600">{{ review.name }}</h6>
               <div class="text-muted" style="font-size: 12px;">
-                {{ formatDate(review.date) }}
+                {{ formatDate(review.createdAt) }}
               </div>
             </div>
             <div class="rating bg-success text-white px-2 py-1 rounded-pill" style="font-size: 12px;">
@@ -17,6 +19,15 @@
             </div>
           </div>
           <p class="mb-0" style="font-size: 14px; line-height: 1.6;">{{ review.comment }}</p>
+          <div class="d-flex justify-content-end mt-2">
+            <button
+              v-if="isAuthenticated()"
+              class="btn btn-sm btn-outline-danger"
+              @click="handleReport(review)"
+            >
+              <i class="fa-solid fa-flag me-1"></i>Report
+            </button>
+          </div>
         </div>
   
         <!-- Pagination -->
@@ -48,6 +59,9 @@
   </template>
   
   <script>
+  import { fetchApprovedReviews, reportReview } from '@/services/reviewService';
+  import { isAuthenticated } from '@/services/authService';
+
   export default {
     name: 'RecipeReviews',
     props: {
@@ -58,30 +72,8 @@
     },
     data() {
       return {
-        reviews: [
-          // Mock data - replace with actual API calls later
-          {
-            id: 1,
-            name: "John Doe",
-            rating: 5,
-            comment: "This recipe was amazing! My whole family loved it. The instructions were clear and easy to follow. Will definitely make it again!",
-            date: "2024-01-15"
-          },
-          {
-            id: 2,
-            name: "Jane Smith",
-            rating: 4,
-            comment: "Great recipe! I made a few modifications to suit my taste but the base recipe is solid. Would recommend.",
-            date: "2024-01-14"
-          },
-          {
-            id: 3,
-            name: "Mike Johnson",
-            rating: 5,
-            comment: "Perfect recipe! Turned out exactly as shown in the pictures. The timing was spot on.",
-            date: "2024-01-13"
-          }
-        ],
+        reviews: [],
+        loading: false,
         currentPage: 1,
         reviewsPerPage: 5
       }
@@ -92,6 +84,11 @@
       },
       totalPages() {
         return Math.ceil(this.reviews.length / this.reviewsPerPage);
+      },
+      paginatedReviews() {
+        const start = (this.currentPage - 1) * this.reviewsPerPage;
+        const end = start + this.reviewsPerPage;
+        return this.reviews.slice(start, end);
       }
     },
     methods: {
@@ -108,20 +105,41 @@
         }
       },
       addReview(reviewData) {
-        // Add the new review to the beginning of the list
-        this.reviews.unshift(reviewData);
-        // Reset to first page to show the new review
-        this.currentPage = 1;
+        if (reviewData?.status === 'approved') {
+          this.reviews.unshift(reviewData);
+          this.currentPage = 1;
+          return;
+        }
+
+        this.fetchReviews();
       },
       async fetchReviews() {
-        // In a real application, you would fetch reviews from your API here
-        // Example:
-        // try {
-        //   const response = await axios.get(`/api/recipes/${this.recipeId}/reviews`);
-        //   this.reviews = response.data;
-        // } catch (error) {
-        //   console.error('Error fetching reviews:', error);
-        // }
+        this.loading = true;
+        const result = await fetchApprovedReviews(this.recipeId);
+        this.reviews = result.success ? result.reviews : [];
+        this.currentPage = 1;
+        this.loading = false;
+      },
+      async handleReport(review) {
+        const reason = window.prompt('Why are you reporting this review?');
+        if (!reason || !reason.trim()) {
+          return;
+        }
+
+        const result = await reportReview(review._id, reason.trim());
+        if (result.success) {
+          alert(result.message || 'Report submitted.');
+        } else {
+          alert(result.error || 'Failed to submit report.');
+        }
+      },
+      isAuthenticated() {
+        return isAuthenticated();
+      }
+    },
+    watch: {
+      recipeId() {
+        this.fetchReviews();
       }
     },
     created() {

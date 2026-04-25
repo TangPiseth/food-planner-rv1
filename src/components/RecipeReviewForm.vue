@@ -3,6 +3,9 @@
       <div v-if="showAlert" class="alert alert-success mb-3" role="alert">
         <i class="fa-solid fa-check-circle me-2"></i>Thank you for your review!
       </div>
+      <div v-if="errorMessage" class="alert alert-danger mb-3" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>{{ errorMessage }}
+      </div>
       
       <h4 class="fw-bold mb-1">Leave a Review</h4>
       <p class="text-muted small mb-3">Required fields are marked *</p>
@@ -79,7 +82,7 @@
           </label>
         </div>
   
-        <button type="submit" class="btn btn-success btn-sm px-4">
+        <button type="submit" class="btn btn-success btn-sm px-4" :disabled="loading">
           <i class="fa-solid fa-paper-plane me-2"></i>Post Review
         </button>
       </form>
@@ -87,6 +90,8 @@
   </template>
   
   <script>
+  import { submitReview } from '@/services/reviewService';
+
   export default {
     name: 'RecipeReviewForm',
     props: {
@@ -105,6 +110,8 @@
           saveInfo: false
         },
         showAlert: false,
+        errorMessage: '',
+        loading: false,
         errors: {}
       }
     },
@@ -134,25 +141,28 @@
         return Object.keys(errors).length === 0;
       },
       
-      handleSubmit() {
+      async handleSubmit() {
         if (this.validateForm()) {
-          // Create review object
-          const reviewData = {
-            id: Date.now(), // Temporary ID
+          this.loading = true;
+          this.errorMessage = '';
+
+          const result = await submitReview({
+            recipeId: this.recipeId,
             name: this.formData.name,
-            rating: parseInt(this.formData.rating),
-            comment: this.formData.review,
-            date: new Date().toISOString().split('T')[0],
-            recipeId: this.recipeId
-          };
-          
-          // Emit the review to parent
-          this.$emit('review-submitted', reviewData);
-          
-          // Show success message
+            email: this.formData.email,
+            rating: parseInt(this.formData.rating, 10),
+            comment: this.formData.review
+          });
+
+          if (!result.success) {
+            this.errorMessage = result.error || 'Failed to submit review. Please try again.';
+            this.loading = false;
+            return;
+          }
+
+          this.$emit('review-submitted', result.review);
           this.showAlert = true;
-          
-          // Reset form
+
           const saveInfoValue = this.formData.saveInfo;
           this.formData = {
             name: saveInfoValue ? this.formData.name : '',
@@ -161,7 +171,9 @@
             rating: 0,
             saveInfo: saveInfoValue
           };
-          
+
+          this.loading = false;
+
           setTimeout(() => {
             this.showAlert = false;
           }, 3000);

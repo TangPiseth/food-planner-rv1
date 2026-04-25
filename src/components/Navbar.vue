@@ -54,6 +54,11 @@
                 <i class="fas fa-shopping-cart me-2"></i>Grocery List
               </router-link>
             </li>
+            <li v-if="currentUser?.role === 'admin'" class="nav-item">
+              <router-link to="/admin" class="nav-link" @click="closeOffcanvas">
+                <i class="fas fa-user-shield me-2"></i>Admin Dashboard
+              </router-link>
+            </li>
             
             <hr class="my-3">
             
@@ -120,6 +125,9 @@
           </li>
           <li class="nav-item mx-lg-2">
             <router-link to="/grocery-list" class="nav-link">Grocery List</router-link>
+          </li>
+          <li v-if="currentUser?.role === 'admin'" class="nav-item mx-lg-2">
+            <router-link to="/admin" class="nav-link">Admin Dashboard</router-link>
           </li>
           
           <!-- User Authentication Links -->

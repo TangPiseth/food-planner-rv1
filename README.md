@@ -10,6 +10,8 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - 📝 **Blog Section** - Read and share food-related articles
 - 👤 **User Authentication** - Secure login and registration with JWT
 - ⭐ **Recipe Reviews** - Rate and review recipes
+- 🚩 **Review Reporting** - Users can report inappropriate reviews
+- 🛡️ **Admin Moderation Dashboard** - Manage users, reviews, reports, and moderation logs
 - 📱 **Responsive Design** - Works on desktop, tablet, and mobile
 - 🔍 **Advanced Filters** - Filter recipes by category, ingredients, and more
 
@@ -31,7 +33,6 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - **Mongoose** - MongoDB object modeling
 - **JWT** - JSON Web Tokens for authentication
 - **Bcrypt** - Password hashing
-- **Firebase** - Authentication and cloud services
 
 ## 📋 Prerequisites
 
@@ -46,8 +47,8 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd food-planner-rv1
+git clone https://github.com/TangPiseth/Food-Planner.git
+cd Food-Planner
 ```
 
 ### 2. Install Dependencies
@@ -62,7 +63,7 @@ This will install all dependencies for both frontend and backend.
 
 Create a `.env` file in the root directory:
 
-```bash
+```env
 # MongoDB Configuration
 MONGODB_URI=mongodb://localhost:27017/food-planner
 # Or use MongoDB Atlas:
@@ -74,10 +75,13 @@ PORT=3001
 # JWT Secret (use a strong, random string in production)
 JWT_SECRET=your_jwt_secret_key_here
 
-# Firebase Configuration (if using Firebase)
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
+# CORS Origins (comma-separated)
+# Include your deployed frontend URL(s)
+CORS_ORIGINS=http://localhost:8080,https://eatsbuddy.vercel.app
+
+# Frontend API base URL (for Vue build)
+# Use /api when frontend and backend are in the same Vercel project
+VUE_APP_API_BASE_URL=/api
 ```
 
 **Important:** Never commit your `.env` file to version control. It's already included in `.gitignore`.
@@ -114,6 +118,8 @@ This will start:
 - Frontend dev server at `http://localhost:8080`
 - Backend API server at `http://localhost:3001`
 
+Local development uses a Vue proxy so `/api/*` requests are forwarded to `http://localhost:3001`.
+
 ### Run Separately
 
 **Frontend only:**
@@ -136,10 +142,32 @@ npm run build
 
 The production-ready files will be generated in the `dist/` directory.
 
+## ▲ Deploy on Vercel
+
+This repository is configured for full Vercel deployment (frontend + backend API):
+
+- Frontend is served from Vue build output (`dist`)
+- Express API is deployed as a Vercel serverless function at `/api/*`
+
+### Required Vercel Environment Variables
+
+Set these in Project Settings -> Environment Variables:
+
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `CORS_ORIGINS` (example: `https://eatsbuddy.vercel.app`)
+- `VUE_APP_API_BASE_URL` set to `/api`
+
+### Important Notes
+
+- Do not set `VUE_APP_API_BASE_URL` to `http://localhost:3001` in production.
+- Keep `.env` local only. Use Vercel env vars for hosted deployments.
+- Preview deployments (`*.vercel.app`) are accepted by backend CORS.
+
 ## 📁 Project Structure
 
 ```
-food-planner-rv1/
+Food Planner/
 ├── public/              # Static files
 │   └── index.html      # HTML entry point
 ├── server/             # Backend server
@@ -175,7 +203,23 @@ food-planner-rv1/
 ### Authentication
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile (requires auth)
+- `GET /api/auth/me` - Get current user profile (requires auth)
+
+### Reviews and Reports
+- `GET /api/reviews/:recipeId` - Get approved reviews for a recipe
+- `POST /api/reviews` - Submit review (auto-approved)
+- `POST /api/reviews/:reviewId/report` - Report a review (requires auth)
+
+### Admin Moderation (requires admin)
+- `GET /api/admin/users` - List users
+- `PATCH /api/admin/users/:id/role` - Promote/demote role
+- `PATCH /api/admin/users/:id/ban` - Ban/unban user
+- `GET /api/admin/reviews` - List reviews for moderation
+- `PUT /api/admin/reviews/:id` - Edit/update review
+- `DELETE /api/admin/reviews/:id` - Delete review
+- `GET /api/admin/reports` - List reported reviews
+- `PATCH /api/admin/reports/:id` - Resolve or dismiss report
+- `GET /api/admin/logs` - View moderation logs
 
 ### Meal Plans
 - `GET /api/meal-plans` - Get all meal plans (requires auth)
@@ -207,6 +251,17 @@ npm test
 - Always use HTTPS in production
 - Keep your `.env` file secure and never commit it
 
+## 👑 Create First Admin in MongoDB Atlas
+
+1. Register a normal account through the app first (recommended).
+2. Open MongoDB Atlas -> Database -> Collections -> `users`.
+3. Find your user document and edit fields:
+   - `role`: `admin`
+   - `isBanned`: `false`
+4. Save changes and log in again.
+
+The admin account will now be able to access `/admin` and moderate users/reports/reviews.
+
 ## 🐛 Troubleshooting
 
 ### MongoDB Connection Issues
@@ -230,6 +285,13 @@ devServer: {
 ```bash
 # Clear node_modules and reinstall
 rm -rf node_modules package-lock.json
+npm install
+```
+
+Windows (PowerShell) alternative:
+```powershell
+Remove-Item -Recurse -Force node_modules
+Remove-Item -Force package-lock.json
 npm install
 ```
 
