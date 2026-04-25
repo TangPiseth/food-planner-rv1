@@ -1,5 +1,7 @@
 // Authentication service for user management with backend API
-const API_URL = 'http://localhost:3001/api/auth';
+import { getApiUrl } from './apiConfig';
+
+const API_URL = getApiUrl('/auth');
 const AUTH_TOKEN_KEY = 'authToken';
 const USER_ROLE_KEY = 'userRole';
 

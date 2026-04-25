@@ -74,6 +74,14 @@ PORT=3001
 
 # JWT Secret (use a strong, random string in production)
 JWT_SECRET=your_jwt_secret_key_here
+
+# CORS Origins (comma-separated)
+# Include your deployed frontend URL(s)
+CORS_ORIGINS=http://localhost:8080,https://eatsbuddy.vercel.app
+
+# Frontend API base URL (for Vue build)
+# Use /api when frontend and backend are in the same Vercel project
+VUE_APP_API_BASE_URL=/api
 ```
 
 **Important:** Never commit your `.env` file to version control. It's already included in `.gitignore`.
@@ -110,6 +118,8 @@ This will start:
 - Frontend dev server at `http://localhost:8080`
 - Backend API server at `http://localhost:3001`
 
+Local development uses a Vue proxy so `/api/*` requests are forwarded to `http://localhost:3001`.
+
 ### Run Separately
 
 **Frontend only:**
@@ -131,6 +141,28 @@ npm run build
 ```
 
 The production-ready files will be generated in the `dist/` directory.
+
+## ▲ Deploy on Vercel
+
+This repository is configured for full Vercel deployment (frontend + backend API):
+
+- Frontend is served from Vue build output (`dist`)
+- Express API is deployed as a Vercel serverless function at `/api/*`
+
+### Required Vercel Environment Variables
+
+Set these in Project Settings -> Environment Variables:
+
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `CORS_ORIGINS` (example: `https://eatsbuddy.vercel.app`)
+- `VUE_APP_API_BASE_URL` set to `/api`
+
+### Important Notes
+
+- Do not set `VUE_APP_API_BASE_URL` to `http://localhost:3001` in production.
+- Keep `.env` local only. Use Vercel env vars for hosted deployments.
+- Preview deployments (`*.vercel.app`) are accepted by backend CORS.
 
 ## 📁 Project Structure
 

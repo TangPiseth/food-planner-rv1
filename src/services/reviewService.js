@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3001/api/reviews';
+import { getApiUrl } from './apiConfig';
+
+const API_URL = getApiUrl('/reviews');
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('authToken');

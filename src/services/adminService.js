@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3001/api/admin';
+import { getApiUrl } from './apiConfig';
+
+const API_URL = getApiUrl('/admin');
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('authToken');
