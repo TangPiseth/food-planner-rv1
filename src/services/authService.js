@@ -1,25 +1,42 @@
-// Authentication service for user management with PostgreSQL backend
+// Authentication service for user management with backend API
 const API_URL = 'http://localhost:3001/api/auth';
+const AUTH_TOKEN_KEY = 'authToken';
+const USER_ROLE_KEY = 'userRole';
 
 /**
  * Get stored auth token
  */
 const getToken = () => {
-  return localStorage.getItem('authToken');
+  return localStorage.getItem(AUTH_TOKEN_KEY);
 };
 
 /**
  * Store auth token
  */
 const setToken = (token) => {
-  localStorage.setItem('authToken', token);
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+};
+
+/**
+ * Store user role
+ */
+const setUserRole = (role) => {
+  localStorage.setItem(USER_ROLE_KEY, role || 'user');
+};
+
+/**
+ * Get stored user role
+ */
+export const getUserRole = () => {
+  return localStorage.getItem(USER_ROLE_KEY) || 'user';
 };
 
 /**
  * Remove auth token
  */
 const removeToken = () => {
-  localStorage.removeItem('authToken');
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(USER_ROLE_KEY);
 };
 
 /**
@@ -51,6 +68,7 @@ export const registerUser = async (email, password, username) => {
 
     // Store token
     setToken(data.token);
+    setUserRole(data.user?.role);
 
     return { success: true, user: data.user };
   } catch (error) {
@@ -80,6 +98,7 @@ export const loginUser = async (email, password) => {
 
     // Store token
     setToken(data.token);
+    setUserRole(data.user?.role);
 
     return { success: true, user: data.user };
   } catch (error) {
@@ -120,8 +139,13 @@ export const getUserData = async () => {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        removeToken();
+      }
       return { success: false, error: data.error || 'Failed to get user data' };
     }
+
+    setUserRole(data.user?.role);
 
     return { success: true, data: data.user };
   } catch (error) {
@@ -201,6 +225,13 @@ export const isAuthenticated = () => {
   return !!getToken();
 };
 
+/**
+ * Check if current user is admin
+ */
+export const isAdmin = () => {
+  return getUserRole() === 'admin';
+};
+
 export default {
   registerUser,
   loginUser,
@@ -210,7 +241,10 @@ export default {
   updateUserPassword,
   getCurrentUser,
   isAuthenticated,
+  isAdmin,
+  getUserRole,
   getToken,
   setToken,
+  setUserRole,
   removeToken
 }

@@ -10,6 +10,8 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - 📝 **Blog Section** - Read and share food-related articles
 - 👤 **User Authentication** - Secure login and registration with JWT
 - ⭐ **Recipe Reviews** - Rate and review recipes
+- 🚩 **Review Reporting** - Users can report inappropriate reviews
+- 🛡️ **Admin Moderation Dashboard** - Manage users, reviews, reports, and moderation logs
 - 📱 **Responsive Design** - Works on desktop, tablet, and mobile
 - 🔍 **Advanced Filters** - Filter recipes by category, ingredients, and more
 
@@ -31,7 +33,6 @@ A full-stack web application for meal planning, recipe management, and grocery l
 - **Mongoose** - MongoDB object modeling
 - **JWT** - JSON Web Tokens for authentication
 - **Bcrypt** - Password hashing
-- **Firebase** - Authentication and cloud services
 
 ## 📋 Prerequisites
 
@@ -73,11 +74,6 @@ PORT=3001
 
 # JWT Secret (use a strong, random string in production)
 JWT_SECRET=your_jwt_secret_key_here
-
-# Firebase Configuration (if using Firebase)
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
 ```
 
 **Important:** Never commit your `.env` file to version control. It's already included in `.gitignore`.
@@ -175,7 +171,23 @@ Food Planner/
 ### Authentication
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile (requires auth)
+- `GET /api/auth/me` - Get current user profile (requires auth)
+
+### Reviews and Reports
+- `GET /api/reviews/:recipeId` - Get approved reviews for a recipe
+- `POST /api/reviews` - Submit review (auto-approved)
+- `POST /api/reviews/:reviewId/report` - Report a review (requires auth)
+
+### Admin Moderation (requires admin)
+- `GET /api/admin/users` - List users
+- `PATCH /api/admin/users/:id/role` - Promote/demote role
+- `PATCH /api/admin/users/:id/ban` - Ban/unban user
+- `GET /api/admin/reviews` - List reviews for moderation
+- `PUT /api/admin/reviews/:id` - Edit/update review
+- `DELETE /api/admin/reviews/:id` - Delete review
+- `GET /api/admin/reports` - List reported reviews
+- `PATCH /api/admin/reports/:id` - Resolve or dismiss report
+- `GET /api/admin/logs` - View moderation logs
 
 ### Meal Plans
 - `GET /api/meal-plans` - Get all meal plans (requires auth)
@@ -206,6 +218,17 @@ npm test
 - CORS is enabled for cross-origin requests
 - Always use HTTPS in production
 - Keep your `.env` file secure and never commit it
+
+## 👑 Create First Admin in MongoDB Atlas
+
+1. Register a normal account through the app first (recommended).
+2. Open MongoDB Atlas -> Database -> Collections -> `users`.
+3. Find your user document and edit fields:
+   - `role`: `admin`
+   - `isBanned`: `false`
+4. Save changes and log in again.
+
+The admin account will now be able to access `/admin` and moderate users/reports/reviews.
 
 ## 🐛 Troubleshooting
 

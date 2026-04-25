@@ -11,6 +11,7 @@ import TermsPage from '@/views/TermsPage.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import RegisterPage from '@/views/RegisterPage.vue';
 import ProfilePage from '@/views/ProfilePage.vue';
+import AdminDashboard from '@/views/AdminDashboard.vue';
 // import BlogPage from '@/views/BlogSection.vue';
 // import BlogDetail from '@/views/BlogDetail.vue';
 
@@ -43,6 +44,12 @@ const routes = [
     component: ProfilePage,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
   // { path: '/blog', name: 'Blog', component: BlogPage },
   // { path: '/blog/:id', name: 'BlogDetail', component: BlogDetail, props: true },
   //{ path: '/:catchAll(.*)', redirect: '/home-page' }, // catch all routes and redirect to home page.
@@ -63,7 +70,9 @@ const router = createRouter({
 // Navigation guard to protect routes
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
   const token = localStorage.getItem('authToken');
+  const role = localStorage.getItem('userRole');
   
   if (requiresAuth && !token) {
     // Redirect to login if route requires auth and user is not logged in
@@ -71,6 +80,8 @@ router.beforeEach((to, from, next) => {
       name: 'Login',
       query: { redirect: to.fullPath } // Save the intended destination
     });
+  } else if (requiresAdmin && role !== 'admin') {
+    next({ name: 'Home' });
   } else {
     next();
   }
