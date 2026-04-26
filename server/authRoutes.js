@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
+const { verifyToken } = require('./middleware/auth');
 
 // Register new user
 router.post('/register', async (req, res) => {
@@ -40,7 +41,7 @@ router.post('/register', async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email, username: user.username },
+      { id: user._id, email: user.email, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -52,6 +53,8 @@ router.post('/register', async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role,
+        isBanned: user.isBanned,
         created_at: user.createdAt
       },
       token
@@ -79,6 +82,10 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    if (user.isBanned) {
+      return res.status(403).json({ error: 'Your account is banned. Please contact support.' });
+    }
+
     // Verify password
     const validPassword = await bcrypt.compare(password, user.password);
 
@@ -88,7 +95,7 @@ router.post('/login', async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email, username: user.username },
+      { id: user._id, email: user.email, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -100,6 +107,8 @@ router.post('/login', async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role,
+        isBanned: user.isBanned,
         created_at: user.createdAt
       },
       token
@@ -109,23 +118,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Server error during login' });
   }
 });
-
-// Verify token middleware
-const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-};
 
 // Get current user
 router.get('/me', verifyToken, async (req, res) => {
@@ -142,6 +134,8 @@ router.get('/me', verifyToken, async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role,
+        isBanned: user.isBanned,
         created_at: user.createdAt
       }
     });
@@ -173,6 +167,8 @@ router.put('/update-username', verifyToken, async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role,
+        isBanned: user.isBanned,
         created_at: user.createdAt
       }
     });
