@@ -240,6 +240,7 @@ const generateReviewsForRecipe = (recipe, numReviews = 50) => {
       recipeTitle: recipe.title,
       rating: rating,
       comment: comment,
+      status: 'approved',
       createdAt: date,
       updatedAt: date
     });

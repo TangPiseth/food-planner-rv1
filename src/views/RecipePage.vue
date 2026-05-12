@@ -1,67 +1,40 @@
-<!-- RecipePage.vue -->
-<template>
-  <div class="EG-Default" style="margin-top: 80px;">
-    <!-- SVG Filters -->
-    <svg style="display: none">
-      <filter id="glass-distortion-recipe-controls">
-        <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" result="noise" seed="7" />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-      </filter>
-      <filter id="glass-distortion-recipe-card">
-        <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" result="noise" seed="8" />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-      </filter>
-    </svg>
-
-    <!-- Breadcrumb Section -->
-    <div class="breadcrumb-section">
+﻿<template>
+  <div class="recipe-page">
+    <section class="recipe-page-hero">
       <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-xl-7 col-lg-8 col-md-10 col-12">
-            <div class="text-center" data-aos="fade-down" data-aos-duration="1300">
-              <nav>
-                <ol class="breadcrumb justify-content-center">
-                  <li class="breadcrumb-item"><a href="#" class="text-success">HOME</a></li>
-                  <li class="breadcrumb-item link-secondary active" aria-current="page">RECIPES</li>
-                </ol>
-              </nav>
-            </div>
+        <nav class="recipe-breadcrumb" aria-label="breadcrumb">
+          <router-link to="/">Home</router-link>
+          <i class="fa-solid fa-chevron-right"></i>
+          <span>Recipes</span>
+        </nav>
+
+        <div class="hero-grid" data-aos="fade-up">
+          <div class="hero-copy">
+            <h1>Find your next favorite meal.</h1>
+            <p>
+              From quick weeknight dinners to weekend feasts — discover thousands of recipes by cuisine, category, or ingredient. Your next delicious idea is just a search away.
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Hero Section -->
-    <div class="recipe-hero-section">
-      <div class="container hero" data-aos="fade-up">
-        <h1>Choose from thousands of recipes</h1>
-        <p>Explore our diverse collection of delicious recipes crafted with passion and care.</p>
+    <section class="recipe-content-section">
+      <div class="container">
+        <RecipeList />
       </div>
-    </div>
-
-    <!-- Main Content Section -->
-    <div class="recipe-content-section py-5">
-      <div class="container mt-4">
-        <div class="row">
-          <!-- Recipe Cards Section -->
-          <main class="col-lg-9 m-auto" data-aos="fade-left">
-            <RecipeList />
-          </main>
-        </div>
-      </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script>
-import Filters from '@/components/recipes/Filters.vue';
-import RecipeList from '@/components/recipes/RecipeList.vue';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import RecipeList from '@/components/recipes/RecipeList.vue';
 
 export default {
+  name: 'RecipePage',
   components: {
-    Filters,
     RecipeList,
   },
   mounted() {
@@ -70,177 +43,162 @@ export default {
 };
 </script>
 
-<style>
-body {
-  font-family: 'Roboto', sans-serif;
-  color: #1a1a1a;
-}
-
-/* Breadcrumb Section */
-.breadcrumb-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-  padding: 20px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.breadcrumb-section .breadcrumb {
-  background: transparent;
-  padding: 0;
-  margin: 0;
-}
-
-.breadcrumb-section .breadcrumb-item a {
-  color: #2e7d32;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.breadcrumb-section .breadcrumb-item a:hover {
-  color: #1b5e20;
-}
-
-/* Hero Section */
-.recipe-hero-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-  position: relative;
-  overflow: hidden;
-  padding: 10px 0;
-}
-
-.recipe-hero-section::before {
-  content: '';
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(46, 125, 50, 0.06) 0%, transparent 70%);
-  border-radius: 50%;
-  top: -150px;
-  right: -150px;
-  filter: blur(80px);
-  pointer-events: none;
-}
-
-.recipe-hero-section::after {
-  content: '';
-  position: absolute;
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(23, 185, 122, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  bottom: -100px;
-  left: -100px;
-  filter: blur(60px);
-  pointer-events: none;
-}
-
-.hero {
-  position: relative;
-  z-index: 1;
-  background: url('../assets/img/Food-1.png') no-repeat center center/cover;
-  color: white;
-  text-align: center;
-  padding: 60px 20px;
-  border-radius: 28px;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.hero h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-  letter-spacing: -1px;
-}
-
-.hero p {
-  font-size: 1.2rem;
-  font-weight: 500;
-  opacity: 0.95;
-}
-
-/* Content Section */
-.recipe-content-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+<style scoped>
+.recipe-page {
   min-height: 100vh;
+  padding-top: 80px;
+  color: #111827;
+  background: #ffffff;
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Pagination */
-.pagination {
+.recipe-page .container {
+  max-width: 1180px;
+}
+
+.recipe-page-hero {
+  padding: 34px 0 58px;
+  background:
+    radial-gradient(circle at top left, rgba(22, 101, 52, 0.11), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f8faf8 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.recipe-breadcrumb {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 40px;
+  gap: 10px;
+  margin-bottom: 28px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 800;
 }
 
-.page-link {
-  color: #2e7d32;
-  border-color: rgba(46, 125, 50, 0.3);
-  border-radius: 8px;
-  margin: 0 4px;
-  transition: all 0.3s ease;
+.recipe-breadcrumb a {
+  color: #14532d;
+  text-decoration: none;
 }
 
-.page-link:hover {
-  background-color: #2e7d32;
-  color: white;
-  border-color: #2e7d32;
+.recipe-breadcrumb i {
+  color: #9ca3af;
+  font-size: 10px;
 }
 
-.page-item.active .page-link {
-  background-color: #2e7d32;
-  border-color: #2e7d32;
+.hero-grid {
+  display: flex;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 2rem;
+.hero-kicker {
+  display: inline-flex;
+  margin-bottom: 18px;
+  padding: 8px 14px;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-copy {
+  text-align: center;
+}
+
+.hero-copy h1 {
+  max-width: 820px;
+  margin: 0 auto;
+  color: #0f172a;
+  font-size: clamp(2.8rem, 6vw, 5.4rem);
+  font-weight: 900;
+  letter-spacing: -0.07em;
+  line-height: 0.95;
+}
+
+.hero-copy p {
+  max-width: 620px;
+  margin: 24px auto 0;
+  color: #4b5563;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.hero-stats {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 30px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+}
+
+.hero-stats div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+}
+
+.hero-stats strong {
+  color: #14532d;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.hero-stats span {
+  color: #374151;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: right;
+}
+
+.recipe-content-section {
+  padding: 54px 0 76px;
+  background: #ffffff;
+}
+
+@media (max-width: 992px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
   }
 
-  .hero p {
-    font-size: 1rem;
-  }
-
-  .hero {
-    padding: 40px 20px;
-  }
-  
-  .breadcrumb-section {
-    padding: 15px 0;
-  }
-  
-  .recipe-hero-section {
-    padding: 20px 0;
-  }
-  
-  .recipe-content-section {
-    padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
-  }
-  
-  .col-lg-9 {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-  
-  .pagination {
-    margin-top: 25px;
-  }
-  
-  .page-link {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.85rem;
+  .hero-stats {
+    max-width: 520px;
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .hero h1 {
-    font-size: 2.5rem;
+@media (max-width: 576px) {
+  .recipe-page {
+    padding-top: 70px;
   }
-  
-  .hero p {
-    font-size: 1.1rem;
+
+  .recipe-page-hero {
+    padding: 26px 0 42px;
   }
-  
-  .hero {
-    padding: 50px 20px;
+
+  .hero-copy h1 {
+    font-size: clamp(2.3rem, 15vw, 3.6rem);
+  }
+
+  .hero-copy p {
+    font-size: 15px;
+  }
+
+  .hero-stats {
+    border-radius: 24px;
   }
 }
 </style>

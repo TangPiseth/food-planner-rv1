@@ -27,6 +27,9 @@
               <button @click="downloadPDF" class="action-btn download-btn" title="Download as PDF">
                 <i class="fa-solid fa-download"></i>
               </button>
+              <button @click="printList" class="action-btn print-btn" title="Print list">
+                <i class="fa-solid fa-print"></i>
+              </button>
               <button @click="toggleRename" class="action-btn rename-btn" title="Rename list">
                 <i class="fa-solid fa-pen"></i>
               </button>
@@ -199,110 +202,315 @@
       toggleExpanded() {
         this.isExpanded = !this.isExpanded;
       },
+      escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"]'/g, (character) => {
+          const replacements = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          };
+          return replacements[character] || character;
+        });
+      },
+      printList() {
+        const printWindow = window.open('', '_blank', 'width=920,height=720');
+
+        if (!printWindow) {
+          alert('Please allow popups to print this grocery list.');
+          return;
+        }
+
+        const itemsMarkup = this.list.items.length > 0
+          ? this.list.items.map((item) => `
+              <li class="item-row ${item.checked ? 'checked' : ''}">
+                <span class="item-check">${item.checked ? '✓' : '&nbsp;'}</span>
+                <span class="item-name">${this.escapeHtml(item.name)}</span>
+                <span class="item-meta">${this.escapeHtml(item.quantity)} ${this.escapeHtml(item.unit)}</span>
+              </li>
+            `).join('')
+          : '<li class="empty-row">No items added yet.</li>';
+
+        const listName = this.escapeHtml(this.list.name);
+        const listDate = this.escapeHtml(this.formatDate(this.list.date));
+
+        const html = `
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>${listName} - Grocery List</title>
+              <style>
+                * { box-sizing: border-box; }
+                body {
+                  margin: 0;
+                  font-family: Arial, Helvetica, sans-serif;
+                  color: #111827;
+                  background: #ffffff;
+                }
+                .sheet {
+                  max-width: 820px;
+                  margin: 0 auto;
+                  padding: 28px;
+                }
+                .header {
+                  border: 1px solid rgba(46, 125, 50, 0.18);
+                  border-radius: 20px;
+                  padding: 22px 24px;
+                  background: linear-gradient(180deg, #f8fbf8 0%, #ffffff 100%);
+                  margin-bottom: 22px;
+                }
+                .eyebrow {
+                  display: inline-block;
+                  padding: 6px 10px;
+                  border-radius: 999px;
+                  background: rgba(46, 125, 50, 0.1);
+                  color: #1b5e20;
+                  font-size: 11px;
+                  font-weight: 700;
+                  letter-spacing: 0.12em;
+                  text-transform: uppercase;
+                  margin-bottom: 10px;
+                }
+                h1 {
+                  margin: 0 0 6px;
+                  font-size: 26px;
+                }
+                .subhead {
+                  margin: 0;
+                  color: #4b5563;
+                  font-size: 14px;
+                }
+                .meta {
+                  display: flex;
+                  gap: 12px;
+                  flex-wrap: wrap;
+                  margin-top: 16px;
+                }
+                .meta span {
+                  padding: 8px 12px;
+                  border-radius: 999px;
+                  background: #f3f4f6;
+                  font-size: 12px;
+                  color: #374151;
+                }
+                .items {
+                  list-style: none;
+                  padding: 0;
+                  margin: 0;
+                  border: 1px solid rgba(17, 24, 39, 0.08);
+                  border-radius: 20px;
+                  overflow: hidden;
+                }
+                .item-row {
+                  display: grid;
+                  grid-template-columns: 28px 1fr auto;
+                  gap: 12px;
+                  align-items: center;
+                  padding: 14px 18px;
+                  border-top: 1px solid rgba(17, 24, 39, 0.06);
+                  font-size: 14px;
+                }
+                .item-row:first-child {
+                  border-top: none;
+                }
+                .item-row.checked {
+                  background: rgba(46, 125, 50, 0.05);
+                  color: #6b7280;
+                }
+                .item-check {
+                  width: 18px;
+                  height: 18px;
+                  border-radius: 5px;
+                  border: 1.5px solid #2e7d32;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 12px;
+                  color: #2e7d32;
+                }
+                .item-row.checked .item-check {
+                  background: #2e7d32;
+                  color: #ffffff;
+                }
+                .item-name {
+                  font-weight: 600;
+                }
+                .item-meta {
+                  color: #4b5563;
+                  white-space: nowrap;
+                }
+                .empty-row {
+                  padding: 24px;
+                  text-align: center;
+                  color: #6b7280;
+                }
+                .footer {
+                  margin-top: 18px;
+                  font-size: 12px;
+                  color: #6b7280;
+                  text-align: center;
+                }
+                @media print {
+                  body { background: #ffffff; }
+                  .sheet { padding: 0; }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="sheet">
+                <div class="header">
+                  <div class="eyebrow">Grocery List</div>
+                  <h1>${listName}</h1>
+                  <p class="subhead">Print-ready shopping list for quick trips and store visits.</p>
+                  <div class="meta">
+                    <span>${listDate}</span>
+                    <span>${this.list.items.length} items</span>
+                    <span>${this.list.items.filter((item) => item.checked).length} checked</span>
+                  </div>
+                </div>
+
+                <ul class="items">
+                  ${itemsMarkup}
+                </ul>
+
+                <div class="footer">Generated by EatsBuddy</div>
+              </div>
+              <script>
+                window.onload = function () {
+                  window.focus();
+                  window.print();
+                };
+                window.onafterprint = function () {
+                  window.close();
+                };
+              <\/script>
+            </body>
+          </html>
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+      },
       downloadPDF() {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 20;
-        let yPos = margin;
+        const headerHeight = 42;
+        const footerHeight = 18;
+        const contentTop = margin + headerHeight + 10;
+        const contentBottom = pageHeight - footerHeight - 16;
+        const sanitizedTitle = this.list.name || 'Grocery List';
+        const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Header background
-        doc.setFillColor(46, 125, 50);
-        doc.rect(0, 0, pageWidth, 45, 'F');
+        const renderHeader = () => {
+          doc.setFillColor(46, 125, 50);
+          doc.rect(0, 0, pageWidth, headerHeight, 'F');
 
-        // App branding
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(24);
+          doc.setTextColor(255, 255, 255);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(22);
+          doc.text('EatsBuddy', margin, 18);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          doc.text('Grocery List', margin, 28);
+
+          const generatedLabel = `Generated ${generatedDate}`;
+          doc.setFontSize(9);
+          doc.text(generatedLabel, pageWidth - margin - doc.getTextWidth(generatedLabel), 18);
+          doc.text(`${this.list.items.length} items`, pageWidth - margin - doc.getTextWidth(`${this.list.items.length} items`), 29);
+        };
+
+        const renderFooter = (pageNumber) => {
+          const footerY = pageHeight - 12;
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.3);
+          doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+
+          doc.setFontSize(8.5);
+          doc.setTextColor(120, 120, 120);
+          doc.text('Generated by EatsBuddy - Smart Food Planner', margin, footerY);
+          doc.text(`Page ${pageNumber}`, pageWidth - margin - 18, footerY);
+        };
+
+        renderHeader();
+
+        let yPos = contentTop;
+
+        doc.setTextColor(17, 24, 39);
         doc.setFont('helvetica', 'bold');
-        doc.text('EatsBuddy', margin, 20);
-
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Grocery List', margin, 30);
-
-        // Date on right
-        doc.setFontSize(9);
-        const dateText = `Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
-        doc.text(dateText, pageWidth - margin - doc.getTextWidth(dateText), 30);
-
-        yPos = 60;
-
-        // List Title
-        doc.setTextColor(30, 30, 30);
-        doc.setFontSize(20);
-        doc.setFont('helvetica', 'bold');
-        doc.text(this.list.name, margin, yPos);
+        doc.setFontSize(18);
+        doc.text(sanitizedTitle, margin, yPos);
         yPos += 8;
 
-        // List Date
-        doc.setTextColor(100, 100, 100);
-        doc.setFontSize(11);
+        doc.setTextColor(75, 85, 99);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Date: ${this.formatDate(this.list.date)} • ${this.list.items.length} items`, margin, yPos);
-        yPos += 15;
+        doc.setFontSize(10.5);
+        doc.text(`Date: ${this.formatDate(this.list.date)}`, margin, yPos);
+        yPos += 12;
 
-        // Divider line
-        doc.setDrawColor(46, 125, 50);
-        doc.setLineWidth(0.5);
+        doc.setDrawColor(209, 213, 219);
+        doc.setLineWidth(0.4);
         doc.line(margin, yPos, pageWidth - margin, yPos);
-        yPos += 15;
+        yPos += 12;
 
-        // Items section
         if (this.list.items.length > 0) {
-          doc.setFontSize(14);
+          doc.setTextColor(27, 94, 32);
           doc.setFont('helvetica', 'bold');
-          doc.setTextColor(46, 125, 50);
-          doc.text('Shopping Items', margin, yPos);
-          yPos += 12;
+          doc.setFontSize(12);
+          doc.text('Items', margin, yPos);
+          yPos += 8;
 
-          this.list.items.forEach((item, index) => {
-            // Check if we need a new page
-            if (yPos > pageHeight - 40) {
+          let pageNumber = 1;
+          this.list.items.forEach((item) => {
+            const rowHeight = 14;
+            if (yPos + rowHeight > contentBottom) {
+              renderFooter(pageNumber);
               doc.addPage();
-              yPos = margin;
+              pageNumber += 1;
+              renderHeader();
+              yPos = contentTop;
             }
 
-            // Checkbox
-            doc.setDrawColor(46, 125, 50);
-            doc.setLineWidth(0.3);
-            doc.rect(margin, yPos - 4, 5, 5);
+            doc.setFillColor(item.checked ? 242 : 249, item.checked ? 248 : 250, item.checked ? 242 : 250);
+            doc.setDrawColor(226, 232, 240);
+            doc.roundedRect(margin, yPos - 4, pageWidth - margin * 2, 11, 3, 3, 'FD');
 
-            // If item is checked, add checkmark
+            doc.setDrawColor(46, 125, 50);
+            doc.setLineWidth(0.4);
+            doc.rect(margin + 4, yPos - 1.5, 5, 5);
+
             if (item.checked) {
               doc.setFillColor(46, 125, 50);
-              doc.rect(margin, yPos - 4, 5, 5, 'F');
+              doc.rect(margin + 4, yPos - 1.5, 5, 5, 'F');
               doc.setTextColor(255, 255, 255);
-              doc.setFontSize(8);
-              doc.text('✓', margin + 1, yPos);
+              doc.setFontSize(7.5);
+              doc.text('✓', margin + 5.1, yPos + 2.5);
             }
 
-            // Item text
-            doc.setTextColor(item.checked ? 150 : 50, item.checked ? 150 : 50, item.checked ? 150 : 50);
-            doc.setFontSize(11);
+            doc.setTextColor(item.checked ? 120 : 31, item.checked ? 120 : 41, item.checked ? 120 : 55);
             doc.setFont('helvetica', 'normal');
-            const itemText = `${item.name} - ${item.quantity} ${item.unit}`;
-            doc.text(itemText, margin + 10, yPos);
+            doc.setFontSize(10.5);
+            doc.text(`${item.name}`, margin + 14, yPos + 2.2);
+            const quantityText = `${item.quantity} ${item.unit}`;
+            doc.setTextColor(75, 85, 99);
+            doc.text(quantityText, pageWidth - margin - doc.getTextWidth(quantityText) - 10, yPos + 2.2);
 
-            yPos += 10;
+            yPos += 12;
           });
+
+          renderFooter(pageNumber);
         } else {
-          doc.setTextColor(150, 150, 150);
+          doc.setTextColor(107, 114, 128);
           doc.setFontSize(12);
           doc.text('No items in this list yet.', margin, yPos);
+          renderFooter(1);
         }
 
-        // Footer
-        const footerY = pageHeight - 15;
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.3);
-        doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
-
-        doc.setFontSize(9);
-        doc.setTextColor(150, 150, 150);
-        doc.text('Generated by EatsBuddy - Smart Food Planner', margin, footerY);
-        doc.text('Page 1', pageWidth - margin - 15, footerY);
-
-        // Download the PDF
         const fileName = `${this.list.name.replace(/[^a-z0-9]/gi, '_')}_grocery_list.pdf`;
         doc.save(fileName);
       },
@@ -317,14 +525,14 @@
 
   /* Glass Card Three-Layer System */
   .grocery-list-glass-card {
-    --bg-color: rgba(255, 255, 255, 0.55);
+    --bg-color: rgba(255, 255, 255, 0.76);
     --highlight: rgba(255, 255, 255, 0.9);
     position: relative;
-    border-radius: 28px;
+    border-radius: 26px;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+    box-shadow: 0 14px 38px rgba(15, 23, 42, 0.08),
                 inset 1px 1px 0 rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(27, 94, 32, 0.08);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -363,21 +571,20 @@
   .list-content {
     position: relative;
     z-index: 4;
-    padding: 32px;
+    padding: 28px 30px 30px;
   }
 
   /* List Header */
   .list-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0;
-    padding-bottom: 20px;
+    align-items: flex-start;
+    gap: 18px;
+    margin: -28px -30px 0;
+    padding: 26px 30px 22px;
     border-bottom: 2px solid rgba(46, 125, 50, 0.15);
     cursor: pointer;
     transition: background 0.2s ease;
-    margin: -32px -32px 0;
-    padding: 32px;
     border-radius: 28px 28px 0 0;
   }
 
@@ -398,32 +605,38 @@
   }
 
   .list-title-section {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .list-title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
     color: #1a1a1a;
     margin: 0 0 8px;
     letter-spacing: -0.5px;
+    line-height: 1.2;
   }
 
   .list-date {
     font-size: 14px;
     color: #4a4a4a;
     margin: 0;
+    line-height: 1.35;
   }
 
   .list-actions {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-left: auto;
   }
 
   .action-btn {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 20px;
     border: none;
     background: rgba(46, 125, 50, 0.1);
@@ -439,6 +652,11 @@
   .action-btn:hover {
     background: rgba(46, 125, 50, 0.2);
     transform: scale(1.05);
+  }
+
+  .print-btn:hover {
+    background: rgba(33, 150, 243, 0.14);
+    color: #1976d2;
   }
 
   .download-btn:hover {
@@ -458,7 +676,8 @@
     padding: 8px 12px;
     background: rgba(46, 125, 50, 0.08);
     border-radius: 20px;
-    margin-left: 12px;
+    margin-left: 4px;
+    min-height: 38px;
   }
 
   .select-all-wrapper .form-check-input {
@@ -532,17 +751,17 @@
 
   /* Add Item Section */
   .add-item-section {
-    margin-bottom: 28px;
-    padding: 20px;
+    margin-bottom: 24px;
+    padding: 18px;
     background: rgba(46, 125, 50, 0.05);
     border-radius: 20px;
   }
 
   .add-item-form {
     display: grid;
-    grid-template-columns: 1fr 80px 100px 80px;
+    grid-template-columns: minmax(0, 1fr) 86px 96px auto;
     gap: 12px;
-    align-items: end;
+    align-items: stretch;
   }
 
   /* Glass Inputs */
@@ -559,6 +778,7 @@
     color: #1a1a1a;
     font-family: inherit;
     transition: all 0.2s ease;
+    height: 100%;
   }
 
   .glass-input::placeholder {
@@ -587,6 +807,7 @@
   }
 
   .add-item-btn {
+    min-width: 84px;
     padding: 12px 16px;
     background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
     color: white;
@@ -612,14 +833,15 @@
   .items-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .grocery-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    gap: 16px;
+    padding: 14px 16px;
     background: rgba(46, 125, 50, 0.04);
     border-radius: 16px;
     border: 1px solid rgba(46, 125, 50, 0.1);
@@ -663,6 +885,7 @@
     color: #1a1a1a;
     font-size: 14px;
     word-break: break-word;
+    line-height: 1.4;
   }
 
   .text-strikethrough {
@@ -715,15 +938,18 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 16px;
+      padding: 24px 24px 20px;
+      margin: -24px -24px 0;
     }
 
     .list-actions {
       width: 100%;
       justify-content: space-between;
+      margin-left: 0;
     }
 
     .add-item-form {
-      grid-template-columns: 1fr 60px 80px;
+      grid-template-columns: minmax(0, 1fr) 78px 88px auto;
       gap: 10px;
     }
 
@@ -752,7 +978,7 @@
 
     .grocery-item {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: stretch;
       gap: 10px;
     }
 
@@ -760,6 +986,16 @@
       align-self: flex-end;
       padding: 6px 10px;
       font-size: 11px;
+    }
+
+    .list-actions {
+      gap: 8px;
+    }
+
+    .select-all-wrapper {
+      width: 100%;
+      justify-content: center;
+      margin-left: 0;
     }
   }
 
@@ -773,8 +1009,9 @@
     }
 
     .list-header {
-      margin-bottom: 16px;
-      padding-bottom: 12px;
+      margin: -16px -16px 0;
+      padding: 20px 16px 16px;
+      margin-bottom: 0;
     }
 
     .select-all-wrapper {
@@ -810,6 +1047,7 @@
 
     .item-content {
       width: 100%;
+      align-items: flex-start;
     }
 
     .items-empty {

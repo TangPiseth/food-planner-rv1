@@ -12,6 +12,7 @@ import LoginPage from '@/views/LoginPage.vue';
 import RegisterPage from '@/views/RegisterPage.vue';
 import ProfilePage from '@/views/ProfilePage.vue';
 import AdminDashboard from '@/views/AdminDashboard.vue';
+import ImageScannerPage from '@/views/ImageScannerPage.vue';
 // import BlogPage from '@/views/BlogSection.vue';
 // import BlogDetail from '@/views/BlogDetail.vue';
 
@@ -19,6 +20,12 @@ const routes = [
   { path: '/', redirect: '/home-page' },
   { path: '/home-page', name: 'Home', component: HomePage },
   { path: '/recipes', name: 'Recipes', component: RecipePage },
+  {
+    path: '/image-scanner',
+    name: 'ImageScanner',
+    component: ImageScannerPage,
+    meta: { requiresAuth: true }
+  },
   { 
     path: '/meal-planner', 
     name: 'MealPlanner', 

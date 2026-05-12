@@ -46,94 +46,108 @@
 
     <!-- Hero Section -->
     <div class="recipe-hero-section" v-else-if="recipe">
-      <div class="hero-gradient-bg"></div>
       <div class="container">
         <button @click="goBack" class="back-btn">
-          <i class="fa-solid fa-chevron-left"></i> Back
+          <i class="fa-solid fa-chevron-left"></i>
+          <span>Back</span>
         </button>
+
         <div class="hero-content">
-          <span class="recipe-badge">{{ recipe.type }}</span>
-          <h1 class="recipe-title">{{ recipe.title }}</h1>
-          <div class="recipe-meta">
-            <span class="meta-author">by {{ recipe.author }}</span>
-            <span class="meta-divider">•</span>
-            <span class="meta-date">{{ recipe.date }}</span>
+          <div class="hero-copy">
+            <span class="recipe-badge">{{ formattedRecipeType }}</span>
+            <h1 class="recipe-title">{{ recipe.title }}</h1>
+            <p class="recipe-description">{{ recipe.description || recipe.chefsTips || 'A fresh, flavorful recipe ready for your next meal.' }}</p>
+
+            <div class="recipe-meta">
+              <span class="meta-author">By {{ recipe.author }}</span>
+              <span class="meta-divider"></span>
+              <span class="meta-date">{{ recipe.date }}</span>
+            </div>
+          </div>
+
+          <div class="hero-actions-card">
+            <div class="hero-rating">
+              <span class="hero-rating-value">{{ displayRating }}</span>
+              <span class="hero-rating-label">out of 5</span>
+              <span v-if="totalReviews > 0" class="hero-review-count">{{ totalReviews }} reviews</span>
+            </div>
+
+            <div class="hero-actions">
+              <button class="primary-action-btn" @click="addIngredientsToNewList">
+                <i class="fa-solid fa-cart-plus"></i>
+                <span>Add to Grocery List</span>
+              </button>
+              <button class="secondary-action-btn" @click="downloadPDF" :disabled="isGeneratingPDF">
+                <i :class="isGeneratingPDF ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-file-pdf'"></i>
+                <span>{{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div v-if="recipe" class="recipe-content-section">
       <div class="container">
-        <!-- Recipe Image with Glass Effect -->
-        <div class="recipe-image-container" data-aos="zoom-out">
-          <div class="recipe-image-glass">
-            <div class="image-glass-filter"></div>
-            <div class="image-glass-overlay"></div>
-            <div class="image-glass-specular"></div>
-            <img :src="recipe.image" :alt="recipe.title" class="recipe-image" />
-          </div>
-        </div>
-
-        <!-- Quick Info Cards -->
-        <div class="recipe-info-grid">
-          <div class="info-card" data-aos="fade-up">
-            <div class="info-card-glass">
-              <div class="glass-filter"></div>
-              <div class="glass-overlay"></div>
-              <div class="glass-specular"></div>
-              <div class="info-card-content">
-                <i class="fa-solid fa-star"></i>
-                <h4>Rating</h4>
-                <p>{{ displayRating }}/5 <span v-if="totalReviews > 0" class="review-count">({{ totalReviews }})</span></p>
+        <div class="recipe-overview-grid">
+          <!-- Recipe Image -->
+          <div class="recipe-image-container" data-aos="zoom-out">
+            <div class="recipe-image-glass">
+              <img v-if="recipe.image" :src="recipe.image" :alt="recipe.title" class="recipe-image" />
+              <div v-else class="recipe-image-fallback">
+                <i class="fa-solid fa-utensils"></i>
               </div>
             </div>
           </div>
 
-          <div class="info-card" data-aos="fade-up">
-            <div class="info-card-glass">
-              <div class="glass-filter"></div>
-              <div class="glass-overlay"></div>
-              <div class="glass-specular"></div>
-              <div class="info-card-content">
-                <i class="fa-solid fa-users"></i>
-                <h4>Servings</h4>
-                <p>{{ recipe.servings || "N/A" }}</p>
+          <aside class="recipe-summary-panel" data-aos="fade-left">
+            <div class="summary-header">
+              <span>Recipe Snapshot</span>
+              <strong>{{ recipe.difficulty || 'Easy' }}</strong>
+            </div>
+
+            <!-- Quick Info Cards -->
+            <div class="recipe-info-grid">
+              <div class="info-card">
+                <div class="info-card-content">
+                  <i class="fa-solid fa-star"></i>
+                  <h4>Rating</h4>
+                  <p>{{ displayRating }}/5</p>
+                </div>
+              </div>
+
+              <div class="info-card">
+                <div class="info-card-content">
+                  <i class="fa-solid fa-users"></i>
+                  <h4>Servings</h4>
+                  <p>{{ recipe.servings || "N/A" }}</p>
+                </div>
+              </div>
+
+              <div class="info-card">
+                <div class="info-card-content">
+                  <i class="fa-solid fa-clock"></i>
+                  <h4>Total Time</h4>
+                  <p>{{ totalTime }} min</p>
+                </div>
+              </div>
+
+              <div class="info-card">
+                <div class="info-card-content">
+                  <i class="fa-solid fa-fire"></i>
+                  <h4>Calories</h4>
+                  <p>{{ recipe.calories || "N/A" }} kcal</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="info-card" data-aos="fade-up">
-            <div class="info-card-glass">
-              <div class="glass-filter"></div>
-              <div class="glass-overlay"></div>
-              <div class="glass-specular"></div>
-              <div class="info-card-content">
-                <i class="fa-solid fa-clock"></i>
-                <h4>Total Time</h4>
-                <p>{{ (recipe.prepTime || 0) + (recipe.cookingTime || 0) }} min</p>
+            <!-- Recipe Details -->
+            <div class="recipe-details-section">
+              <div v-for="detail in recipeDetails" :key="detail.label" class="detail-pill">
+                <span>{{ detail.label }}</span>
+                <strong>{{ detail.value }}</strong>
               </div>
             </div>
-          </div>
-
-          <div class="info-card" data-aos="fade-up">
-            <div class="info-card-glass">
-              <div class="glass-filter"></div>
-              <div class="glass-overlay"></div>
-              <div class="glass-specular"></div>
-              <div class="info-card-content">
-                <i class="fa-solid fa-fire"></i>
-                <h4>Calories</h4>
-                <p>{{ recipe.calories || "N/A" }} kcal</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recipe Details -->
-        <div class="recipe-details-section">
-          <p class="recipe-details-text">
-            <strong>Course:</strong> {{ recipe.course }} <strong class="ms-4">Cuisine:</strong> {{ recipe.cuisine }} <strong class="ms-4">Difficulty:</strong> {{ recipe.difficulty }}
-          </p>
+          </aside>
         </div>
 
         <!-- Ingredients Section -->
@@ -147,15 +161,7 @@
                 <h3 class="section-title">
                   <i class="fa-solid fa-leaf"></i> Ingredients
                 </h3>
-                <div class="action-buttons">
-                  <button class="download-pdf-btn" @click="downloadPDF" :disabled="isGeneratingPDF">
-                    <i :class="isGeneratingPDF ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-file-pdf'"></i>
-                    {{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}
-                  </button>
-                  <button class="add-to-list-btn" @click="addIngredientsToNewList">
-                    <i class="fa-solid fa-cart-plus"></i> Add to Grocery List
-                  </button>
-                </div>
+                <span class="section-count">{{ recipe.ingredients?.length || 0 }} items</span>
               </div>
               <div class="ingredients-list">
                 <div class="ingredient-item" v-for="(ingredient, index) in recipe.ingredients" :key="index">
@@ -177,12 +183,17 @@
               <h3 class="section-title">
                 <i class="fa-solid fa-utensils"></i> Directions
               </h3>
-              <p class="directions-text">{{ recipe.instructions }}</p>
+              <ol class="directions-list">
+                <li v-for="(step, index) in instructionSteps" :key="index">
+                  <span class="step-number">{{ index + 1 }}</span>
+                  <p>{{ step }}</p>
+                </li>
+              </ol>
             </div>
           </div>
         </div>
         <!-- Notes Section -->
-        <div v-if="recipe.notes" class="recipe-section notes-section" data-aos="fade-up">
+        <div v-if="normalizedNotes.length" class="recipe-section notes-section" data-aos="fade-up">
           <div class="section-glass-card">
             <div class="glass-filter"></div>
             <div class="glass-overlay"></div>
@@ -192,7 +203,7 @@
                 <i class="fa-solid fa-info"></i> Notes
               </h3>
               <div class="notes-list">
-                <div class="note-item" v-for="(note, index) in recipe.notes" :key="index">
+                <div class="note-item" v-for="(note, index) in normalizedNotes" :key="index">
                   <i class="fa-solid fa-lightbulb"></i>
                   <p>{{ note }}</p>
                 </div>
@@ -217,7 +228,7 @@
         </div>
 
         <!-- Related Recipes Section -->
-        <div class="recipe-section related-section" data-aos="fade-up">
+        <div v-if="suggestedRecipes.length" class="recipe-section related-section" data-aos="fade-up">
           <h3 class="section-title-main">
             <i class="fa-solid fa-sparkles"></i> You Might Also Like
           </h3>
@@ -355,6 +366,57 @@ export default {
   },
 
   computed: {
+    formattedRecipeType() {
+      return (this.recipe?.type || 'Recipe').toString().replace(/_/g, ' ').toLowerCase();
+    },
+    totalTime() {
+      return (this.recipe?.prepTime || 0) + (this.recipe?.cookingTime || 0);
+    },
+    recipeDetails() {
+      if (!this.recipe) {
+        return [];
+      }
+
+      return [
+        { label: 'Course', value: this.recipe.course || 'N/A' },
+        { label: 'Cuisine', value: this.recipe.cuisine || 'N/A' },
+        { label: 'Difficulty', value: this.recipe.difficulty || 'Easy' },
+        { label: 'Prep', value: `${this.recipe.prepTime || 0} min` },
+        { label: 'Cook', value: `${this.recipe.cookingTime || 0} min` }
+      ];
+    },
+    instructionSteps() {
+      const instructions = this.recipe?.instructions || '';
+      const lineSteps = instructions
+        .split(/\r?\n+/)
+        .map((step) => step.trim())
+        .filter(Boolean);
+
+      if (lineSteps.length > 1) {
+        return lineSteps;
+      }
+
+      return instructions
+        .split(/\.\s+/)
+        .map((step, index, steps) => {
+          const trimmed = step.trim();
+          if (!trimmed) {
+            return '';
+          }
+          return index < steps.length - 1 && !/[.!?]$/.test(trimmed) ? `${trimmed}.` : trimmed;
+        })
+        .filter(Boolean);
+    },
+    normalizedNotes() {
+      const notes = this.recipe?.notes;
+      if (Array.isArray(notes)) {
+        return notes.filter(Boolean);
+      }
+      if (typeof notes === 'string' && notes.trim()) {
+        return [notes.trim()];
+      }
+      return [];
+    },
     displayRating() {
       if (this.totalReviews > 0) {
         return this.averageRating;
@@ -662,12 +724,13 @@ export default {
         console.error('Error fetching rating:', error);
       }
     },
-    handleNewReview(reviewData) {
-      // Pass the new review to the reviews component
+    async handleNewReview(reviewData) {
+      await this.$nextTick();
+
       if (this.$refs.reviewsComponent) {
         this.$refs.reviewsComponent.addReview(reviewData);
       }
-      // Refresh the rating
+
       this.fetchRating();
     },
     handleEditReview(review) {
@@ -2223,6 +2286,658 @@ export default {
   font-size: 12px !important;
   font-weight: 500 !important;
   color: #666 !important;
+}
+
+/* Premium white detail page refresh */
+.recipe-detail-page {
+  background: #ffffff;
+  color: #111827;
+  padding-top: 80px;
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+.recipe-detail-page :where(button, a, input, textarea) {
+  font-family: inherit;
+}
+
+.recipe-hero-section {
+  background:
+    radial-gradient(circle at top left, rgba(46, 125, 50, 0.11), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8faf8 100%);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 38px 0 56px;
+}
+
+.recipe-hero-section .container,
+.recipe-content-section .container {
+  max-width: 1180px;
+}
+
+.back-btn {
+  width: fit-content;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  margin: 0 0 28px;
+  color: #14532d;
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(17, 24, 39, 0.06);
+}
+
+.back-btn:hover {
+  color: #ffffff;
+  background: #166534;
+  border-color: #166534;
+  transform: translateY(-1px);
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: end;
+  gap: 48px;
+  text-align: left;
+}
+
+.recipe-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 18px;
+  padding: 8px 14px;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.recipe-title {
+  max-width: 820px;
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2.4rem, 5vw, 4.75rem);
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.97;
+}
+
+.recipe-description {
+  max-width: 720px;
+  margin: 22px 0 0;
+  color: #4b5563;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.recipe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 24px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.meta-divider {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+
+.meta-author {
+  color: #111827;
+  font-weight: 800;
+}
+
+.hero-actions-card {
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+}
+
+.hero-rating {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: end;
+  column-gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.hero-rating-value {
+  color: #14532d;
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+.hero-rating-label,
+.hero-review-count {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hero-review-count {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.hero-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.primary-action-btn,
+.secondary-action-btn {
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0 18px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 800;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.primary-action-btn {
+  color: #ffffff;
+  background: #166534;
+  border: 1px solid #166534;
+  box-shadow: 0 14px 30px rgba(22, 101, 52, 0.24);
+}
+
+.secondary-action-btn {
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+.primary-action-btn:hover,
+.secondary-action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.primary-action-btn:hover {
+  background: #14532d;
+  box-shadow: 0 18px 34px rgba(22, 101, 52, 0.3);
+}
+
+.secondary-action-btn:hover:not(:disabled) {
+  border-color: #166534;
+  color: #14532d;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.secondary-action-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.recipe-content-section {
+  padding: 54px 0 72px;
+  background: #ffffff;
+}
+
+.recipe-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+  gap: 28px;
+  align-items: stretch;
+  margin-bottom: 34px;
+}
+
+.recipe-image-container {
+  max-width: none;
+  margin: 0;
+  border-radius: 32px;
+}
+
+.recipe-image-glass {
+  height: 100%;
+  min-height: 520px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 32px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+}
+
+.recipe-image-glass:hover {
+  transform: none;
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.15);
+}
+
+.image-glass-filter,
+.image-glass-overlay,
+.image-glass-specular,
+.glass-filter,
+.glass-overlay,
+.glass-specular {
+  display: none;
+}
+
+.recipe-image {
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  object-fit: cover;
+  border-radius: 32px;
+}
+
+.recipe-image-glass:hover .recipe-image {
+  transform: scale(1.015);
+}
+
+.recipe-image-fallback {
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+  color: #166534;
+  font-size: 64px;
+}
+
+.recipe-summary-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 32px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.summary-header strong {
+  color: #14532d;
+  background: #dcfce7;
+  border-radius: 999px;
+  padding: 8px 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.recipe-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+.info-card {
+  height: auto;
+}
+
+.info-card-glass {
+  display: contents;
+}
+
+.info-card-content {
+  min-height: 142px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.info-card-content i {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  color: #166534;
+  background: #dcfce7;
+  border-radius: 14px;
+  font-size: 18px;
+}
+
+.info-card-content h4 {
+  margin: auto 0 6px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.info-card-content p {
+  color: #111827;
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.recipe-details-section {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.detail-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+}
+
+.detail-pill span {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.detail-pill strong {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+  text-align: right;
+}
+
+.recipe-section {
+  margin-bottom: 28px;
+}
+
+.section-glass-card,
+.recipe-card-glass {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.section-content {
+  padding: 30px;
+}
+
+.section-title-with-button {
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.section-title,
+.section-title-main {
+  color: #111827;
+  letter-spacing: -0.03em;
+}
+
+.section-title i,
+.section-title-main i {
+  color: #166534;
+}
+
+.section-count {
+  padding: 8px 12px;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ingredients-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ingredient-item {
+  min-height: 54px;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+}
+
+.ingredient-item:hover {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.ingredient-checkbox {
+  accent-color: #166534;
+}
+
+.ingredient-item label,
+.directions-text,
+.tips-text,
+.note-item p,
+.recipe-card-desc {
+  color: #374151;
+}
+
+.directions-list {
+  display: grid;
+  gap: 14px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.directions-list li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+}
+
+.step-number {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: #ffffff;
+  background: #166534;
+  border-radius: 14px;
+  font-weight: 900;
+}
+
+.directions-list p {
+  margin: 0;
+  color: #1f2937;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.note-item {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 5px solid #f59e0b;
+  border-radius: 16px;
+}
+
+.related-slider-container {
+  gap: 18px;
+}
+
+.slider-nav-btn {
+  width: 46px;
+  height: 46px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #14532d;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+}
+
+.slider-nav-btn:hover:not(:disabled) {
+  background: #166534;
+  border-color: #166534;
+  box-shadow: 0 14px 28px rgba(22, 101, 52, 0.22);
+}
+
+.recipe-card-glass:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.12);
+}
+
+.recipe-card-image {
+  background: #f3f4f6;
+}
+
+.recipe-type-badge {
+  color: #14532d;
+  background: #dcfce7;
+}
+
+.recipe-card-title {
+  color: #111827;
+}
+
+.recipe-card-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 16px;
+  background: #166534;
+  border-radius: 999px;
+}
+
+.reviews-container {
+  max-width: 960px;
+  margin: 58px auto 0;
+}
+
+.toast-notification {
+  background: #166534;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 18px 40px rgba(22, 101, 52, 0.28);
+}
+
+@media (max-width: 1024px) {
+  .hero-content,
+  .recipe-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions-card {
+    max-width: 520px;
+  }
+
+  .recipe-image,
+  .recipe-image-glass,
+  .recipe-image-fallback {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 768px) {
+  .recipe-hero-section {
+    padding: 26px 0 42px;
+  }
+
+  .hero-content {
+    gap: 28px;
+  }
+
+  .recipe-title {
+    font-size: clamp(2rem, 11vw, 3.2rem) !important;
+  }
+
+  .recipe-description {
+    font-size: 15px;
+  }
+
+  .hero-actions-card,
+  .recipe-summary-panel,
+  .section-content {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .recipe-info-grid,
+  .ingredients-list {
+    grid-template-columns: 1fr;
+  }
+
+  .recipe-image,
+  .recipe-image-glass,
+  .recipe-image-fallback {
+    min-height: 340px;
+    border-radius: 24px;
+  }
+
+  .directions-list li {
+    grid-template-columns: 1fr;
+  }
+
+  .related-slider-container {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .recipe-detail-page {
+    padding-top: 70px;
+  }
+
+  .recipe-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .meta-divider {
+    display: none;
+  }
+
+  .hero-actions-card,
+  .recipe-summary-panel,
+  .section-glass-card,
+  .recipe-card-glass {
+    border-radius: 20px;
+  }
+
+  .recipe-content-section {
+    padding: 34px 0 48px;
+  }
+
+  .slider-nav-btn {
+    width: 38px;
+    height: 38px;
+  }
 }
 </style>
 

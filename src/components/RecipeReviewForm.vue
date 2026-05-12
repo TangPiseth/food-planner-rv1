@@ -1,46 +1,47 @@
 <template>
   <div class="review-form-compact" data-aos="fade-up">
-    <div v-if="!isLoggedIn" class="login-prompt text-center py-4">
-      <i class="fa-solid fa-lock fa-2x mb-3 text-muted"></i>
-      <h5 class="fw-bold mb-2">Login to Leave a Review</h5>
-      <p class="text-muted small mb-3">Please login to share your thoughts about this recipe</p>
-      <router-link to="/login" class="btn btn-success btn-sm px-4">
-        <i class="fa-solid fa-sign-in-alt me-2"></i>Login Now
+    <div v-if="!isLoggedIn" class="login-prompt">
+      <div class="review-form-icon">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h5>Login to Leave a Review</h5>
+      <p>Please login to share your thoughts about this recipe.</p>
+      <router-link to="/login" class="review-submit-btn">
+        <i class="fa-solid fa-sign-in-alt"></i>
+        <span>Login Now</span>
       </router-link>
     </div>
 
-    <div v-else>
+    <div v-else class="review-form-shell">
       <div
-        v-if="showAlert"
-        :class="['alert', alertType === 'success' ? 'alert-success' : 'alert-danger', 'mb-3']"
+        v-show="showAlert"
+        :class="['review-alert', alertType === 'success' ? 'alert-success' : 'alert-danger']"
         role="alert"
       >
         <i
-          :class="['fa-solid', alertType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle', 'me-2']"
+          :class="['fa-solid', alertType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle']"
         ></i>
         {{ alertMessage }}
       </div>
 
-      <div v-if="isEditMode" class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h4 class="fw-bold mb-1">Edit Your Review</h4>
-          <p class="text-muted small mb-0">Update your review for this recipe</p>
+      <div class="review-form-header">
+        <div class="review-form-header-text">
+          <span class="review-eyebrow">Your feedback</span>
+          <h4>{{ isEditMode ? 'Edit Your Review' : 'Leave a Review' }}</h4>
+          <p v-if="isEditMode">Update your rating and notes for this recipe.</p>
+          <p v-else>
+            Reviewing as <strong>{{ currentUser?.username }}</strong>
+          </p>
         </div>
-        <button @click="cancelEdit" class="btn btn-outline-secondary btn-sm">
-          <i class="fa-solid fa-times me-1"></i>Cancel
+        <button v-show="isEditMode" @click="cancelEdit" class="review-cancel-btn" type="button">
+          <i class="fa-solid fa-times"></i>
+          <span>Cancel</span>
         </button>
       </div>
 
-      <div v-else>
-        <h4 class="fw-bold mb-1">Leave a Review</h4>
-        <p class="text-muted small mb-3">
-          Reviewing as <strong class="text-success">{{ currentUser?.username }}</strong>
-        </p>
-      </div>
-
-      <form @submit.prevent="handleSubmit">
-        <div class="mb-3">
-          <label class="fw-600 d-block mb-2 small">Your Rating *</label>
+      <form class="review-form-grid" @submit.prevent="handleSubmit">
+        <div class="review-field rating-field">
+          <label>Your Rating *</label>
           <div class="star-rating-container">
             <div class="star-rating">
               <span
@@ -59,25 +60,32 @@
               {{ ratingLabels[formData.rating] }}
             </span>
           </div>
-          <div class="text-danger small mt-1" v-if="errors.rating">{{ errors.rating }}</div>
+          <div class="field-error" v-if="errors.rating">{{ errors.rating }}</div>
         </div>
 
-        <div class="mb-3">
+        <div class="review-field">
+          <label>Your Review *</label>
           <textarea
-            class="form-control"
+            class="review-textarea"
             :class="{ 'is-invalid': errors.review }"
             v-model="formData.review"
-            rows="4"
+            rows="5"
             placeholder="Share your experience with this recipe... What did you like? Any tips for others?"
+            maxlength="500"
           ></textarea>
-          <div class="invalid-feedback" v-if="errors.review">{{ errors.review }}</div>
+          <div class="field-footer">
+            <span class="field-error" v-if="errors.review">{{ errors.review }}</span>
+            <span>{{ formData.review.length }}/500</span>
+          </div>
         </div>
 
-        <button type="submit" class="btn btn-success px-4" :disabled="isSubmitting">
-          <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
-          <i v-else :class="['fa-solid', isEditMode ? 'fa-save' : 'fa-paper-plane', 'me-2']"></i>
-          {{ isSubmitting ? 'Submitting...' : (isEditMode ? 'Update Review' : 'Post Review') }}
-        </button>
+        <div class="review-submit-row">
+          <button type="submit" class="review-submit-btn" :disabled="isSubmitting">
+            <span v-show="isSubmitting" class="spinner-border spinner-border-sm"></span>
+            <i v-show="!isSubmitting" :class="['fa-solid', isEditMode ? 'fa-save' : 'fa-paper-plane']"></i>
+            <span>{{ isSubmitting ? 'Submitting...' : (isEditMode ? 'Update Review' : 'Post Review') }}</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -115,6 +123,7 @@ export default {
       isSubmitting: false,
       isEditMode: false,
       existingReviewId: null,
+      alertTimeoutId: null,
       ratingLabels: {
         1: 'Poor',
         2: 'Fair',
@@ -129,6 +138,11 @@ export default {
     if (this.isLoggedIn) {
       this.currentUser = await getCurrentUser();
       await this.checkExistingReview();
+    }
+  },
+  beforeUnmount() {
+    if (this.alertTimeoutId) {
+      clearTimeout(this.alertTimeoutId);
     }
   },
   watch: {
@@ -186,6 +200,7 @@ export default {
         return;
       }
 
+      const wasEditMode = this.isEditMode;
       this.isSubmitting = true;
       this.showAlert = false;
 
@@ -198,14 +213,20 @@ export default {
         }
 
         if (result.success) {
+          const submittedReview = result.review;
+
+          if (submittedReview) {
+            this.isEditMode = true;
+            this.existingReviewId = submittedReview.id || submittedReview._id || this.existingReviewId;
+          }
+
           this.alertType = 'success';
-          this.alertMessage = this.isEditMode ? 'Your review has been updated!' : 'Thank you for your review!';
+          this.alertMessage = wasEditMode ? 'Your review has been updated!' : 'Thank you for your review!';
           this.showAlert = true;
 
-          if (result.review) {
-            this.$emit('review-submitted', result.review);
-            this.isEditMode = true;
-            this.existingReviewId = result.review.id || result.review._id || this.existingReviewId;
+          if (submittedReview) {
+            await this.$nextTick();
+            this.$emit('review-submitted', submittedReview);
           }
         } else {
           this.alertType = 'error';
@@ -221,8 +242,13 @@ export default {
         this.isSubmitting = false;
       }
 
-      setTimeout(() => {
+      if (this.alertTimeoutId) {
+        clearTimeout(this.alertTimeoutId);
+      }
+
+      this.alertTimeoutId = setTimeout(() => {
         this.showAlert = false;
+        this.alertTimeoutId = null;
       }, 4000);
     }
   }
@@ -231,117 +257,308 @@ export default {
 
 <style scoped>
 .review-form-compact {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid rgba(46, 125, 50, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  padding: 30px;
+  color: #111827;
+  background:
+    radial-gradient(circle at top right, rgba(22, 101, 52, 0.1), transparent 34%),
+    #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 30px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.review-form-compact h4 {
-  color: #2e7d32;
-  font-size: 1.25rem;
+.review-form-compact::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, #14532d, #22c55e, #facc15);
+}
+
+.review-form-compact:hover {
+  border-color: #bbf7d0;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.13);
+  transform: translateY(-2px);
 }
 
 .login-prompt {
-  color: #555;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  text-align: center;
+  color: #4b5563;
 }
 
-.login-prompt i {
-  color: #2e7d32;
+.review-form-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 22px;
+  font-size: 24px;
+}
+
+.login-prompt h5,
+.review-form-header h4 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.login-prompt p,
+.review-form-header p {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.review-form-header p strong {
+  color: #14532d;
+  font-weight: 900;
+}
+
+.review-form-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.review-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.alert-success {
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.alert-danger {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.review-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.review-form-header-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.review-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #14532d;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.review-form-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.review-field {
+  display: grid;
+  gap: 9px;
+}
+
+.review-field label {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .star-rating-container {
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  gap: 18px;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
 }
 
 .star-rating {
   display: flex;
-  gap: 4px;
+  gap: 8px;
 }
 
 .star-rating .star {
   cursor: pointer;
-  font-size: 1.5rem;
-  color: #ddd;
-  transition: all 0.2s ease;
+  color: #d1d5db;
+  font-size: 1.65rem;
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease, filter 0.2s ease;
 }
 
 .star-rating .star:hover,
 .star-rating .star.active {
-  color: #ffc107;
-  transform: scale(1.1);
+  color: #f59e0b;
+  filter: drop-shadow(0 8px 12px rgba(245, 158, 11, 0.18));
+  transform: translateY(-2px) scale(1.08);
 }
 
 .rating-text {
-  font-size: 0.9rem;
-  color: #666;
-  font-weight: 500;
+  flex-shrink: 0;
+  margin-left: 0 !important;
+  padding: 8px 12px;
+  color: #14532d;
+  background: #dcfce7;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
-.form-control,
-.form-select {
-  background-color: white;
-  border: 1px solid rgba(46, 125, 50, 0.2);
-  font-size: 0.95rem;
-  padding: 12px 16px;
+.review-textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 16px 18px;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  font-size: 15px;
+  line-height: 1.7;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.form-control:focus,
-.form-select:focus {
-  border-color: #2e7d32;
-  box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.15);
+.review-textarea:focus {
+  background: #fcfffd;
+  border-color: #166534;
+  box-shadow: 0 0 0 4px rgba(22, 101, 52, 0.12);
 }
 
-.btn-success {
-  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
-  border: none;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 10px 24px;
+.review-textarea.is-invalid {
+  border-color: #dc2626;
 }
 
-.btn-success:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1b5e20 0%, #0d3817 100%);
-  transform: translateY(-1px);
+.field-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 20px;
+  color: #9ca3af;
+  font-size: 12px;
 }
 
-.btn-success:disabled {
+.field-error {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.review-submit-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.review-submit-btn,
+.review-cancel-btn {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.review-submit-btn {
+  min-width: 178px;
+  padding: 0 22px;
+  color: #ffffff;
+  background: #166534;
+  border: 1px solid #166534;
+  box-shadow: 0 14px 30px rgba(22, 101, 52, 0.24);
+}
+
+.review-submit-btn:hover:not(:disabled) {
+  color: #ffffff;
+  background: #14532d;
+  box-shadow: 0 18px 34px rgba(22, 101, 52, 0.3);
+  transform: translateY(-2px);
+}
+
+.review-submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.btn-outline-secondary {
-  border-color: #6c757d;
-  color: #6c757d;
+.review-cancel-btn {
+  padding: 0 16px;
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
 }
 
-.btn-outline-secondary:hover {
-  background-color: #6c757d;
-  color: white;
-}
-
-.alert {
-  padding: 12px 16px;
-  font-size: 0.9rem;
-  border-radius: 8px;
-}
-
-.alert-success {
-  background-color: rgba(46, 125, 50, 0.1);
-  border: 1px solid rgba(46, 125, 50, 0.2);
-  color: #2e7d32;
-}
-
-.alert-danger {
-  background-color: rgba(220, 53, 69, 0.1);
-  border: 1px solid rgba(220, 53, 69, 0.2);
-  color: #dc3545;
+.review-cancel-btn:hover {
+  color: #111827;
+  background: #f9fafb;
+  border-color: #9ca3af;
 }
 
 .fw-600 {
   font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .review-form-compact {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .review-form-header,
+  .star-rating-container {
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .review-submit-row,
+  .review-submit-btn,
+  .review-cancel-btn {
+    width: 100%;
+  }
 }
 </style>

@@ -15,10 +15,19 @@ const moderationLogSchema = new mongoose.Schema(
         'REVIEW_EDIT',
         'REVIEW_DELETE',
         'REVIEW_STATUS_CHANGE',
+        'RECIPE_CREATE',
+        'RECIPE_UPDATE',
+        'RECIPE_DELETE',
+        'RECIPE_APPROVE',
+        'RECIPE_REJECT',
+        'USER_CREATE',
+        'USER_UPDATE',
+        'USER_DELETE',
         'USER_PROMOTE',
         'USER_DEMOTE',
         'USER_BAN',
         'USER_UNBAN',
+        'LOG_REASON_UPDATE',
         'REPORT_RESOLVED',
         'REPORT_DISMISSED'
       ],
@@ -27,7 +36,7 @@ const moderationLogSchema = new mongoose.Schema(
     targetType: {
       type: String,
       required: true,
-      enum: ['review', 'user'],
+      enum: ['review', 'user', 'recipe'],
       index: true
     },
     targetId: {

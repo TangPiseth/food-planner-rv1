@@ -7,6 +7,7 @@ const authRoutes = require('./authRoutes');
 const mealPlanRoutes = require('./mealPlanRoutes');
 const groceryListRoutes = require('./groceryListRoutes');
 const reviewRoutes = require('./reviewRoutes');
+const recipeRoutes = require('./recipeRoutes');
 const adminRoutes = require('./adminRoutes');
 
 const app = express();
@@ -30,6 +31,44 @@ const defaultDevOrigins = [
 ];
 
 const allowedOrigins = new Set([...defaultDevOrigins, ...configuredOrigins]);
+const isProduction = process.env.NODE_ENV === 'production';
+
+const isPrivateIpv4Host = (hostname) => {
+  const match = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(hostname);
+  if (!match) {
+    return false;
+  }
+
+  const octets = match.slice(1).map(Number);
+  const [first, second] = octets;
+
+  if (first === 10) {
+    return true;
+  }
+
+  if (first === 172 && second >= 16 && second <= 31) {
+    return true;
+  }
+
+  return first === 192 && second === 168;
+};
+
+const isDevLocalOrigin = (origin) => {
+  try {
+    const { hostname, protocol } = new URL(origin);
+    if (!/^https?:$/i.test(protocol)) {
+      return false;
+    }
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+      return true;
+    }
+
+    return isPrivateIpv4Host(hostname);
+  } catch (error) {
+    return false;
+  }
+};
 
 app.use(
   cors({
@@ -46,11 +85,13 @@ app.use(
         isVercelPreview = false;
       }
 
-      if (allowedOrigins.size === 0 || allowedOrigins.has(origin) || isVercelPreview) {
+      const allowDevOrigin = !isProduction && isDevLocalOrigin(origin);
+
+      if (allowedOrigins.has(origin) || isVercelPreview || allowDevOrigin) {
         return callback(null, true);
       }
 
-      return callback(new Error('Not allowed by CORS'));
+      return callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   })
 );
@@ -61,6 +102,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/meal-plans', mealPlanRoutes);
 app.use('/api/grocery-lists', groceryListRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/recipes', recipeRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
