@@ -12,7 +12,7 @@ const adminRoutes = require('./adminRoutes');
 
 const app = express();
 
-// Cache DB connection across serverless invocations.
+// Keep a single shared DB connection for the running app process.
 if (!global.__foodPlannerDbConnected) {
   connectDB();
   global.__foodPlannerDbConnected = true;
@@ -78,16 +78,9 @@ app.use(
         return callback(null, true);
       }
 
-      let isVercelPreview = false;
-      try {
-        isVercelPreview = /\.vercel\.app$/i.test(new URL(origin).hostname);
-      } catch (error) {
-        isVercelPreview = false;
-      }
-
       const allowDevOrigin = !isProduction && isDevLocalOrigin(origin);
 
-      if (allowedOrigins.has(origin) || isVercelPreview || allowDevOrigin) {
+      if (allowedOrigins.has(origin) || allowDevOrigin) {
         return callback(null, true);
       }
 

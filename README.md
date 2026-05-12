@@ -1,346 +1,254 @@
-# 🍽️ Food Planner
+# EatsBuddy
 
-A full-stack web application for meal planning, recipe management, and grocery list organization. Built with Vue.js and Node.js/Express.
+EatsBuddy is a full-stack meal planning app built with Vue 3, Express, and MongoDB. It brings recipe discovery, weekly meal planning, grocery lists, reviews, and admin moderation into one polished food-planning workspace.
 
-## ✨ Features
+The app combines public recipe data from TheMealDB with locally submitted community recipes, then layers on authenticated planning tools for users and moderation tools for admins.
 
-- 📖 **Recipe Management** - Browse, search, and filter recipes
-- 📅 **Meal Planning** - Plan your meals for the week
-- 🛒 **Grocery Lists** - Auto-generate shopping lists from meal plans
-- 📝 **Blog Section** - Read and share food-related articles
-- 👤 **User Authentication** - Secure login and registration with JWT
-- ⭐ **Recipe Reviews** - Rate, review, edit, and delete your recipe reviews
-- 💬 **Review System** - Full CRUD operations with real-time rating aggregation
-- 🚩 **Review Reporting** - Users can report inappropriate reviews
-- 🛡️ **Admin Moderation Dashboard** - Manage users, reviews, reports, and moderation logs
-- 📱 **Responsive Design** - Works on desktop, tablet, and mobile
-- 🔍 **Advanced Filters** - Filter recipes by category, cuisine, and search
+## What It Does
 
-## 🛠️ Tech Stack
+- Browse and search recipes by name, category, cuisine, and ingredient
+- View recipe details with ingredients, instructions, nutrition-style metadata, and PDF export
+- Submit community recipes for admin approval
+- Save weekly meal plans behind authenticated routes
+- Build and manage grocery lists, including bulk item creation and PDF export
+- Register, log in, update profile details, and manage authenticated sessions with JWT
+- Create, edit, delete, rate, and report recipe reviews
+- Moderate users, reviews, reports, recipes, and moderation logs from the admin dashboard
+- Use the image scanner page to upload a meal photo and jump into matching recipe searches
+- Prepare for Railway hosting with GitHub Actions handling the deployment workflow
 
-### Frontend
-- **Vue.js 3** - Progressive JavaScript framework
-- **Vue Router 4** - Official router for Vue.js
-- **Bootstrap 5** - CSS framework for responsive design
-- **Font Awesome** - Icon library
-- **Swiper** - Modern touch slider
-- **AOS** - Animate on scroll library
-- **Axios** - HTTP client for API requests
-- **jsPDF** - PDF generation for recipes and grocery lists
+## Tech Stack
 
-### Backend
-- **Node.js** - JavaScript runtime
-- **Express.js 5** - Web application framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **JWT** - JSON Web Tokens for authentication
-- **Bcrypt** - Password hashing
-- **CORS** - Cross-origin resource sharing
-- **Helmet** - Secure HTTP headers
-- **express-rate-limit** - Basic API rate limiting
+**Frontend**
 
-## 📋 Prerequisites
+- Vue 3 with Vue Router 4
+- Bootstrap 5, Font Awesome, AOS, and Swiper
+- Axios and Fetch-based service modules
+- jsPDF and html2canvas for exports
+- Vue CLI build tooling
 
-Before you begin, ensure you have the following installed:
-- **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
-- **npm** (comes with Node.js) or **yarn**
-- **MongoDB** - [Download](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-- **Git** - [Download](https://git-scm.com/downloads)
+**Backend**
 
-## 🚀 Installation
+- Node.js and Express 5
+- MongoDB with Mongoose
+- JWT authentication and bcrypt password hashing
+- CORS configuration for local and production environments
+- Helmet, rate limiting, and Mongo sanitization dependencies
+- Railway-ready server entrypoint through `server/server.js`
 
-### 1. Clone the Repository
+## Project Structure
 
-```bash
-git clone https://github.com/TangPiseth/Food-Planner.git
-cd Food-Planner
+```text
+food-planner-rv1/
+|-- public/
+|   `-- index.html            # Vue HTML shell
+|-- server/
+|   |-- app.js                # Express app configuration
+|   |-- server.js             # API server entrypoint
+|   |-- db.js                 # MongoDB connection
+|   |-- *Routes.js            # Auth, recipes, reviews, admin, plans, groceries
+|   |-- middleware/
+|   |   `-- auth.js           # JWT auth middleware
+|   `-- models/               # User, Recipe, Review, Report, MealPlan, GroceryList
+|-- src/
+|   |-- assets/               # CSS, logo, and image assets
+|   |-- components/           # Shared and feature components
+|   |-- router/               # Vue Router config and route guards
+|   |-- services/             # API clients and app service modules
+|   |-- views/                # Pages
+|   |-- App.vue
+|   `-- main.js
+|-- .env.example              # Root environment template
+|-- package.json
+|-- vue.config.js
+`-- README.md
 ```
 
-### 2. Install Dependencies
+## Getting Started
+
+### Prerequisites
+
+- Node.js 14 or newer
+- npm
+- MongoDB locally, or a MongoDB Atlas connection string
+
+### Install
 
 ```bash
 npm install
 ```
 
-This will install all dependencies for both frontend and backend.
+### Configure Environment
 
-### 3. Environment Configuration
-
-Create a `.env` file in the **root** directory by copying the example:
+Create a `.env` file in the project root:
 
 ```bash
-cp server/.env.example .env
+cp .env.example .env
 ```
 
-Then edit `.env` with your own values:
+Then update the values for your machine:
 
 ```env
-# Server Configuration
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/food-planner
+JWT_SECRET=replace-with-a-strong-random-secret
 PORT=3001
-JWT_SECRET=your_jwt_secret_key_here
+CORS_ORIGINS=http://localhost:8080
 
-# MongoDB Configuration (use your own MongoDB Atlas connection)
-MONGODB_URI=mongodb+srv://<username>:<password>@your-cluster.mongodb.net/food-planner?retryWrites=true&w=majority
-
-# CORS Origins (comma-separated)
-CORS_ORIGINS=http://localhost:8080,https://your-domain.vercel.app
-
-# Frontend API base URL
+# Optional. Use /api when frontend and backend share the same host.
 VUE_APP_API_BASE_URL=/api
 ```
 
-**Important:** Never commit your `.env` file to version control. It contains sensitive credentials.
+Keep `.env` private. It contains database credentials and signing secrets.
 
-### 4. Database Setup
+## Development
 
-If using MongoDB locally:
-1. Start MongoDB service:
-   ```bash
-   # Windows
-   net start MongoDB
-   
-   # macOS/Linux
-   sudo systemctl start mongod
-   ```
-
-2. (Optional) Seed the database with sample reviews:
-   ```bash
-   # Seed 29,700+ reviews across recipes
-   node server/seedReviews.js
-   ```
-
-## 🎮 Running the Application
-
-### Development Mode (Recommended)
-
-Run both frontend and backend concurrently:
+Run the frontend and backend together:
 
 ```bash
 npm run dev
 ```
 
-This will start:
-- Frontend dev server at `http://localhost:8080`
-- Backend API server at `http://localhost:3001`
+This starts:
 
-Local development uses a Vue proxy so `/api/*` requests are forwarded to `http://localhost:3001`.
+- Vue dev server: `http://localhost:8080`
+- Express API: `http://localhost:3001`
 
-### Run Separately
+Local frontend requests use `/api`, and `vue.config.js` proxies them to the backend server.
 
-**Frontend only:**
+You can also run each side separately:
+
 ```bash
 npm run serve
-```
-
-**Backend only:**
-```bash
 npm run server
 ```
 
-## 📦 Build for Production
-
-Build the frontend for production:
+## Production Build
 
 ```bash
 npm run build
 ```
 
-The production-ready files will be generated in the `dist/` directory.
+The compiled frontend is written to `dist/`.
 
-## ▲ Deploy on Vercel
+## Deployment Direction
 
-This repository is configured for full Vercel deployment (frontend + backend API):
+The project is moving toward Railway for hosting, with GitHub Actions planned for the build and deployment workflow.
 
-- Frontend is served from Vue build output (`dist`)
-- Express API is deployed as a Vercel serverless function at `/api/*`
+A clean production setup should use:
 
-### Required Vercel Environment Variables
+- Railway for the Node/Express service
+- MongoDB Atlas or another managed MongoDB instance
+- GitHub Actions for automated checks and deployment steps
+- `npm run build` for the Vue production bundle
+- `npm run server` as the backend start command
 
-Set these in Project Settings -> Environment Variables:
+Expected production environment variables:
 
 - `MONGODB_URI`
 - `JWT_SECRET`
-- `CORS_ORIGINS` (example: `https://eatsbuddy.vercel.app`)
-- `VUE_APP_API_BASE_URL` set to `/api`
+- `CORS_ORIGINS`
+- `VUE_APP_API_BASE_URL`
+- `PORT` when the platform does not inject one automatically
 
-### Important Notes
+Set `CORS_ORIGINS` to the final frontend domain once hosting is decided. For local development, `http://localhost:8080` is already supported.
 
-- Do not set `VUE_APP_API_BASE_URL` to `http://localhost:3001` in production.
-- Keep `.env` local only. Use Vercel env vars for hosted deployments.
-- Preview deployments (`*.vercel.app`) are accepted by backend CORS.
+## Main Routes
 
-## 📁 Project Structure
+**Frontend**
 
-```
-Food Planner/
-├── public/              # Static files
-│   └── index.html      # HTML entry point
-├── server/             # Backend server
-│   ├── models/         # MongoDB models
-│   │   ├── User.js
-│   │   ├── MealPlan.js
-│   │   ├── GroceryList.js
-│   │   └── Review.js
-│   ├── authRoutes.js   # Authentication routes
-│   ├── mealPlanRoutes.js
-│   ├── groceryListRoutes.js
-│   ├── reviewRoutes.js # Review CRUD routes
-│   ├── seedReviews.js  # Review seeding script
-│   ├── db.js           # Database connection
-│   └── server.js       # Express server setup
-├── src/                # Frontend source code
-│   ├── assets/         # Static assets (CSS, images)
-│   ├── components/     # Vue components
-│   │   ├── blogs/      # Blog-related components
-│   │   ├── recipes/    # Recipe-related components
-│   │   ├── RecipeReviewForm.vue
-│   │   ├── RecipeReviews.vue
-│   │   ├── Navbar.vue
-│   │   └── Footer.vue
-│   ├── router/         # Vue Router configuration
-│   ├── services/       # API service modules
-│   │   ├── authService.js
-│   │   ├── recipeService.js
-│   │   ├── reviewService.js
-│   │   ├── mealPlanService.js
-│   │   └── groceryListService.js
-│   ├── views/          # Page components
-│   ├── App.vue         # Root component
-│   └── main.js         # Application entry point
-├── .env                # Environment variables (create this)
-├── babel.config.js     # Babel configuration
-├── jsconfig.json       # JavaScript configuration
-├── package.json        # Project dependencies
-├── vue.config.js       # Vue CLI configuration
-└── README.md           # You are here!
-```
+- `/home-page` - Home
+- `/recipes` - Recipe discovery
+- `/recipes/:id` - Recipe detail
+- `/image-scanner` - Authenticated image scanner
+- `/meal-planner` - Authenticated meal planner
+- `/grocery-list` - Authenticated grocery list
+- `/profile` - Authenticated user profile
+- `/admin` - Admin dashboard
+- `/login`, `/register`, `/about`, `/contact`, `/faq`, `/terms`
 
-## 🔌 API Endpoints
+**API**
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user profile (requires auth)
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `PUT /api/auth/update-username`
+- `PUT /api/auth/update-password`
+- `GET /api/recipes`
+- `GET /api/recipes/:id`
+- `GET /api/recipes/mine`
+- `POST /api/recipes/submit`
+- `GET /api/reviews/recipe/:recipeId`
+- `GET /api/reviews/rating/:recipeId`
+- `POST /api/reviews/ratings/batch`
+- `POST /api/reviews`
+- `PUT /api/reviews/:reviewId`
+- `DELETE /api/reviews/:reviewId`
+- `POST /api/reviews/:reviewId/report`
+- `GET /api/meal-plans`
+- `POST /api/meal-plans`
+- `DELETE /api/meal-plans/:id`
+- `GET /api/grocery-lists`
+- `POST /api/grocery-lists`
+- `PUT /api/grocery-lists/:id`
+- `POST /api/grocery-lists/:id/items`
+- `POST /api/grocery-lists/:id/items/bulk`
+- `DELETE /api/grocery-lists/:id`
+- `GET /api/admin/users`
+- `POST /api/admin/users`
+- `PATCH /api/admin/users/:id`
+- `DELETE /api/admin/users/:id`
+- `PATCH /api/admin/users/:id/role`
+- `PATCH /api/admin/users/:id/ban`
+- `GET /api/admin/recipes`
+- `POST /api/admin/recipes`
+- `PATCH /api/admin/recipes/:id`
+- `DELETE /api/admin/recipes/:id`
+- `GET /api/admin/reviews`
+- `PUT /api/admin/reviews/:id`
+- `DELETE /api/admin/reviews/:id`
+- `GET /api/admin/reports`
+- `PATCH /api/admin/reports/:id`
+- `GET /api/admin/logs`
+- `PATCH /api/admin/logs/:id/reason`
+- `POST /api/admin/logs/:id/reverse`
+- `GET /api/health`
 
-### Reviews and Reports
-- `GET /api/reviews/:recipeId` - Get approved reviews for a recipe
-- `POST /api/reviews` - Submit review (auto-approved)
-- `POST /api/reviews/:reviewId/report` - Report a review (requires auth)
+## Admin Setup
 
-### Admin Moderation (requires admin)
-- `GET /api/admin/users` - List users
-- `PATCH /api/admin/users/:id/role` - Promote/demote role
-- `PATCH /api/admin/users/:id/ban` - Ban/unban user
-- `GET /api/admin/reviews` - List reviews for moderation
-- `PUT /api/admin/reviews/:id` - Edit/update review
-- `DELETE /api/admin/reviews/:id` - Delete review
-- `GET /api/admin/reports` - List reported reviews
-- `PATCH /api/admin/reports/:id` - Resolve or dismiss report
-- `GET /api/admin/logs` - View moderation logs
+The app does not expose a public "create admin" flow. To create the first admin:
 
-### Meal Plans
-- `GET /api/meal-plans` - Get all meal plans (requires auth)
-- `POST /api/meal-plans` - Create meal plan (requires auth)
-- `PUT /api/meal-plans/:id` - Update meal plan (requires auth)
-- `DELETE /api/meal-plans/:id` - Delete meal plan (requires auth)
+1. Register a normal account through the app.
+2. Open the `users` collection in MongoDB Atlas or your local database.
+3. Update that user document:
 
-### Grocery Lists
-- `GET /api/grocery-lists` - Get all grocery lists (requires auth)
-- `POST /api/grocery-lists` - Create grocery list (requires auth)
-- `PUT /api/grocery-lists/:id` - Update grocery list (requires auth)
-- `DELETE /api/grocery-lists/:id` - Delete grocery list (requires auth)
-
-### Reviews
-- `GET /api/reviews/recipe/:recipeId` - Get all reviews for a recipe (public)
-- `GET /api/reviews/rating/:recipeId` - Get average rating for a recipe (public)
-- `POST /api/reviews/ratings/batch` - Get ratings for multiple recipes (public)
-- `POST /api/reviews` - Create a review (requires auth)
-- `PUT /api/reviews/:id` - Update a review (requires auth)
-- `DELETE /api/reviews/:id` - Delete a review (requires auth)
-- `GET /api/reviews/user` - Get current user's reviews (requires auth)
-
-### Health Check
-- `GET /api/health` - Server health check
-
-## 🧪 Testing
-
-```bash
-# Run tests (if test suite is configured)
-npm test
-```
-
-## 🔒 Security Notes
-
-- Passwords are hashed using bcrypt before storage
-- JWT tokens are used for authentication
-- CORS is enabled for cross-origin requests
-- Always use HTTPS in production
-- Keep your `.env` file secure and never commit it
-
-## 👑 Create First Admin in MongoDB Atlas
-
-1. Register a normal account through the app first (recommended).
-2. Open MongoDB Atlas -> Database -> Collections -> `users`.
-3. Find your user document and edit fields:
-   - `role`: `admin`
-   - `isBanned`: `false`
-4. Save changes and log in again.
-
-The admin account will now be able to access `/admin` and moderate users/reports/reviews.
-
-## 🐛 Troubleshooting
-
-### MongoDB Connection Issues
-- Ensure MongoDB is running
-- Check your `MONGODB_URI` in `.env`
-- Verify network connectivity if using MongoDB Atlas
-
-### Port Already in Use
-If port 8080 or 3001 is already in use:
-```bash
-# Change the port in .env for backend
-PORT=3002
-
-# For frontend, add this to vue.config.js:
-devServer: {
-  port: 8081
+```json
+{
+  "role": "admin",
+  "isBanned": false
 }
 ```
 
-### Module Not Found Errors
+4. Save the document, log out, and log back in.
+
+The account can now access `/admin`.
+
+## Useful Commands
+
 ```bash
-# Clear node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
+npm run dev      # Frontend and backend together
+npm run serve    # Frontend only
+npm run server   # Backend only
+npm run build    # Production frontend build
 ```
 
-Windows (PowerShell) alternative:
-```powershell
-Remove-Item -Recurse -Force node_modules
-Remove-Item -Force package-lock.json
-npm install
-```
+## Notes
 
-## 🤝 Contributing
+- The recipe browser uses both local MongoDB recipes and TheMealDB.
+- Submitted recipes are created as unapproved until an admin approves them.
+- Protected pages use the JWT token stored by the frontend.
+- The image scanner currently provides an upload, preview, simulated scan result, and recipe-search handoff.
+- Deployment is intentionally documented as a Railway and GitHub Actions direction until the final production workflow is added.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## License
 
-## 📄 License
-
-This project is private and proprietary.
-
-## 👨‍💻 Developer
-
-Developed with Elite & Piseth for better meal planning
-
-## 📞 Support
-
-For issues and questions, please open an issue in the repository.
-
----
-
-**Happy Cooking! 🍳**
+Private and proprietary.

@@ -1,6 +1,6 @@
 // Centralized API base URL for local and production deployments.
 // - Local dev: Vue dev server proxies /api to localhost:3001
-// - Vercel: API can run on the same domain at /api
+// - Production: configure VUE_APP_API_BASE_URL for the deployed API host
 const RAW_API_BASE_URL = process.env.VUE_APP_API_BASE_URL || '/api';
 const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
 
