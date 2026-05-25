@@ -69,12 +69,20 @@
               <p>Checking visual cues, color, texture, and plating details.</p>
             </div>
 
-            <div v-else class="scan-complete-state">
+            <div v-else-if="scanError" class="scan-error-state">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <h2>Scan failed</h2>
+              <p>{{ scanError }}</p>
+              <button class="scanner-action primary" type="button" @click="$refs.fileInput.click()">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                Try another image
+              </button>
+            </div>
+
+            <div v-else-if="result" class="scan-complete-state">
               <span class="scanner-eyebrow">Detected meal</span>
               <h2>{{ result }}</h2>
-              <p>
-                This looks like a steak-forward dish. Search matching recipes by the detected name or by its core ingredients.
-              </p>
+              <p>Search matching recipes by the detected name or by its core ingredients.</p>
 
               <div class="result-actions">
                 <router-link
@@ -85,6 +93,7 @@
                   Search meal by name
                 </router-link>
                 <router-link
+                  v-if="ingredientSearchTerm"
                   class="scanner-action secondary"
                   :to="{ path: '/recipes', query: { ingredient: ingredientSearchTerm } }"
                 >
@@ -103,9 +112,33 @@
 <script>
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import axios from 'axios';
 
 const STORED_IMAGE_KEY = 'latestScannerImage';
-const SCAN_RESULT = 'Steak';
+const MAX_IMAGE_DIM = 1024;
+const JPEG_QUALITY = 0.8;
+
+function compressImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > MAX_IMAGE_DIM || height > MAX_IMAGE_DIM) {
+        const ratio = Math.min(MAX_IMAGE_DIM / width, MAX_IMAGE_DIM / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
+    };
+    img.onerror = () => reject(new Error('Failed to load image'));
+    img.src = dataUrl;
+  });
+}
 
 export default {
   name: 'ImageScannerPage',
@@ -113,10 +146,11 @@ export default {
     return {
       previewUrl: localStorage.getItem(STORED_IMAGE_KEY) || '',
       isScanning: false,
-      result: localStorage.getItem(STORED_IMAGE_KEY) ? SCAN_RESULT : '',
+      result: '',
       scanTimer: null,
-      nameSearchTerm: 'Steak',
-      ingredientSearchTerm: 'Beef'
+      nameSearchTerm: '',
+      ingredientSearchTerm: '',
+      scanError: ''
     };
   },
   computed: {
@@ -137,6 +171,10 @@ export default {
     }
   },
   methods: {
+    async scanImage(base64) {
+      const { data } = await axios.post('/api/ai/scan-image', { image: base64 });
+      return data;
+    },
     handleImageUpload(event) {
       const file = event.target.files?.[0];
 
@@ -144,26 +182,32 @@ export default {
         return;
       }
 
+      this.result = '';
+      this.scanError = '';
+      this.isScanning = true;
+
       const reader = new FileReader();
-      reader.onload = () => {
-        this.previewUrl = reader.result;
-        this.result = '';
-        this.isScanning = true;
-
+      reader.onload = async () => {
         try {
-          localStorage.setItem(STORED_IMAGE_KEY, reader.result);
-        } catch (_error) {
-          localStorage.removeItem(STORED_IMAGE_KEY);
-        }
+          const compressed = await compressImage(reader.result);
+          this.previewUrl = compressed;
 
-        if (this.scanTimer) {
-          clearTimeout(this.scanTimer);
-        }
+          try {
+            localStorage.setItem(STORED_IMAGE_KEY, compressed);
+          } catch (_error) {
+            localStorage.removeItem(STORED_IMAGE_KEY);
+          }
 
-        this.scanTimer = setTimeout(() => {
-          this.result = SCAN_RESULT;
+          const result = await this.scanImage(compressed);
+          this.result = result.dishName || 'Unknown Dish';
+          this.nameSearchTerm = result.dishName || '';
+          this.ingredientSearchTerm = result.ingredients?.[0] || '';
+        } catch (error) {
+          this.scanError = error.response?.data?.message || error.message || 'Failed to analyze image';
+          this.result = '';
+        } finally {
           this.isScanning = false;
-        }, 3000);
+        }
       };
 
       reader.readAsDataURL(file);
@@ -177,6 +221,7 @@ export default {
       this.previewUrl = '';
       this.result = '';
       this.isScanning = false;
+      this.scanError = '';
       localStorage.removeItem(STORED_IMAGE_KEY);
 
       if (this.$refs.fileInput) {
@@ -418,6 +463,7 @@ export default {
 
 .empty-scan-state,
 .loading-scan-state,
+.scan-error-state,
 .scan-complete-state {
   max-width: 620px;
   margin: 0 auto;
@@ -429,8 +475,14 @@ export default {
   font-size: 52px;
 }
 
+.scan-error-state i {
+  color: #991b1b;
+  font-size: 52px;
+}
+
 .empty-scan-state h2,
 .loading-scan-state h2,
+.scan-error-state h2,
 .scan-complete-state h2 {
   margin: 16px 0 10px;
   color: #0f172a;

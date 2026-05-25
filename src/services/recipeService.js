@@ -203,20 +203,121 @@ export const getUserSubmittedRecipes = async () => {
 // Search meals by name
 export const searchMeals = async (query) => {
   try {
+    const trimmedQuery = String(query || '').trim();
+    if (!trimmedQuery) {
+      return [];
+    }
+
     const [remoteRecipes, localRecipes] = await Promise.all([
       (async () => {
-        const response = await fetch(`${API_BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_BASE_URL}/search.php?s=${encodeURIComponent(trimmedQuery)}`);
         const data = await response.json();
         return data.meals ? data.meals.map(transformMealData) : [];
       })(),
-      fetchLocalRecipes(query)
+      fetchLocalRecipes(trimmedQuery)
     ]);
 
-    return [...localRecipes, ...remoteRecipes];
+    const combined = uniqueRecipesById([...localRecipes, ...remoteRecipes]);
+    if (combined.length > 0) {
+      return combined;
+    }
+
+    const fallbackTerms = getFallbackSearchTerms(trimmedQuery);
+    if (fallbackTerms.length === 0) {
+      return combined;
+    }
+
+    const fallbackResults = await Promise.all(
+      fallbackTerms.map(async (term) => {
+        const [nameResults, ingredientResults, localResults] = await Promise.all([
+          (async () => {
+            const response = await fetch(`${API_BASE_URL}/search.php?s=${encodeURIComponent(term)}`);
+            const data = await response.json();
+            return data.meals ? data.meals.map(transformMealData) : [];
+          })(),
+          filterByIngredient(term),
+          fetchLocalRecipes(term)
+        ]);
+
+        return [...localResults, ...nameResults, ...ingredientResults];
+      })
+    );
+
+    return uniqueRecipesById(fallbackResults.flat());
   } catch (error) {
     console.error('Error searching meals:', error);
     return [];
   }
+};
+
+const STOPWORDS = new Set([
+  'a',
+  'an',
+  'and',
+  'with',
+  'the',
+  'of',
+  'in',
+  'on',
+  'for',
+  'to',
+  'style',
+  'recipe',
+  'dish',
+  'meal',
+  'grilled',
+  'fried',
+  'roasted',
+  'baked',
+  'smoked',
+  'spicy',
+  'crispy',
+  'creamy',
+  'sweet',
+  'savory',
+  'garlic',
+  'lemon'
+]);
+
+const PRIMARY_FOODS = new Set([
+  'steak',
+  'shrimp',
+  'chicken',
+  'beef',
+  'pork',
+  'fish',
+  'salmon',
+  'tuna',
+  'lamb',
+  'crab',
+  'lobster',
+  'turkey',
+  'tofu',
+  'mushroom',
+  'egg',
+  'eggs',
+  'rice',
+  'pasta',
+  'noodle',
+  'noodles'
+]);
+
+const getFallbackSearchTerms = (query) => {
+  const cleaned = String(query || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .split(/\s+/)
+    .map((term) => term.trim())
+    .filter(Boolean)
+    .filter((term) => !STOPWORDS.has(term));
+
+  if (cleaned.length === 0) {
+    return [];
+  }
+
+  const primary = cleaned.find((term) => PRIMARY_FOODS.has(term));
+  const fallback = primary || cleaned[cleaned.length - 1];
+  return fallback ? [fallback] : [];
 };
 
 // Get all meals by first letter

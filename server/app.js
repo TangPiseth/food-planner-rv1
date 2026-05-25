@@ -9,6 +9,7 @@ const groceryListRoutes = require('./groceryListRoutes');
 const reviewRoutes = require('./reviewRoutes');
 const recipeRoutes = require('./recipeRoutes');
 const adminRoutes = require('./adminRoutes');
+const aiRoutes = require('./aiRoutes');
 
 const app = express();
 
@@ -89,7 +90,7 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/meal-plans', mealPlanRoutes);
@@ -97,6 +98,7 @@ app.use('/api/grocery-lists', groceryListRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
