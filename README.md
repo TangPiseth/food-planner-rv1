@@ -35,7 +35,7 @@
 | 🔐 **Auth & Profiles** | Register, log in, manage sessions with JWT |
 | ⭐ **Reviews** | Create, edit, delete, rate, and report recipe reviews |
 | 🛡️ **Admin Dashboard** | Moderate users, reviews, reports, recipes, and logs |
-| 📸 **Image Scanner** | Upload a meal photo and jump into matching recipe searches |
+| 📸 **Image Scanner** | Upload a meal photo and get AI dish recognition with ingredients + description |
 | 🚀 **CI/CD Ready** | Railway hosting + GitHub Actions deployment workflow |
 
 ---
@@ -70,6 +70,7 @@
 - **JWT** authentication and **bcrypt** password hashing
 - CORS configuration for local and production environments
 - **Helmet**, rate limiting, and Mongo sanitization
+- **AI Scanner Pipeline**: Groq Vision (Llama model), Hugging Face Inference (`nateraw/food101`) fallback, and Google Gemini fallback
 - Railway-ready entrypoint via `server/server.js`
 
 ---
@@ -288,6 +289,15 @@ PORT                 # Injected by Railway automatically
 </details>
 
 <details>
+<summary>📸 AI Scanner</summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/ai/scan-image` | Analyze uploaded food image and return `dishName`, `ingredients`, and `description` |
+
+</details>
+
+<details>
 <summary>🛡️ Admin</summary>
 
 | Method | Endpoint | Description |
@@ -346,7 +356,8 @@ The app does not expose a public "create admin" flow. To create the first admin:
 - The recipe browser combines local MongoDB recipes with **TheMealDB** public data.
 - Community-submitted recipes are **unapproved** until an admin reviews them.
 - Protected pages use a **JWT token** stored by the frontend.
-- The **image scanner** provides upload, preview, a simulated scan result, and recipe-search handoff.
+- The **image scanner** now performs real backend AI analysis and returns structured dish data (`dishName`, `ingredients`, `description`).
+- Scanner inference order is: **Groq vision first** (configured with a Llama vision-capable model), then **Hugging Face** classification/caption fallback, then **Google Gemini** fallback.
 - Deployment is documented as a Railway + GitHub Actions direction pending the final production workflow.
 
 ---
