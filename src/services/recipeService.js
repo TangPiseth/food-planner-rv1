@@ -55,7 +55,7 @@ const transformMealData = (meal) => {
     image: meal.strMealThumb,
     category: meal.strCategory || 'Main Course',
     course: meal.strCategory || 'Main Course',
-    cuisine: meal.strArea || 'International',
+    cuisine: meal.strCountry || meal.strArea || 'International',
     type: meal.strCategory ? meal.strCategory.toUpperCase() : 'MAIN',
     author: 'TheMealDB',
     date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' }),
@@ -72,7 +72,7 @@ const transformMealData = (meal) => {
     prepTime: prepTime,
     cookingTime: cookingTime,
     servings: Math.floor(Math.random() * 4) + 2,
-    chefsTips: `Try this ${meal.strArea || 'international'} dish for a flavorful experience!`,
+    chefsTips: `Try this ${meal.strCountry || meal.strArea || 'international'} dish for a flavorful experience!`,
     youtubeUrl: meal.strYoutube || null,
     source: meal.strSource || null,
     tags: meal.strTags ? meal.strTags.split(',') : [],
@@ -375,14 +375,16 @@ export const getCategories = async () => {
   }
 };
 
-// Get all areas (cuisines)
+// Get all countries used by the cuisine filter.
 export const getAreas = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/list.php?a=list`);
     const data = await response.json();
-    return data.meals ? data.meals.map(item => item.strArea) : [];
+    return data.meals
+      ? [...new Set(data.meals.map(item => item.strCountry || item.strArea).filter(Boolean))]
+      : [];
   } catch (error) {
-    console.error('Error fetching areas:', error);
+    console.error('Error fetching cuisine countries:', error);
     return [];
   }
 };
