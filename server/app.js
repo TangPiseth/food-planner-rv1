@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const connectDB = require('./db');
@@ -101,7 +103,27 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+  const isDatabaseReady = mongoose.connection.readyState === 1;
+
+  res.status(isDatabaseReady ? 200 : 503).json({
+    status: isDatabaseReady ? 'OK' : 'STARTING',
+    message: isDatabaseReady ? 'Server is running' : 'Waiting for database connection'
+  });
 });
+
+if (isProduction) {
+  const frontendDistPath = path.join(__dirname, '..', 'dist');
+
+  app.use(express.static(frontendDistPath));
+
+  // Let Vue Router handle frontend routes such as /recipes/:id after refresh.
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api/')) {
+      return next();
+    }
+
+    return res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
 
 module.exports = app;
