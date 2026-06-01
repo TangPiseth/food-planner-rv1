@@ -3,9 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - Piseth
-      - main
-  pull_request:
+      - master
 
 jobs:
   build:
