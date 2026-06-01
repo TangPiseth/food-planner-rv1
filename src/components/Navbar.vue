@@ -45,6 +45,11 @@
               </router-link>
             </li>
             <li class="nav-item">
+              <router-link to="/image-scanner" class="nav-link" @click="closeOffcanvas">
+                <i class="fas fa-camera-retro me-2"></i>AI Image Scanner
+              </router-link>
+            </li>
+            <li class="nav-item">
               <router-link to="/meal-planner" class="nav-link" @click="closeOffcanvas">
                 <i class="fas fa-calendar-alt me-2"></i>Meal Planner
               </router-link>
@@ -52,6 +57,11 @@
             <li class="nav-item">
               <router-link to="/grocery-list" class="nav-link" @click="closeOffcanvas">
                 <i class="fas fa-shopping-cart me-2"></i>Grocery List
+              </router-link>
+            </li>
+            <li v-if="currentUser?.role === 'admin'" class="nav-item">
+              <router-link to="/admin" class="nav-link" @click="closeOffcanvas">
+                <i class="fas fa-user-shield me-2"></i>Admin Dashboard
               </router-link>
             </li>
             
@@ -93,11 +103,6 @@
                 <i class="fas fa-user-circle me-2"></i>{{ currentUser.username }}
               </router-link>
             </li>
-            <li v-if="currentUser" class="nav-item">
-              <a href="#" @click.prevent="handleLogoutAndClose" class="nav-link">
-                <i class="fas fa-sign-out-alt me-2"></i>Logout
-              </a>
-            </li>
           </ul>
         </div>
       </div>
@@ -116,10 +121,16 @@
             <router-link to="/recipes" class="nav-link">Recipes</router-link>
           </li>
           <li class="nav-item mx-lg-2">
+            <router-link to="/image-scanner" class="nav-link">AI Scanner</router-link>
+          </li>
+          <li class="nav-item mx-lg-2">
             <router-link to="/meal-planner" class="nav-link">Meal Planner</router-link>
           </li>
           <li class="nav-item mx-lg-2">
             <router-link to="/grocery-list" class="nav-link">Grocery List</router-link>
+          </li>
+          <li v-if="currentUser?.role === 'admin'" class="nav-item mx-lg-2">
+            <router-link to="/admin" class="nav-link">Admin Dashboard</router-link>
           </li>
           
           <!-- User Authentication Links -->
@@ -140,11 +151,6 @@
               <i class="fas fa-user-circle me-1"></i>{{ currentUser.username }}
             </router-link>
           </li>
-          <li v-if="currentUser" class="nav-item mx-lg-2">
-            <a href="#" @click.prevent="handleLogout" class="nav-link user-link">
-              <i class="fas fa-sign-out-alt me-1"></i>Logout
-            </a>
-          </li>
         </ul>
       </div>
     </div>
@@ -153,7 +159,7 @@
 
 <script>
 import * as bootstrap from 'bootstrap'
-import { getCurrentUser, logoutUser, isAuthenticated } from '@/services/authService'
+import { getCurrentUser, isAuthenticated } from '@/services/authService'
 
 export default {
   name: "Navbar",
@@ -231,25 +237,11 @@ export default {
       }
       // The cleanup is now handled by the 'hidden.bs.offcanvas' event listener in mounted()
     },
-    async handleLogout() {
-      try {
-        await logoutUser()
-        this.currentUser = null
-        this.$router.push('/home-page')
-      } catch (error) {
-        console.error('Logout error:', error)
-        alert('Failed to logout. Please try again.')
-      }
-    },
-    async handleLogoutAndClose() {
-      this.closeOffcanvas()
-      await this.handleLogout()
-    }
   }
 };
 </script>
 
-<style>
+<style lang="scss">
 /* Default navbar */
 #mainNav {
   transition: all 0.3s ease-in-out;

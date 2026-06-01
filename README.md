@@ -1,278 +1,360 @@
-# 🍽️ Food Planner
+<div align="center">
 
-A full-stack web application for meal planning, recipe management, and grocery list organization. Built with Vue.js and Node.js/Express.
+<img src="https://img.shields.io/badge/-EatsBuddy-FF6B35?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xOCAySDZhMiAyIDAgMCAwLTIgMnYxNmEyIDIgMCAwIDAgMiAyaDEyYTIgMiAwIDAgMCAyLTJWNGEyIDIgMCAwIDAtMi0yem0tNSAxNEg3di0yaDZ2MnptMy00SDd2LTJoOXYyem0wLTRIN1Y2aDl2MnoiLz48L3N2Zz4=&logoColor=white" alt="EatsBuddy" height="40"/>
 
-## ✨ Features
+# 🍽️ EatsBuddy
 
-- 📖 **Recipe Management** - Browse, search, and filter recipes
-- 📅 **Meal Planning** - Plan your meals for the week
-- 🛒 **Grocery Lists** - Auto-generate shopping lists from meal plans
-- 📝 **Blog Section** - Read and share food-related articles
-- 👤 **User Authentication** - Secure login and registration with JWT
-- ⭐ **Recipe Reviews** - Rate, review, edit, and delete your recipe reviews
-- 💬 **Review System** - Full CRUD operations with real-time rating aggregation
-- 📱 **Responsive Design** - Works on desktop, tablet, and mobile
-- 🔍 **Advanced Filters** - Filter recipes by category, cuisine, and search
+**A full-stack meal planning workspace for real food lovers.**
+
+*Recipe discovery · Weekly meal planning · Grocery lists · Community recipes · Admin moderation*
+
+---
+
+[![Vue 3](https://img.shields.io/badge/Vue_3-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![Express](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://mongodb.com/)
+[![Node.js](https://img.shields.io/badge/Node.js_14+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)](https://railway.app/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![License: Private](https://img.shields.io/badge/License-Private-red?style=flat-square)](.)
+
+</div>
+
+---
+
+## ✨ What It Does
+
+| Feature | Description |
+|---|---|
+| 🔍 **Recipe Discovery** | Browse and search by name, category, cuisine, and ingredient |
+| 📄 **Recipe Details** | View ingredients, instructions, metadata, and export to PDF |
+| 🧑‍🍳 **Community Recipes** | Submit recipes for admin review and approval |
+| 📅 **Meal Planning** | Save and manage weekly meal plans (authenticated) |
+| 🛒 **Grocery Lists** | Build lists with bulk item creation and PDF export |
+| 🔐 **Auth & Profiles** | Register, log in, manage sessions with JWT |
+| ⭐ **Reviews** | Create, edit, delete, rate, and report recipe reviews |
+| 🛡️ **Admin Dashboard** | Moderate users, reviews, reports, recipes, and logs |
+| 📸 **Image Scanner** | Upload a meal photo and jump into matching recipe searches |
+| 🚀 **CI/CD Ready** | Railway hosting + GitHub Actions deployment workflow |
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Vue.js 3** - Progressive JavaScript framework
-- **Vue Router 4** - Official router for Vue.js
-- **Bootstrap 5** - CSS framework for responsive design
-- **Font Awesome** - Icon library
-- **Swiper** - Modern touch slider
-- **AOS** - Animate on scroll library
-- **Axios** - HTTP client for API requests
-- **jsPDF** - PDF generation for recipes and grocery lists
+
+[![Vue.js](https://img.shields.io/badge/Vue_3-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![Vue Router](https://img.shields.io/badge/Vue_Router_4-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://router.vuejs.org/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap_5-7952B3?style=flat-square&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![Font Awesome](https://img.shields.io/badge/Font_Awesome-528DD7?style=flat-square&logo=fontawesome&logoColor=white)](https://fontawesome.com/)
+[![Axios](https://img.shields.io/badge/Axios-5A29E4?style=flat-square&logo=axios&logoColor=white)](https://axios-http.com/)
+[![jsPDF](https://img.shields.io/badge/jsPDF-FF0000?style=flat-square&logo=adobeacrobatreader&logoColor=white)](https://github.com/parallax/jsPDF)
+
+- **Vue 3** with Vue Router 4
+- **Bootstrap 5**, Font Awesome, AOS, and Swiper for UI
+- **Axios** and Fetch-based service modules
+- **jsPDF** + html2canvas for PDF exports
+- Vue CLI build tooling
 
 ### Backend
-- **Node.js** - JavaScript runtime
-- **Express.js 5** - Web application framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **JWT** - JSON Web Tokens for authentication
-- **Bcrypt** - Password hashing
-- **CORS** - Cross-origin resource sharing
 
-## 📋 Prerequisites
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://mongodb.com/)
+[![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=flat-square&logo=mongoose&logoColor=white)](https://mongoosejs.com/)
+[![bcrypt](https://img.shields.io/badge/bcrypt-003A70?style=flat-square&logo=letsencrypt&logoColor=white)](https://github.com/kelektiv/node.bcrypt.js)
 
-Before you begin, ensure you have the following installed:
-- **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
-- **npm** (comes with Node.js) or **yarn**
-- **MongoDB** - [Download](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-- **Git** - [Download](https://git-scm.com/downloads)
+- **Node.js** and **Express 5**
+- **MongoDB** with **Mongoose**
+- **JWT** authentication and **bcrypt** password hashing
+- CORS configuration for local and production environments
+- **Helmet**, rate limiting, and Mongo sanitization
+- Railway-ready entrypoint via `server/server.js`
 
-## 🚀 Installation
+---
 
-### 1. Clone the Repository
+## 📁 Project Structure
 
-```bash
-git clone <your-repository-url>
-cd food-planner-rv1
+```text
+food-planner-rv1/
+├── public/
+│   └── index.html              # Vue HTML shell
+├── server/
+│   ├── app.js                  # Express app configuration
+│   ├── server.js               # 🚀 API server entrypoint
+│   ├── db.js                   # 🗄️ MongoDB connection
+│   ├── *Routes.js              # Auth, recipes, reviews, admin, plans, groceries
+│   ├── middleware/
+│   │   └── auth.js             # 🔐 JWT auth middleware
+│   └── models/                 # User, Recipe, Review, Report, MealPlan, GroceryList
+├── src/
+│   ├── assets/                 # CSS, logo, and image assets
+│   ├── components/             # Shared and feature components
+│   ├── router/                 # Vue Router config and route guards
+│   ├── services/               # API clients and app service modules
+│   ├── views/                  # Pages
+│   ├── App.vue
+│   └── main.js
+├── .env.example                # Root environment template
+├── package.json
+├── vue.config.js
+└── README.md
 ```
 
-### 2. Install Dependencies
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- ![Node.js](https://img.shields.io/badge/Node.js-14+-339933?style=flat-square&logo=node.js&logoColor=white)
+- ![npm](https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white)
+- ![MongoDB](https://img.shields.io/badge/MongoDB-local_or_Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white)
+
+### Install
 
 ```bash
 npm install
 ```
 
-This will install all dependencies for both frontend and backend.
-
-### 3. Environment Configuration
-
-Create a `.env` file in the **root** directory by copying the example:
+### Configure Environment
 
 ```bash
-cp server/.env.example .env
+cp .env.example .env
 ```
 
-Then edit `server/.env` with your own values:
+Then update the values for your machine:
 
 ```env
-# Server Configuration
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/food-planner
+JWT_SECRET=replace-with-a-strong-random-secret
 PORT=3001
-JWT_SECRET=your_jwt_secret_key_here
+CORS_ORIGINS=http://localhost:8080
 
-# MongoDB Configuration (use your own MongoDB Atlas connection)
-MONGODB_URI=mongodb+srv://<username>:<password>@your-cluster.mongodb.net/food-planner?retryWrites=true&w=majority
+# Optional — use /api when frontend and backend share the same host
+VUE_APP_API_BASE_URL=/api
 ```
 
-**Important:** Never commit your `.env` file to version control. It contains sensitive credentials.
+> ⚠️ **Keep `.env` private.** It contains database credentials and signing secrets.
 
-### 4. Database Setup
+---
 
-If using MongoDB locally:
-1. Start MongoDB service:
-   ```bash
-   # Windows
-   net start MongoDB
-   
-   # macOS/Linux
-   sudo systemctl start mongod
-   ```
+## 💻 Development
 
-2. (Optional) Seed the database with sample reviews:
-   ```bash
-   # Seed 29,700+ reviews across recipes
-   node server/seedReviews.js
-   ```
-
-## 🎮 Running the Application
-
-### Development Mode (Recommended)
-
-Run both frontend and backend concurrently:
+Run the frontend and backend together:
 
 ```bash
 npm run dev
 ```
 
-This will start:
-- Frontend dev server at `http://localhost:8080`
-- Backend API server at `http://localhost:3001`
+This starts:
 
-### Run Separately
+| Service | URL |
+|---|---|
+| 🖥️ Vue dev server | `http://localhost:8080` |
+| ⚙️ Express API | `http://localhost:3001` |
 
-**Frontend only:**
+Local frontend requests use `/api`, and `vue.config.js` proxies them to the backend.
+
+You can also run each side separately:
+
 ```bash
-npm run serve
+npm run serve    # Frontend only
+npm run server   # Backend only
 ```
 
-**Backend only:**
-```bash
-npm run server
-```
+---
 
-## 📦 Build for Production
-
-Build the frontend for production:
+## 📦 Production Build
 
 ```bash
 npm run build
 ```
 
-The production-ready files will be generated in the `dist/` directory.
-
-## 📁 Project Structure
-
-```
-food-planner-rv1/
-├── public/              # Static files
-│   └── index.html      # HTML entry point
-├── server/             # Backend server
-│   ├── models/         # MongoDB models
-│   │   ├── User.js
-│   │   ├── MealPlan.js
-│   │   ├── GroceryList.js
-│   │   └── Review.js
-│   ├── authRoutes.js   # Authentication routes
-│   ├── mealPlanRoutes.js
-│   ├── groceryListRoutes.js
-│   ├── reviewRoutes.js # Review CRUD routes
-│   ├── seedReviews.js  # Review seeding script
-│   ├── db.js           # Database connection
-│   └── server.js       # Express server setup
-├── src/                # Frontend source code
-│   ├── assets/         # Static assets (CSS, images)
-│   ├── components/     # Vue components
-│   │   ├── blogs/      # Blog-related components
-│   │   ├── recipes/    # Recipe-related components
-│   │   ├── RecipeReviewForm.vue
-│   │   ├── RecipeReviews.vue
-│   │   ├── Navbar.vue
-│   │   └── Footer.vue
-│   ├── router/         # Vue Router configuration
-│   ├── services/       # API service modules
-│   │   ├── authService.js
-│   │   ├── recipeService.js
-│   │   ├── reviewService.js
-│   │   ├── mealPlanService.js
-│   │   └── groceryListService.js
-│   ├── views/          # Page components
-│   ├── App.vue         # Root component
-│   └── main.js         # Application entry point
-├── .env                # Environment variables (create this)
-├── babel.config.js     # Babel configuration
-├── jsconfig.json       # JavaScript configuration
-├── package.json        # Project dependencies
-├── vue.config.js       # Vue CLI configuration
-└── README.md           # You are here!
-```
-
-## 🔌 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile (requires auth)
-
-### Meal Plans
-- `GET /api/meal-plans` - Get all meal plans (requires auth)
-- `POST /api/meal-plans` - Create meal plan (requires auth)
-- `PUT /api/meal-plans/:id` - Update meal plan (requires auth)
-- `DELETE /api/meal-plans/:id` - Delete meal plan (requires auth)
-
-### Grocery Lists
-- `GET /api/grocery-lists` - Get all grocery lists (requires auth)
-- `POST /api/grocery-lists` - Create grocery list (requires auth)
-- `PUT /api/grocery-lists/:id` - Update grocery list (requires auth)
-- `DELETE /api/grocery-lists/:id` - Delete grocery list (requires auth)
-
-### Reviews
-- `GET /api/reviews/recipe/:recipeId` - Get all reviews for a recipe (public)
-- `GET /api/reviews/rating/:recipeId` - Get average rating for a recipe (public)
-- `POST /api/reviews/ratings/batch` - Get ratings for multiple recipes (public)
-- `POST /api/reviews` - Create a review (requires auth)
-- `PUT /api/reviews/:id` - Update a review (requires auth)
-- `DELETE /api/reviews/:id` - Delete a review (requires auth)
-- `GET /api/reviews/user` - Get current user's reviews (requires auth)
-
-### Health Check
-- `GET /api/health` - Server health check
-
-## 🧪 Testing
-
-```bash
-# Run tests (if test suite is configured)
-npm test
-```
-
-## 🔒 Security Notes
-
-- Passwords are hashed using bcrypt before storage
-- JWT tokens are used for authentication
-- CORS is enabled for cross-origin requests
-- Always use HTTPS in production
-- Keep your `.env` file secure and never commit it
-
-## 🐛 Troubleshooting
-
-### MongoDB Connection Issues
-- Ensure MongoDB is running
-- Check your `MONGODB_URI` in `.env`
-- Verify network connectivity if using MongoDB Atlas
-
-### Port Already in Use
-If port 8080 or 3001 is already in use:
-```bash
-# Change the port in .env for backend
-PORT=3002
-
-# For frontend, add this to vue.config.js:
-devServer: {
-  port: 8081
-}
-```
-
-### Module Not Found Errors
-```bash
-# Clear node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is private and proprietary.
-
-## 👨‍💻 Developer
-
-Developed with Elite & Piseth for better meal planning
-
-## 📞 Support
-
-For issues and questions, please open an issue in the repository.
+The compiled frontend is written to `dist/`.
 
 ---
 
-**Happy Cooking! 🍳**
+## ☁️ Deployment
+
+The project is targeting **Railway** for hosting with **GitHub Actions** for CI/CD.
+
+### Recommended Setup
+
+| Layer | Service |
+|---|---|
+| 🖥️ Backend | [Railway](https://railway.app/) — Node/Express service |
+| 🗄️ Database | [MongoDB Atlas](https://www.mongodb.com/atlas) — managed MongoDB |
+| 🔄 CI/CD | [GitHub Actions](https://github.com/features/actions) — automated checks & deployment |
+| 📦 Frontend Build | `npm run build` — Vue production bundle |
+| ▶️ Backend Start | `npm run server` |
+
+### Required Environment Variables
+
+```env
+MONGODB_URI          # MongoDB connection string
+JWT_SECRET           # Auth token signing secret
+CORS_ORIGINS         # Final frontend domain (e.g. https://yourdomain.com)
+VUE_APP_API_BASE_URL # /api for same-host setups
+PORT                 # Injected by Railway automatically
+```
+
+---
+
+## 🗺️ Routes
+
+### Frontend Pages
+
+| Route | Description | Auth Required |
+|---|---|---|
+| `/home-page` | 🏠 Home | — |
+| `/recipes` | 🔍 Recipe discovery | — |
+| `/recipes/:id` | 📄 Recipe detail | — |
+| `/image-scanner` | 📸 Image scanner | ✅ |
+| `/meal-planner` | 📅 Meal planner | ✅ |
+| `/grocery-list` | 🛒 Grocery list | ✅ |
+| `/profile` | 👤 User profile | ✅ |
+| `/admin` | 🛡️ Admin dashboard | ✅ Admin |
+| `/login` | 🔑 Login | — |
+| `/register` | 📝 Register | — |
+| `/about`, `/contact`, `/faq`, `/terms` | ℹ️ Info pages | — |
+
+### API Endpoints
+
+<details>
+<summary>🔐 Auth</summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register new user |
+| `POST` | `/api/auth/login` | Login |
+| `GET` | `/api/auth/me` | Get current user |
+| `PUT` | `/api/auth/update-username` | Update username |
+| `PUT` | `/api/auth/update-password` | Update password |
+
+</details>
+
+<details>
+<summary>🍽️ Recipes</summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/recipes` | List all recipes |
+| `GET` | `/api/recipes/:id` | Recipe detail |
+| `GET` | `/api/recipes/mine` | My submitted recipes |
+| `POST` | `/api/recipes/submit` | Submit community recipe |
+
+</details>
+
+<details>
+<summary>⭐ Reviews</summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/reviews/recipe/:recipeId` | Reviews for a recipe |
+| `GET` | `/api/reviews/rating/:recipeId` | Rating for a recipe |
+| `POST` | `/api/reviews/ratings/batch` | Batch ratings |
+| `POST` | `/api/reviews` | Create review |
+| `PUT` | `/api/reviews/:reviewId` | Edit review |
+| `DELETE` | `/api/reviews/:reviewId` | Delete review |
+| `POST` | `/api/reviews/:reviewId/report` | Report review |
+
+</details>
+
+<details>
+<summary>📅 Meal Plans</summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/meal-plans` | Get plans |
+| `POST` | `/api/meal-plans` | Create plan |
+| `DELETE` | `/api/meal-plans/:id` | Delete plan |
+
+</details>
+
+<details>
+<summary>🛒 Grocery Lists</summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/grocery-lists` | Get lists |
+| `POST` | `/api/grocery-lists` | Create list |
+| `PUT` | `/api/grocery-lists/:id` | Update list |
+| `POST` | `/api/grocery-lists/:id/items` | Add item |
+| `POST` | `/api/grocery-lists/:id/items/bulk` | Bulk add items |
+| `DELETE` | `/api/grocery-lists/:id` | Delete list |
+
+</details>
+
+<details>
+<summary>🛡️ Admin</summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET/POST` | `/api/admin/users` | List / create users |
+| `PATCH/DELETE` | `/api/admin/users/:id` | Edit / delete user |
+| `PATCH` | `/api/admin/users/:id/role` | Change role |
+| `PATCH` | `/api/admin/users/:id/ban` | Ban / unban user |
+| `GET/POST` | `/api/admin/recipes` | List / create recipes |
+| `PATCH/DELETE` | `/api/admin/recipes/:id` | Edit / delete recipe |
+| `GET` | `/api/admin/reviews` | List all reviews |
+| `PUT/DELETE` | `/api/admin/reviews/:id` | Edit / delete review |
+| `GET` | `/api/admin/reports` | List reports |
+| `PATCH` | `/api/admin/reports/:id` | Update report |
+| `GET` | `/api/admin/logs` | Moderation logs |
+| `PATCH` | `/api/admin/logs/:id/reason` | Update log reason |
+| `POST` | `/api/admin/logs/:id/reverse` | Reverse action |
+| `GET` | `/api/health` | Health check |
+
+</details>
+
+---
+
+## 🛡️ Admin Setup
+
+The app does not expose a public "create admin" flow. To create the first admin:
+
+1. **Register** a normal account through the app.
+2. **Open** the `users` collection in MongoDB Atlas or your local database.
+3. **Update** that user document:
+
+```json
+{
+  "role": "admin",
+  "isBanned": false
+}
+```
+
+4. **Save**, log out, and log back in — the account can now access `/admin`.
+
+---
+
+## 📋 Useful Commands
+
+| Command | Description |
+|---|---|
+| `npm run dev` | 🔥 Frontend + backend together |
+| `npm run serve` | 🖥️ Frontend only |
+| `npm run server` | ⚙️ Backend only |
+| `npm run build` | 📦 Production frontend build |
+
+---
+
+## 📝 Notes
+
+- The recipe browser combines local MongoDB recipes with **TheMealDB** public data.
+- Community-submitted recipes are **unapproved** until an admin reviews them.
+- Protected pages use a **JWT token** stored by the frontend.
+- The **image scanner** provides upload, preview, a simulated scan result, and recipe-search handoff.
+- Deployment is documented as a Railway + GitHub Actions direction pending the final production workflow.
+
+---
+
+<div align="center">
+
+**EatsBuddy** · Private & Proprietary
+
+*Made with 🍴 and a lot of ☕*
+
+</div>

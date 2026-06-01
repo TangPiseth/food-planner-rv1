@@ -1,5 +1,5 @@
 <template>
-  <div class="EG-Default" style="margin-top: 80px;">
+  <div class="EG-Default grocery-page" style="margin-top: 80px;">
     <!-- SVG Filters -->
     <svg style="display: none">
       <filter id="glass-distortion-grocery-form">
@@ -33,43 +33,58 @@
     <!-- Hero Section -->
     <div class="grocery-hero-section">
       <div class="container text-center py-5">
-        <h1 class="fw-bold display-4 mb-3" data-aos="fade-down">Manage Your Grocery Lists</h1>
-        <p class="lead text-muted mb-0" data-aos="fade-up">Create and manage your grocery lists with ease!</p>
+        <div class="hero-copy mx-auto" data-aos="fade-up">
+          <span class="eyebrow">Grocery Planner</span>
+          <h1 class="fw-bold display-4 mb-3" data-aos="fade-down">Manage Your Grocery Lists</h1>
+          <p class="lead text-muted mb-0" data-aos="fade-up">Create, organize, print, and carry your grocery lists with ease.</p>
+        </div>
       </div>
     </div>
 
     <!-- Main Content Section -->
     <div class="grocery-section py-5">
       <div class="container">
-        <!-- Add New Grocery List Form -->
-        <div class="row justify-content-center mb-5" data-aos="zoom-in">
-          <div class="col-lg-8 col-md-10 col-sm-12">
-            <div class="grocery-form-glass-card">
-              <div class="glass-filter"></div>
-              <div class="glass-overlay"></div>
-              <div class="glass-specular"></div>
+        <div class="page-panel mb-5" data-aos="zoom-in">
+          <div class="row g-4 align-items-center">
+            <div class="col-lg-5">
+              <div class="panel-copy">
+                <span class="panel-label">Quick capture</span>
+                <h3 class="fw-bold mb-3">Create a clean grocery list in seconds.</h3>
+                <p class="text-muted mb-0">Keep shopping organized, print what you need, and bring a polished list with you when you leave the house.</p>
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="grocery-form-glass-card">
+                <div class="glass-filter"></div>
+                <div class="glass-overlay"></div>
+                <div class="glass-specular"></div>
 
-              <div class="form-content">
-                <h3 class="mb-4 fw-bold" style="color: #2e7d32;">Add a Grocery List</h3>
-                <form @submit.prevent="addNewList">
-                  <div class="mb-4">
-                    <label for="listName" class="form-label fw-600">List Name</label>
-                    <input type="text" v-model="newListName" class="form-control glass-input" id="listName" placeholder="Enter list name" />
-                  </div>
-                  <div class="mb-4">
-                    <label for="listDate" class="form-label fw-600">Date</label>
-                    <input type="datetime-local" v-model="newListDate" class="form-control glass-input" id="listDate" />
-                  </div>
-                  <button type="submit" class="grocery-btn w-100">Add List</button>
-                </form>
+                <div class="form-content">
+                  <h3 class="mb-4 fw-bold" style="color: #1b5e20;">Add a Grocery List</h3>
+                  <form @submit.prevent="addNewList">
+                    <div class="mb-4">
+                      <label for="listName" class="form-label fw-600">List Name</label>
+                      <input type="text" v-model="newListName" class="form-control glass-input" id="listName" placeholder="Enter list name" />
+                    </div>
+                    <div class="mb-4">
+                      <label for="listDate" class="form-label fw-600">Date</label>
+                      <input type="datetime-local" v-model="newListDate" class="form-control glass-input" id="listDate" />
+                    </div>
+                    <button type="submit" class="grocery-btn w-100">Add List</button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Grocery Lists Section -->
-        <div class="grocery-lists-container">
-          <h3 class="fw-bold mb-5 text-center" data-aos="fade-left" style="color: #1a1a1a; font-size: 2rem;">Your Grocery Lists</h3>
+        <div class="grocery-lists-container page-panel" data-aos="fade-up">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+              <h3 class="fw-bold mb-0" style="color: #1a1a1a; font-size: 2rem;">Your Grocery Lists</h3>
+            </div>
+            <div class="grocery-list-hint text-muted">Print any list from its card when you need a paper copy.</div>
+          </div>
           <div class="grocery-lists-content">
             <div v-if="groceryLists.length > 0" class="grocery-lists-grid">
               <GroceryList v-for="(list, index) in groceryLists" :key="index" :list="list" data-aos="flip-left" @remove-list="removeList(index)"/>
@@ -157,11 +172,15 @@ export default {
 </script>
 
 <style scoped>
+.grocery-page {
+  background: #ffffff;
+}
+
 /* Breadcrumb Section */
 .breadcrumb-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  background: #ffffff;
   padding: 20px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(27, 94, 32, 0.08);
 }
 
 .breadcrumb-section .breadcrumb {
@@ -183,7 +202,7 @@ export default {
 
 /* Hero Section */
 .grocery-hero-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfb 100%);
   position: relative;
   overflow: hidden;
 }
@@ -217,33 +236,77 @@ export default {
 .grocery-hero-section h1 {
   position: relative;
   z-index: 1;
-  color: #1a1a1a;
-  letter-spacing: -1px;
+  max-width: 760px;
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2.8rem, 6vw, 5.2rem);
+  font-weight: 900;
+  letter-spacing: -0.07em;
+  line-height: 0.95;
 }
 
 .grocery-hero-section p {
   position: relative;
   z-index: 1;
-  color: #4a4a4a;
+  margin: 24px 0 0;
+  color: #4b5563;
+  font-size: 17px;
+  line-height: 1.75;
 }
 
 /* Main Content Section */
 .grocery-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  background: #ffffff;
   min-height: 100vh;
+}
+
+.hero-copy {
+  max-width: 760px;
+}
+
+.eyebrow,
+.panel-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(46, 125, 50, 0.08);
+  color: #1b5e20;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.page-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(27, 94, 32, 0.08);
+  border-radius: 28px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+  padding: clamp(1.2rem, 2vw, 2rem);
+}
+
+.panel-copy {
+  padding: 0.5rem 0.25rem;
+}
+
+.grocery-list-hint {
+  font-size: 0.95rem;
 }
 
 /* Grocery Form Glass Card */
 .grocery-form-glass-card {
-  --bg-color: rgba(255, 255, 255, 0.55);
+  --bg-color: rgba(248, 250, 248, 0.9);
   --highlight: rgba(255, 255, 255, 0.9);
   position: relative;
-  border-radius: 28px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 1px 2px rgba(255, 255, 255, 0.6),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08),
+              inset 0 1px 2px rgba(255, 255, 255, 0.8),
+              inset 0 -1px 2px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(27, 94, 32, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -283,13 +346,13 @@ export default {
 .form-content {
   position: relative;
   z-index: 4;
-  padding: 40px;
+  padding: 38px;
 }
 
 .grocery-form-glass-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 48px rgba(46, 125, 50, 0.15),
-              inset 0 1px 2px rgba(255, 255, 255, 0.7),
+  transform: translateY(-4px);
+  box-shadow: 0 18px 48px rgba(46, 125, 50, 0.12),
+              inset 0 1px 2px rgba(255, 255, 255, 0.75),
               inset 0 -1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -354,8 +417,7 @@ export default {
 
 /* Grocery Lists Container - Responsive and Reactive */
 .grocery-lists-container {
-  margin-top: 3rem;
-  min-height: 40vh;
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -372,7 +434,7 @@ export default {
 /* When lists are present */
 .grocery-lists-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
   gap: 24px;
   animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -447,6 +509,11 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .page-panel {
+    border-radius: 22px;
+    padding: 1rem;
+  }
+
   .form-content {
     padding: 28px 20px;
   }
@@ -485,7 +552,7 @@ export default {
   }
   
   .grocery-section {
-    padding-top: 2rem !important;
+    padding-top: 1.5rem !important;
     padding-bottom: 2rem !important;
   }
   
@@ -496,6 +563,10 @@ export default {
   .grocery-btn {
     padding: 10px 20px;
     font-size: 0.9rem;
+  }
+
+  .grocery-list-hint {
+    font-size: 0.86rem;
   }
 }
 

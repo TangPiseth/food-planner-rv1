@@ -1,400 +1,703 @@
 <template>
-    <div>
-        <svg style="display: none">
-          <filter id="glass-distortion-recipe-controls">
-            <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" result="noise" seed="7" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-          </filter>
-        </svg>
+  <section class="recipe-search-experience">
+    <form class="recipe-filter-panel" @submit.prevent="runSearch">
+      <div class="filter-panel-header">
+        <div>
+          <span class="eyebrow">Smart recipe search</span>
+          <h2>Find the right meal faster</h2>
+          <p>Search by name, then refine with TheMealDB category, cuisine, and ingredient filters.</p>
+        </div>
+        <button type="button" class="filter-toggle-btn" @click="showAdvanced = !showAdvanced">
+          <i class="fa-solid fa-sliders"></i>
+          <span>{{ showAdvanced ? 'Hide Filters' : 'Advanced Filters' }}</span>
+        </button>
+      </div>
 
-        <!-- Search and Sort Controls -->
-        <div class="recipe-controls mb-5">
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="recipe-search-wrapper">
-              <input 
-                type="text" 
-                v-model="searchQuery" 
-                class="recipe-search-input" 
-                placeholder="Search for recipes..."
-              >
-              <div class="search-glass-filter"></div>
-              <div class="search-glass-overlay"></div>
-              <div class="search-glass-specular"></div>
-            </div>
-            <div class="d-flex gap-3 flex-wrap">
-              <div class="recipe-sort-wrapper">
-                <select v-model="selectedCategory" class="recipe-sort-select" @change="handleCategoryChange">
-                  <option value="">All Categories</option>
-                  <option v-for="category in categories" :key="category.strCategory" :value="category.strCategory">
-                    {{ category.strCategory }}
-                  </option>
-                </select>
-                <div class="sort-glass-filter"></div>
-                <div class="sort-glass-overlay"></div>
-                <div class="sort-glass-specular"></div>
-              </div>
-              <div class="recipe-sort-wrapper">
-                <select v-model="sortOption" class="recipe-sort-select">
-                  <option value="latest">Sort by Latest</option>
-                  <option value="popular">Sort by Popular</option>
-                  <option value="rating">Sort by Rating</option>
-                </select>
-                <div class="sort-glass-filter"></div>
-                <div class="sort-glass-overlay"></div>
-                <div class="sort-glass-specular"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="search-row">
+        <label class="search-field">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            v-model.trim="filters.query"
+            type="search"
+            placeholder="Search recipes, meals, or keywords..."
+            @input="debouncedSearch"
+          />
+        </label>
 
-        <!-- Recipe Cards Grid -->
-        <div v-if="loading" class="text-center py-5">
-            <div class="spinner-border text-success" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-3 text-muted">Loading delicious recipes...</p>
-        </div>
-        
-        <div v-else-if="recipes.length === 0" class="text-center py-5">
-            <i class="fa-solid fa-utensils fa-3x text-muted mb-3"></i>
-            <p class="text-muted">No recipes found. Try a different search term.</p>
-        </div>
-        
-        <div v-else class="row g-4">
-            <RecipeItem v-for="recipe in filteredRecipes" :key="recipe.id" :recipe="recipe" />
-        </div>
+        <label class="sort-field">
+          <span>Sort</span>
+          <select v-model="sortOption">
+            <option value="relevance">Relevance</option>
+            <option value="rating">Highest Rating</option>
+            <option value="popular">Most Popular</option>
+            <option value="time">Fastest</option>
+            <option value="az">A-Z</option>
+          </select>
+        </label>
 
-        <!-- Pagination -->
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                    <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">&laquo;</a>
-                </li>
-                <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: currentPage === page }">
-                    <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-                </li>
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                    <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">&raquo;</a>
-                </li>
-            </ul>
-        </nav>
+        <button type="submit" class="search-submit-btn" :disabled="loading">
+          <span v-show="loading" class="spinner-border spinner-border-sm"></span>
+          <i v-show="!loading" class="fa-solid fa-arrow-right"></i>
+          <span>{{ loading ? 'Searching' : 'Search' }}</span>
+        </button>
+      </div>
+
+      <div v-show="showAdvanced" class="advanced-filter-menu">
+        <label class="filter-field">
+          <span>Category</span>
+          <select v-model="filters.category" @change="runSearch">
+            <option value="">Any category</option>
+            <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+          </select>
+        </label>
+
+        <label class="filter-field">
+          <span>Cuisine</span>
+          <select v-model="filters.area" @change="runSearch">
+            <option value="">Any cuisine</option>
+            <option v-for="area in areas" :key="area" :value="area">{{ area }}</option>
+          </select>
+        </label>
+
+        <label class="filter-field">
+          <span>Main ingredient</span>
+          <input
+            v-model.trim="filters.ingredient"
+            list="ingredient-options"
+            type="text"
+            placeholder="Chicken, salmon, rice..."
+            @input="debouncedSearch"
+          />
+          <datalist id="ingredient-options">
+            <option v-for="ingredient in ingredients" :key="ingredient" :value="ingredient"></option>
+          </datalist>
+        </label>
+
+        <div class="filter-actions">
+          <button type="button" class="clear-filter-btn" @click="resetFilters" :disabled="loading || !hasActiveFilters">
+            Clear All
+          </button>
+          <button type="button" class="apply-filter-btn" @click="runSearch" :disabled="loading">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+
+      <div v-show="hasActiveFilters" class="active-filter-row">
+        <button v-show="filters.query" type="button" class="filter-chip" @click="clearFilter('query')">
+          Search: {{ filters.query }} <i class="fa-solid fa-xmark"></i>
+        </button>
+        <button v-show="filters.category" type="button" class="filter-chip" @click="clearFilter('category')">
+          Category: {{ filters.category }} <i class="fa-solid fa-xmark"></i>
+        </button>
+        <button v-show="filters.area" type="button" class="filter-chip" @click="clearFilter('area')">
+          Cuisine: {{ filters.area }} <i class="fa-solid fa-xmark"></i>
+        </button>
+        <button v-show="filters.ingredient" type="button" class="filter-chip" @click="clearFilter('ingredient')">
+          Ingredient: {{ filters.ingredient }} <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </form>
+
+    <div class="results-toolbar">
+      <div>
+        <span class="results-label">Results</span>
+        <!-- <strong>{{ sortedRecipes.length }}</strong>
+        <span>recipes found</span> -->
+      </div>
+      <p>Hungry? Filter food, find your feast.</p>
     </div>
+
+    <div v-show="loading" class="state-card">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p>Finding premium recipe matches...</p>
+    </div>
+
+    <div v-show="!loading && sortedRecipes.length === 0" class="state-card">
+      <i class="fa-solid fa-utensils"></i>
+      <h3>No recipes found</h3>
+      <p>Try fewer filters or a broader ingredient.</p>
+    </div>
+
+    <div v-show="!loading && sortedRecipes.length > 0" class="recipe-results-grid">
+      <RecipeItem v-for="recipe in paginatedRecipes" :key="recipe.id" :recipe="recipe" />
+    </div>
+
+    <nav v-show="!loading && totalPages > 1" aria-label="Recipe pagination" class="pagination-shell">
+      <button class="page-nav-btn" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button
+        v-for="page in visiblePages"
+        :key="page"
+        class="page-number-btn"
+        :class="{ active: currentPage === page }"
+        @click="changePage(page)"
+      >
+        {{ page }}
+      </button>
+      <button class="page-nav-btn" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </nav>
+  </section>
 </template>
 
 <script>
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 import RecipeItem from './RecipeItem.vue';
-import { getMultipleRandomMeals, searchMeals, getCategories, filterByCategory } from '@/services/recipeService';
+import {
+  advancedSearchRecipes,
+  getAreas,
+  getCategories,
+  getIngredients,
+  getMultipleRandomMeals
+} from '@/services/recipeService';
 
 export default {
-    components: {
-        RecipeItem,
+  name: 'RecipeList',
+  components: {
+    RecipeItem,
+  },
+  data() {
+    return {
+      filters: {
+        query: '',
+        category: '',
+        area: '',
+        ingredient: ''
+      },
+      sortOption: 'relevance',
+      showAdvanced: true,
+      categories: [],
+      areas: [],
+      ingredients: [],
+      currentPage: 1,
+      perPage: 12,
+      recipes: [],
+      loading: false,
+      searchTimeout: null
+    };
+  },
+  computed: {
+    hasActiveFilters() {
+      return Object.values(this.filters).some((value) => value && value.trim());
     },
-    data() {
-        return {
-            searchQuery: '',
-            sortOption: 'latest',
-            selectedCategory: '',
-            categories: [],
-            currentPage: 1,
-            recipes: [],
-            loading: false,
-            searchTimeout: null
-        };
-    },
-    computed: {
-        filteredRecipes() {
-            let filtered = [...this.recipes];
-            
-            if (this.sortOption === 'latest') {
-                // Keep original order (already random/latest from API)
-            } else if (this.sortOption === 'popular') {
-                filtered = filtered.sort((a, b) => b.popularity - a.popularity);
-            } else if (this.sortOption === 'rating') {
-                filtered = filtered.sort((a, b) => b.rating - a.rating);
-            }
+    sortedRecipes() {
+      const sorted = [...this.recipes];
 
-            const start = (this.currentPage - 1) * 9;
-            const end = start + 9;
-            return filtered.slice(start, end);
-        },
-        totalPages() {
-            return Math.ceil(this.recipes.length / 9) || 1;
-        }
+      if (this.sortOption === 'rating') {
+        return sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      }
+      if (this.sortOption === 'popular') {
+        return sorted.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      }
+      if (this.sortOption === 'time') {
+        return sorted.sort((a, b) => this.recipeTime(a) - this.recipeTime(b));
+      }
+      if (this.sortOption === 'az') {
+        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+      }
+
+      return sorted;
     },
-    methods: {
-        changePage(page) {
-            if (page >= 1 && page <= this.totalPages) {
-                this.currentPage = page;
-            }
-        },
-        async fetchRecipes() {
-            this.loading = true;
-            try {
-                this.recipes = await getMultipleRandomMeals(72);
-            } catch (error) {
-                console.error('Error fetching recipes:', error);
-            } finally {
-                this.loading = false;
-            }
-        },
-        async handleSearch() {
-            // Debounce search
-            if (this.searchTimeout) {
-                clearTimeout(this.searchTimeout);
-            }
-            
-            this.searchTimeout = setTimeout(async () => {
-                this.loading = true;
-                this.currentPage = 1;
-                this.selectedCategory = ''; // Reset category when searching
-                try {
-                    if (this.searchQuery.trim()) {
-                        this.recipes = await searchMeals(this.searchQuery);
-                    } else {
-                        this.recipes = await getMultipleRandomMeals(72);
-                    }
-                } catch (error) {
-                    console.error('Error searching recipes:', error);
-                } finally {
-                    this.loading = false;
-                }
-            }, 500);
-        },
-        async handleCategoryChange() {
-            this.loading = true;
-            this.currentPage = 1;
-            this.searchQuery = ''; // Reset search when filtering by category
-            try {
-                if (this.selectedCategory) {
-                    this.recipes = await filterByCategory(this.selectedCategory);
-                } else {
-                    this.recipes = await getMultipleRandomMeals(72);
-                }
-            } catch (error) {
-                console.error('Error filtering by category:', error);
-            } finally {
-                this.loading = false;
-            }
-        },
-        async fetchCategories() {
-            try {
-                this.categories = await getCategories();
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        }
+    paginatedRecipes() {
+      const start = (this.currentPage - 1) * this.perPage;
+      return this.sortedRecipes.slice(start, start + this.perPage);
     },
-    watch: {
-        searchQuery() {
-            this.handleSearch();
-        }
+    totalPages() {
+      return Math.max(1, Math.ceil(this.sortedRecipes.length / this.perPage));
     },
-    async mounted() {
-        AOS.init();
-        await Promise.all([
-            this.fetchRecipes(),
-            this.fetchCategories()
-        ]);
+    visiblePages() {
+      const pages = [];
+      const start = Math.max(1, this.currentPage - 2);
+      const end = Math.min(this.totalPages, start + 4);
+
+      for (let page = start; page <= end; page += 1) {
+        pages.push(page);
+      }
+
+      return pages;
     }
+  },
+  watch: {
+    '$route.query': {
+      async handler() {
+        this.applyRouteFilters();
+
+        if (this.hasActiveFilters) {
+          await this.runSearch();
+        } else {
+          await this.fetchDefaultRecipes();
+        }
+      }
+    }
+  },
+  methods: {
+    normalizeQueryValue(value) {
+      return Array.isArray(value) ? value[0] || '' : value || '';
+    },
+    applyRouteFilters() {
+      const routeQuery = this.$route.query || {};
+
+      this.filters = {
+        query: this.normalizeQueryValue(routeQuery.query),
+        category: this.normalizeQueryValue(routeQuery.category),
+        area: this.normalizeQueryValue(routeQuery.area),
+        ingredient: this.normalizeQueryValue(routeQuery.ingredient)
+      };
+
+      if (this.filters.category || this.filters.area || this.filters.ingredient) {
+        this.showAdvanced = true;
+      }
+
+      this.currentPage = 1;
+    },
+    recipeTime(recipe) {
+      return (recipe.prepTime || 0) + (recipe.cookingTime || 0);
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        window.scrollTo({ top: 360, behavior: 'smooth' });
+      }
+    },
+    debouncedSearch() {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+
+      this.searchTimeout = setTimeout(() => {
+        this.runSearch();
+      }, 450);
+    },
+    async runSearch() {
+      this.loading = true;
+      this.currentPage = 1;
+
+      try {
+        this.recipes = await advancedSearchRecipes(this.filters, 84);
+      } catch (error) {
+        console.error('Error searching recipes:', error);
+        this.recipes = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+    async resetFilters() {
+      this.filters = {
+        query: '',
+        category: '',
+        area: '',
+        ingredient: ''
+      };
+      this.sortOption = 'relevance';
+      this.currentPage = 1;
+      await this.fetchDefaultRecipes();
+    },
+    async clearFilter(key) {
+      this.filters[key] = '';
+      await this.runSearch();
+    },
+    async fetchDefaultRecipes() {
+      this.loading = true;
+
+      try {
+        this.recipes = await getMultipleRandomMeals(84);
+      } catch (error) {
+        console.error('Error fetching recipes:', error);
+        this.recipes = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+    async fetchFilterOptions() {
+      try {
+        const [categories, areas, ingredients] = await Promise.all([
+          getCategories(),
+          getAreas(),
+          getIngredients()
+        ]);
+
+        this.categories = categories.map((category) => category.strCategory || category).filter(Boolean);
+        this.areas = areas;
+        this.ingredients = ingredients.slice(0, 220);
+      } catch (error) {
+        console.error('Error fetching filter options:', error);
+      }
+    }
+  },
+  async mounted() {
+    this.applyRouteFilters();
+
+    await Promise.all([
+      this.hasActiveFilters ? this.runSearch() : this.fetchDefaultRecipes(),
+      this.fetchFilterOptions()
+    ]);
+  },
+  beforeUnmount() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+  }
 };
 </script>
 
 <style scoped>
-/* Recipe Controls */
-.recipe-controls {
-  animation: slideDown 0.5s ease-out;
+.recipe-search-experience {
+  display: grid;
+  gap: 28px;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.recipe-filter-panel {
+  padding: 28px;
+  color: #111827;
+  background:
+    radial-gradient(circle at top right, rgba(22, 101, 52, 0.1), transparent 30%),
+    #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 32px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
 }
 
-.recipe-search-wrapper,
-.recipe-sort-wrapper {
-  position: relative;
+.filter-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.recipe-search-wrapper {
-  flex: 1;
-  min-width: 240px;
-  max-width: 400px;
+.eyebrow,
+.results-label {
+  display: inline-flex;
+  margin-bottom: 8px;
+  color: #14532d;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
 }
 
-/* Glass Search Input */
-.recipe-search-input {
-  --bg-color: rgba(255, 255, 255, 0.5);
-  --highlight: rgba(255, 255, 255, 0.85);
-  position: relative;
-  z-index: 4;
-  width: 100%;
-  height: 48px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 24px;
-  padding: 0 20px;
-  font-size: 0.95rem;
-  color: #1a1a1a;
-  background: transparent;
-  outline: none;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 1px 2px rgba(255, 255, 255, 0.6),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
+.filter-panel-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -0.06em;
 }
 
-.recipe-search-input::placeholder {
-  color: #4a4a4a;
+.filter-panel-header p {
+  max-width: 680px;
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
-.recipe-search-input:focus {
-  outline: none;
-  --bg-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 12px 40px rgba(46, 125, 50, 0.15),
-              inset 0 1px 2px rgba(255, 255, 255, 0.7),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.search-glass-filter,
-.search-glass-overlay,
-.search-glass-specular {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  pointer-events: none;
-}
-
-.search-glass-filter {
-  backdrop-filter: blur(5px);
-  filter: url(#glass-distortion-recipe-controls) saturate(130%) brightness(1.2) contrast(1.05);
-  z-index: 1;
-}
-
-.search-glass-overlay {
-  background: var(--bg-color);
-  z-index: 2;
-}
-
-.search-glass-specular {
-  box-shadow: inset 2px 2px 4px var(--highlight),
-              inset -1px -1px 2px rgba(0, 0, 0, 0.08);
-  z-index: 3;
-}
-
-/* Glass Sort Select */
-.recipe-sort-wrapper {
-  min-width: 180px;
-}
-
-.recipe-sort-select {
-  --bg-color: rgba(255, 255, 255, 0.5);
-  --highlight: rgba(255, 255, 255, 0.85);
-  position: relative;
-  z-index: 4;
-  width: 100%;
-  height: 48px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 24px;
-  padding: 0 20px;
-  font-size: 0.95rem;
-  color: #1a1a1a;
-  background: transparent;
-  outline: none;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 1px 2px rgba(255, 255, 255, 0.6),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 40px;
-}
-
-.recipe-sort-select:focus {
-  outline: none;
-  --bg-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 12px 40px rgba(46, 125, 50, 0.15),
-              inset 0 1px 2px rgba(255, 255, 255, 0.7),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.sort-glass-filter,
-.sort-glass-overlay,
-.sort-glass-specular {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  pointer-events: none;
-}
-
-.sort-glass-filter {
-  backdrop-filter: blur(5px);
-  filter: url(#glass-distortion-recipe-controls) saturate(130%) brightness(1.2) contrast(1.05);
-  z-index: 1;
-}
-
-.sort-glass-overlay {
-  background: var(--bg-color);
-  z-index: 2;
-}
-
-.sort-glass-specular {
-  box-shadow: inset 2px 2px 4px var(--highlight),
-              inset -1px -1px 2px rgba(0, 0, 0, 0.08);
-  z-index: 3;
-}
-
-/* Pagination */
-.pagination {
+.filter-toggle-btn,
+.search-submit-btn,
+.apply-filter-btn,
+.clear-filter-btn,
+.filter-chip,
+.page-nav-btn,
+.page-number-btn {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  gap: 9px;
+  border-radius: 16px;
+  font-weight: 900;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
-.page-link {
-  color: #2e7d32;
-  border-color: rgba(46, 125, 50, 0.3);
-  border-radius: 8px;
-  margin: 0 4px;
-  transition: all 0.3s ease;
+.filter-toggle-btn {
+  min-height: 46px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
 }
 
-.page-link:hover {
-  background-color: #2e7d32;
-  color: white;
-  border-color: #2e7d32;
+.search-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 190px 150px;
+  gap: 14px;
+  align-items: stretch;
 }
 
-.page-item.active .page-link {
-  background-color: #2e7d32;
-  border-color: #2e7d32;
+.search-field,
+.sort-field,
+.filter-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.search-field:focus-within,
+.sort-field:focus-within,
+.filter-field:focus-within {
+  background: #ffffff;
+  border-color: #166534;
+  box-shadow: 0 0 0 4px rgba(22, 101, 52, 0.1);
+}
+
+.search-field i {
+  color: #166534;
+}
+
+.search-field input,
+.sort-field select,
+.filter-field input,
+.filter-field select {
+  width: 100%;
+  color: #111827;
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sort-field,
+.filter-field {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+}
+
+.sort-field span,
+.filter-field span {
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.search-submit-btn,
+.apply-filter-btn {
+  min-height: 56px;
+  padding: 0 18px;
+  color: #ffffff;
+  background: #166534;
+  border: 1px solid #166534;
+  box-shadow: 0 14px 28px rgba(22, 101, 52, 0.22);
+}
+
+.clear-filter-btn {
+  min-height: 56px;
+  padding: 0 18px;
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+.filter-toggle-btn:hover,
+.search-submit-btn:hover:not(:disabled),
+.apply-filter-btn:hover:not(:disabled),
+.clear-filter-btn:hover:not(:disabled),
+.filter-chip:hover,
+.page-nav-btn:hover:not(:disabled),
+.page-number-btn:hover {
+  transform: translateY(-2px);
+}
+
+.search-submit-btn:hover:not(:disabled),
+.apply-filter-btn:hover:not(:disabled) {
+  background: #14532d;
+  box-shadow: 0 18px 34px rgba(22, 101, 52, 0.28);
+}
+
+.search-submit-btn:disabled,
+.apply-filter-btn:disabled,
+.clear-filter-btn:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.advanced-filter-menu {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.filter-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.active-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.filter-chip {
+  min-height: 36px;
+  padding: 0 12px;
+  color: #14532d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  font-size: 12px;
+}
+
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+}
+
+.results-toolbar div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.results-toolbar strong {
+  color: #0f172a;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.results-toolbar span:not(.results-label),
+.results-toolbar p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.recipe-results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.state-card {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 28px;
+}
+
+.state-card i {
+  color: #166534;
+  font-size: 42px;
+}
+
+.state-card h3 {
+  margin: 12px 0 4px;
+  color: #111827;
+  font-weight: 900;
+}
+
+.state-card p {
+  margin: 12px 0 0;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.pagination-shell {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.page-nav-btn,
+.page-number-btn {
+  width: 42px;
+  height: 42px;
+  color: #14532d;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+.page-number-btn.active {
+  color: #ffffff;
+  background: #166534;
+  border-color: #166534;
+}
+
+.page-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.filter-menu-enter-active,
+.filter-menu-leave-active {
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.filter-menu-enter-from,
+.filter-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@media (max-width: 1100px) {
+  .search-row,
+  .advanced-filter-menu {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .recipe-results-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
-  .recipe-controls {
+  .recipe-filter-panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .filter-panel-header,
+  .results-toolbar {
     flex-direction: column;
+    align-items: stretch;
   }
 
-  .recipe-search-wrapper {
-    max-width: 100%;
+  .search-row,
+  .advanced-filter-menu,
+  .recipe-results-grid {
+    grid-template-columns: 1fr;
   }
 
-  .recipe-sort-wrapper {
-    width: 100%;
+  .filter-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .filter-actions {
+    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -1,34 +1,45 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
+
 const Review = require('./models/Review');
+const ReviewReport = require('./models/ReviewReport');
 const User = require('./models/User');
+const { verifyToken } = require('./middleware/auth');
 
-// Verify token middleware
-const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+const normalizeReview = (reviewDoc) => {
+  if (!reviewDoc) {
+    return null;
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
+  const review = reviewDoc.toObject ? reviewDoc.toObject() : reviewDoc;
+  const id = review._id?.toString?.() || review.id;
+  const userId = review.userId?.toString?.() || review.userId || null;
+
+  return {
+    id,
+    _id: id,
+    userId,
+    username: review.username || review.name || 'User',
+    name: review.name || review.username || 'User',
+    email: review.email || '',
+    recipeId: review.recipeId,
+    recipeTitle: review.recipeTitle || '',
+    rating: review.rating,
+    comment: review.comment,
+    status: review.status,
+    createdAt: review.createdAt,
+    updatedAt: review.updatedAt
+  };
 };
 
-// Get average rating for a recipe
+// Public: get average rating for a recipe.
 router.get('/rating/:recipeId', async (req, res) => {
   try {
     const { recipeId } = req.params;
-    
+
     const result = await Review.aggregate([
-      { $match: { recipeId: recipeId } },
-      { 
+      { $match: { recipeId, status: 'approved' } },
+      {
         $group: {
           _id: '$recipeId',
           averageRating: { $avg: '$rating' },
@@ -46,7 +57,7 @@ router.get('/rating/:recipeId', async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       recipeId,
       averageRating: Math.round(result[0].averageRating * 10) / 10,
@@ -54,22 +65,22 @@ router.get('/rating/:recipeId', async (req, res) => {
     });
   } catch (error) {
     console.error('Get rating error:', error);
-    res.status(500).json({ error: 'Server error while fetching rating' });
+    return res.status(500).json({ error: 'Server error while fetching rating' });
   }
 });
 
-// Get ratings for multiple recipes at once (for recipe list pages)
+// Public: get ratings for multiple recipes.
 router.post('/ratings/batch', async (req, res) => {
   try {
     const { recipeIds } = req.body;
-    
-    if (!recipeIds || !Array.isArray(recipeIds)) {
+
+    if (!Array.isArray(recipeIds)) {
       return res.status(400).json({ error: 'recipeIds array is required' });
     }
 
     const results = await Review.aggregate([
-      { $match: { recipeId: { $in: recipeIds } } },
-      { 
+      { $match: { recipeId: { $in: recipeIds }, status: 'approved' } },
+      {
         $group: {
           _id: '$recipeId',
           averageRating: { $avg: '$rating' },
@@ -79,259 +90,235 @@ router.post('/ratings/batch', async (req, res) => {
     ]);
 
     const ratingsMap = {};
-    results.forEach(r => {
-      ratingsMap[r._id] = {
-        averageRating: Math.round(r.averageRating * 10) / 10,
-        totalReviews: r.totalReviews
+
+    results.forEach((item) => {
+      ratingsMap[item._id] = {
+        averageRating: Math.round(item.averageRating * 10) / 10,
+        totalReviews: item.totalReviews
       };
     });
 
-    recipeIds.forEach(id => {
-      if (!ratingsMap[id]) {
-        ratingsMap[id] = { averageRating: 0, totalReviews: 0 };
+    recipeIds.forEach((recipeId) => {
+      if (!ratingsMap[recipeId]) {
+        ratingsMap[recipeId] = { averageRating: 0, totalReviews: 0 };
       }
     });
 
-    res.json({
-      success: true,
-      ratings: ratingsMap
-    });
+    return res.json({ success: true, ratings: ratingsMap });
   } catch (error) {
     console.error('Get batch ratings error:', error);
-    res.status(500).json({ error: 'Server error while fetching ratings' });
+    return res.status(500).json({ error: 'Server error while fetching ratings' });
   }
 });
 
-// Create a new review (requires authentication)
+// Public: get approved reviews for a recipe.
+router.get('/recipe/:recipeId', async (req, res) => {
+  try {
+    const { recipeId } = req.params;
+    const reviews = await Review.find({ recipeId, status: 'approved' }).sort({ createdAt: -1 });
+
+    return res.json({
+      success: true,
+      reviews: reviews.map((review) => normalizeReview(review))
+    });
+  } catch (error) {
+    console.error('Get reviews error:', error);
+    return res.status(500).json({ error: 'Server error while fetching reviews' });
+  }
+});
+
+// Auth: create a review (logged-in users only).
 router.post('/', verifyToken, async (req, res) => {
   try {
-    const { recipeId, recipeTitle, rating, comment } = req.body;
+    const { recipeId, recipeTitle = '', rating, comment } = req.body;
 
-    // Validate input
-    if (!recipeId || !recipeTitle || !rating || !comment) {
-      return res.status(400).json({ error: 'All fields are required' });
+    if (!recipeId || !rating || !comment) {
+      return res.status(400).json({ error: 'recipeId, rating, and comment are required' });
     }
 
-    if (rating < 1 || rating > 5) {
+    const parsedRating = Number(rating);
+    if (Number.isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
       return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
 
-    // Check if user already reviewed this recipe
-    const existingReview = await Review.findOne({ 
-      userId: req.user.id, 
-      recipeId 
-    });
-
+    const existingReview = await Review.findOne({ userId: req.user.id, recipeId });
     if (existingReview) {
       return res.status(400).json({ error: 'You have already reviewed this recipe. Please edit your existing review.' });
     }
 
-    // Get user info
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).select('username email');
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Create new review
     const review = new Review({
-      userId: req.user.id,
-      username: user.username,
       recipeId,
       recipeTitle,
-      rating: parseInt(rating),
-      comment
+      userId: req.user.id,
+      username: user.username,
+      name: user.username,
+      email: user.email || '',
+      rating: parsedRating,
+      comment: comment.trim(),
+      status: 'approved'
     });
 
     await review.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Review submitted successfully',
-      review: {
-        id: review._id,
-        userId: review.userId,
-        username: review.username,
-        recipeId: review.recipeId,
-        recipeTitle: review.recipeTitle,
-        rating: review.rating,
-        comment: review.comment,
-        createdAt: review.createdAt,
-        updatedAt: review.updatedAt
-      }
+      review: normalizeReview(review)
     });
   } catch (error) {
     console.error('Create review error:', error);
     if (error.code === 11000) {
       return res.status(400).json({ error: 'You have already reviewed this recipe' });
     }
-    res.status(500).json({ error: 'Server error while creating review' });
+    return res.status(500).json({ error: 'Server error while creating review' });
   }
 });
 
-// Get all reviews for a specific recipe (public)
-router.get('/recipe/:recipeId', async (req, res) => {
-  try {
-    const { recipeId } = req.params;
-    const reviews = await Review.find({ recipeId })
-      .sort({ createdAt: -1 });
-
-    res.json({
-      success: true,
-      reviews: reviews.map(review => ({
-        id: review._id,
-        userId: review.userId,
-        username: review.username,
-        recipeId: review.recipeId,
-        recipeTitle: review.recipeTitle,
-        rating: review.rating,
-        comment: review.comment,
-        createdAt: review.createdAt,
-        updatedAt: review.updatedAt
-      }))
-    });
-  } catch (error) {
-    console.error('Get reviews error:', error);
-    res.status(500).json({ error: 'Server error while fetching reviews' });
-  }
-});
-
-// Get all reviews by current user (requires authentication)
+// Auth: get all reviews by current user.
 router.get('/user', verifyToken, async (req, res) => {
   try {
-    const reviews = await Review.find({ userId: req.user.id })
-      .sort({ createdAt: -1 });
+    const reviews = await Review.find({ userId: req.user.id }).sort({ createdAt: -1 });
 
-    res.json({
+    return res.json({
       success: true,
-      reviews: reviews.map(review => ({
-        id: review._id,
-        userId: review.userId,
-        username: review.username,
-        recipeId: review.recipeId,
-        recipeTitle: review.recipeTitle,
-        rating: review.rating,
-        comment: review.comment,
-        createdAt: review.createdAt,
-        updatedAt: review.updatedAt
-      }))
+      reviews: reviews.map((review) => normalizeReview(review))
     });
   } catch (error) {
     console.error('Get user reviews error:', error);
-    res.status(500).json({ error: 'Server error while fetching user reviews' });
+    return res.status(500).json({ error: 'Server error while fetching user reviews' });
   }
 });
 
-// Update a review (requires authentication and ownership)
+// Auth: check if current user already reviewed this recipe.
+router.get('/check/:recipeId', verifyToken, async (req, res) => {
+  try {
+    const { recipeId } = req.params;
+
+    const review = await Review.findOne({ userId: req.user.id, recipeId });
+
+    return res.json({
+      success: true,
+      hasReviewed: !!review,
+      review: review ? normalizeReview(review) : null
+    });
+  } catch (error) {
+    console.error('Check review error:', error);
+    return res.status(500).json({ error: 'Server error while checking review status' });
+  }
+});
+
+// Auth: update own review.
 router.put('/:reviewId', verifyToken, async (req, res) => {
   try {
     const { reviewId } = req.params;
     const { rating, comment } = req.body;
 
-    // Validate input
     if (!rating || !comment) {
       return res.status(400).json({ error: 'Rating and comment are required' });
     }
 
-    if (rating < 1 || rating > 5) {
+    const parsedRating = Number(rating);
+    if (Number.isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
       return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
 
-    // Find the review
     const review = await Review.findById(reviewId);
-
     if (!review) {
       return res.status(404).json({ error: 'Review not found' });
     }
 
-    // Check ownership
-    if (review.userId.toString() !== req.user.id) {
+    if (review.userId?.toString() !== req.user.id) {
       return res.status(403).json({ error: 'You can only edit your own reviews' });
     }
 
-    // Update the review
-    review.rating = parseInt(rating);
-    review.comment = comment;
+    review.rating = parsedRating;
+    review.comment = comment.trim();
+    review.status = 'approved';
     await review.save();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Review updated successfully',
-      review: {
-        id: review._id,
-        userId: review.userId,
-        username: review.username,
-        recipeId: review.recipeId,
-        recipeTitle: review.recipeTitle,
-        rating: review.rating,
-        comment: review.comment,
-        createdAt: review.createdAt,
-        updatedAt: review.updatedAt
-      }
+      review: normalizeReview(review)
     });
   } catch (error) {
     console.error('Update review error:', error);
-    res.status(500).json({ error: 'Server error while updating review' });
+    return res.status(500).json({ error: 'Server error while updating review' });
   }
 });
 
-// Delete a review (requires authentication and ownership)
+// Auth: delete own review.
 router.delete('/:reviewId', verifyToken, async (req, res) => {
   try {
     const { reviewId } = req.params;
 
-    // Find the review
     const review = await Review.findById(reviewId);
-
     if (!review) {
       return res.status(404).json({ error: 'Review not found' });
     }
 
-    // Check ownership
-    if (review.userId.toString() !== req.user.id) {
+    if (review.userId?.toString() !== req.user.id) {
       return res.status(403).json({ error: 'You can only delete your own reviews' });
     }
 
-    // Delete the review
     await Review.findByIdAndDelete(reviewId);
 
-    res.json({
-      success: true,
-      message: 'Review deleted successfully'
-    });
+    return res.json({ success: true, message: 'Review deleted successfully' });
   } catch (error) {
     console.error('Delete review error:', error);
-    res.status(500).json({ error: 'Server error while deleting review' });
+    return res.status(500).json({ error: 'Server error while deleting review' });
   }
 });
 
-// Check if current user has reviewed a specific recipe
-router.get('/check/:recipeId', verifyToken, async (req, res) => {
+// Auth: report a review.
+router.post('/:reviewId/report', verifyToken, async (req, res) => {
   try {
-    const { recipeId } = req.params;
-    
-    const review = await Review.findOne({ 
-      userId: req.user.id, 
-      recipeId 
+    const { reason } = req.body;
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ error: 'Report reason is required' });
+    }
+
+    const review = await Review.findById(req.params.reviewId);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    if (review.userId?.toString() === req.user.id) {
+      return res.status(400).json({ error: 'You cannot report your own review' });
+    }
+
+    const existingPendingReport = await ReviewReport.findOne({
+      reviewId: review._id,
+      reporterId: req.user.id,
+      status: 'pending'
     });
 
-    res.json({
+    if (existingPendingReport) {
+      return res.status(400).json({ error: 'You have already reported this review' });
+    }
+
+    const report = new ReviewReport({
+      reviewId: review._id,
+      reporterId: req.user.id,
+      reason: reason.trim(),
+      status: 'pending'
+    });
+
+    await report.save();
+
+    return res.status(201).json({
       success: true,
-      hasReviewed: !!review,
-      review: review ? {
-        id: review._id,
-        userId: review.userId,
-        username: review.username,
-        recipeId: review.recipeId,
-        recipeTitle: review.recipeTitle,
-        rating: review.rating,
-        comment: review.comment,
-        createdAt: review.createdAt,
-        updatedAt: review.updatedAt
-      } : null
+      message: 'Report submitted. Admin will review it shortly.',
+      report
     });
   } catch (error) {
-    console.error('Check review error:', error);
-    res.status(500).json({ error: 'Server error while checking review' });
+    console.error('Report review error:', error);
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 

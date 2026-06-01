@@ -1,238 +1,160 @@
-<template>
-  <div class="container-fluid text-center EG-Default p-0 bg-light">
-    <!-- hero banner -->
-    <section class="bg-light">
-      <div class="headmast position-relative d-flex align-items-center justify-content-center text-white vh-100">
-        <img src="../assets/img/Food-1.png" class="position-absolute w-100 h-100" alt="" style="/* opacity: 0.6; */">
-        <div class="banner-txt position-relative z-3 text-center col-lg-8 col-md-10 col-sm-12 px-3" data-aos="flip-down"
-          data-aos-duration="1300">
-          <h2 class="display-4 py-3 fw-bolder fs-1" style="text-shadow: #000 1px 0 10px;">Welcome to</h2>
-          <hr class="text-white mx-auto" style="width: 50%;">
-          <h1 class="display-2 pb-3 fw-bold pt-3" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);">EatsBuddy</h1>
-          <hr class="text-white mx-auto" style="width: 50%;">
-          <p class="fs-5 mt-4" style="text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);">“Simplify your meals, amplify your
-            life.”</p>
-          
-          <!-- Scroll Down Indicator -->
-          <div class="scroll-indicator mt-5">
-            <div class="mouse">
-              <div class="mouse-wheel"></div>
-            </div>
-            <p class="scroll-text mt-3">Scroll Down</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Services We Offer Section -->
-    <section class="services-section py-5">
-      <svg style="display: none">
-        <filter id="glass-distortion-services">
-          <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" result="noise" seed="3" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-        </filter>
-      </svg>
-
-      <div class="container">
-        <div class="text-center mb-5">
-          <h1 class="fw-bold display-5 text-black">Services We Offer</h1>
-          <p class="text-muted lead">Explore our diverse range of services designed to make <br> your culinary experience
-            seamless and enjoyable.</p>
-        </div>
-        
-        <div class="row g-4 justify-content-center">
-          <div v-for="(item, index) in items" :key="index" class="col-lg-4 col-md-6 col-sm-12">
-            <div class="service-glass-card">
-              <div class="glass-filter"></div>
-              <div class="glass-overlay"></div>
-              <div class="glass-specular"></div>
-              
-              <div class="service-content">
-                <div class="service-icon-wrapper">
-                  <img :src="require(`@/assets/img/${item.imgSrc}`)" :alt="item.title" class="service-icon">
-                </div>
-                <h2 class="service-title">{{ item.title }}</h2>
-                <p class="service-text">{{ item.text }}</p>
-                <router-link :to="item.destinationpage">
-                  <button class="service-btn" type="button">{{ item.text2 }}</button>
-                </router-link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="fixed-bg-section text-white">
-      <div class="container d-flex align-items-center justify-content-start h-100">
-        <div class="content col-lg-6">
-          <h2 class="display-5 fw-bold">Eat <span style="color: #17B97A;">Well</span>, Live <span
-              style="color: #17B97A;">Better</span></h2>
-          <p class="lead mt-3">
-            <i class="fa-solid fa-bacon"></i><i class="fa-solid fa-bacon"></i><i class="fa-solid fa-bacon"></i>
+﻿<template>
+  <main class="home-page">
+    <section class="home-hero">
+      <div class="home-container hero-grid">
+        <div class="hero-copy" data-aos="fade-up">
+          <span class="section-kicker">Meal planning made simple</span>
+          <h1>Plan better meals with less effort.</h1>
+          <p>
+            EatsBuddy brings recipes, weekly planning, and grocery lists into one clean workspace so every meal feels easier.
           </p>
-          <p class="lead mt-3">
-            At EatsBuddy, we believe in making every meal smarter and every day simpler. Plan your meals and groceries
-            effortlessly with our tools.
+
+          <div class="hero-actions">
+            <router-link to="/recipes" class="primary-btn">
+              Explore Recipes
+              <i class="fa-solid fa-arrow-right"></i>
+            </router-link>
+            <router-link to="/meal-planner" class="secondary-btn">
+              Start Planning
+            </router-link>
+          </div>
+
+          <div class="hero-proof">
+            <div v-for="stat in abouts" :key="stat.title" class="proof-item">
+              <strong>{{ stat.title }}</strong>
+              <span>{{ stat.description }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual" data-aos="zoom-in">
+          <img src="../assets/img/Food-1.png" alt="Fresh meal on a table" />
+          <div class="hero-floating-card hero-rating-card">
+            <i class="fa-solid fa-star"></i>
+            <div>
+              <strong>4.8/5</strong>
+              <span>User rating</span>
+            </div>
+          </div>
+          <div class="hero-floating-card hero-plan-card">
+            <i class="fa-solid fa-calendar-check"></i>
+            <div>
+              <strong>Weekly plans</strong>
+              <span>Ready in minutes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="services-section section-shell">
+      <div class="home-container">
+        <div class="section-heading">
+          <span class="section-kicker">Services</span>
+          <h2>Everything you need for a smarter kitchen.</h2>
+          <p>Move from inspiration to shopping with tools that stay clear, fast, and easy to use.</p>
+        </div>
+
+        <div class="services-grid">
+          <article v-for="item in items" :key="item.title" class="service-card">
+            <div class="service-icon">
+              <img :src="require(`@/assets/img/${item.imgSrc}`)" :alt="item.title" />
+            </div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+            <router-link :to="item.destinationpage" class="card-link">
+              {{ item.text2 }}
+              <i class="fa-solid fa-arrow-right"></i>
+            </router-link>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-section">
+      <div class="home-container story-card">
+        <div class="story-copy">
+          <span class="section-kicker">Eat well, live better</span>
+          <h2>Spend less time deciding and more time enjoying food.</h2>
+          <p>
+            Build a routine that supports your schedule. Discover recipes, organize your week, and turn meal ideas into a grocery list without extra steps.
           </p>
-          <div class="row mt-3">
-            <div v-for="(att1, index) in abouts" :key="index" class="col-4 mb-4">
-              <div class="card-body">
-                <h3 class="card-title fw-bold fs-1" style="color: #17B97A;">{{ att1.title }}</h3>
-                <p class="card-text">{{ att1.description }}</p>
+        </div>
+
+        <div class="story-stats">
+          <div v-for="stat in abouts" :key="stat.description" class="story-stat">
+            <strong>{{ stat.title }}</strong>
+            <span>{{ stat.description }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="why-section section-shell">
+      <div class="home-container why-grid">
+        <div class="why-image-card" data-aos="fade-right">
+          <img src="../assets/img/WCU-2.png" alt="Meal planning illustration" />
+        </div>
+
+        <div class="why-content" data-aos="fade-left">
+          <span class="section-kicker">Why choose EatsBuddy</span>
+          <h2>Designed for real daily cooking.</h2>
+          <p class="why-intro">Clear workflows, strong organization, and practical features help you stay consistent without overthinking dinner.</p>
+
+          <div class="feature-list">
+            <article v-for="feature in features" :key="feature.title" class="feature-item">
+              <div class="feature-icon">
+                <i :class="feature.icon"></i>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Why Choose Us Section -->
-    <section class="why-choose-us py-5">
-      <svg style="display: none">
-        <filter id="glass-distortion-wcu">
-          <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" result="noise" seed="4" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-        </filter>
-      </svg>
-
-      <div class="container">
-        <div class="row align-items-center g-5">
-          <!-- Left Side: Glass Image Card -->
-          <div class="col-lg-5 col-md-6 col-sm-12">
-            <div class="wcu-glass-image-card">
-              <div class="glass-filter"></div>
-              <div class="glass-overlay"></div>
-              <div class="glass-specular"></div>
-              <img src="../assets/img/WCU-2.png" alt="Why Choose Us" class="wcu-image">
-            </div>
-          </div>
-
-          <!-- Right Side: Text Content with Feature Cards -->
-          <div class="col-lg-7 col-md-6 col-sm-12">
-            <div class="wcu-content">
-              <h2 class="wcu-title">Why Choose <span class="wcu-highlight">EatsBuddy</span>?</h2>
-              <p class="wcu-subtitle">Discover the features that make meal planning effortless and enjoyable</p>
-
-              <div class="wcu-features">
-                <div class="wcu-feature-item">
-                  <div class="feature-icon">
-                    <i class="fa-solid fa-clock"></i>
-                  </div>
-                  <div class="feature-content">
-                    <h4>Save Time</h4>
-                    <p>Save time with seamless meal and grocery planning tools.</p>
-                  </div>
-                </div>
-
-                <div class="wcu-feature-item">
-                  <div class="feature-icon">
-                    <i class="fa-solid fa-utensils"></i>
-                  </div>
-                  <div class="feature-content">
-                    <h4>Personalized Recipes</h4>
-                    <p>Enjoy personalized recipes tailored to your taste and needs.</p>
-                  </div>
-                </div>
-
-                <div class="wcu-feature-item">
-                  <div class="feature-icon">
-                    <i class="fa-solid fa-wallet"></i>
-                  </div>
-                  <div class="feature-content">
-                    <h4>Budget Smart</h4>
-                    <p>Stay on budget with smart grocery lists and offers.</p>
-                  </div>
-                </div>
-
-                <div class="wcu-feature-item">
-                  <div class="feature-icon">
-                    <i class="fa-solid fa-people-group"></i>
-                  </div>
-                  <div class="feature-content">
-                    <h4>Community</h4>
-                    <p>Join a thriving community of food lovers and planners.</p>
-                  </div>
-                </div>
+              <div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.text }}</p>
               </div>
-            </div>
+            </article>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Customer Rating Section -->
-    <section class="customer-rating py-5 text-white text-center">
-      <svg style="display: none">
-        <filter id="glass-distortion-rating">
-          <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" result="noise" seed="6" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-        </filter>
-      </svg>
-
-      <div class="container" data-aos="flip-down" data-aos-duration="1300">
-        <!-- Tiny Description -->
-        <h2 class="display-5 fw-bold mb-3">Customer Testimonials</h2>
-        <p class="fs-5 mb-4">
-          "We take pride in delivering exceptional service and experiences to our users. Here's what they think!"
-        </p>
-
-        <!-- Star Rating -->
-        <div class="d-flex justify-content-center align-items-center mb-4">
-          <i class="fa-solid fa-star text-warning fs-3 me-1"></i>
-          <i class="fa-solid fa-star text-warning fs-3 me-1"></i>
-          <i class="fa-solid fa-star text-warning fs-3 me-1"></i>
-          <i class="fa-solid fa-star text-warning fs-3 me-1"></i>
-          <i class="fa-solid fa-star-half-alt text-warning fs-3"></i>
+    <section class="testimonial-section">
+      <div class="home-container testimonial-card" data-aos="fade-up">
+        <div class="testimonial-copy">
+          <span class="section-kicker">Customer testimonials</span>
+          <h2>People use EatsBuddy to make meals feel manageable.</h2>
+          <p>"A clean way to plan food for the week, save time, and keep grocery trips focused."</p>
         </div>
 
-        <!-- Call to Action -->
-        <p class="fs-5 mb-4">
-          Rated <span class="fw-bold yellowtxt">4.8/5</span> by thousands of satisfied customers.
-        </p>
-        <router-link to="/about" class="rating-glass-link">
-          <span class="rating-text">Learn More</span>
-        </router-link>
-      </div>
-    </section>
-
-    <!-- Newsletter Section -->
-    <section class="newsletter-section py-5">
-      <svg style="display: none">
-        <filter id="glass-distortion-newsletter">
-          <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" result="noise" seed="5" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-        </filter>
-      </svg>
-
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-xl-9 col-lg-10 col-md-11 col-12">
-            <div data-aos="flip-down" data-aos-duration="1300">
-              <div class="row justify-content-center">
-                <div class="col-xl-8 col-lg-9 col-md-10 col-12">
-                  <div class="newsletter-content">
-                    <h1 class="newsletter-title">Newsletter Updates</h1>
-                    <p class="newsletter-subtitle">Enter your email address below to subscribe to our tasty newsletter</p>
-                    
-                    <div class="newsletter-input-group">
-                      <div class="newsletter-input-wrapper">
-                        <input type="email" class="newsletter-input" placeholder="Your email address"
-                          aria-label="Your email address" aria-describedby="Email">
-                      </div>
-                      <button class="newsletter-btn" type="button" id="Email">
-                        <span>Subscribe</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div class="rating-panel">
+          <div class="stars" aria-label="4.8 out of 5 stars">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star-half-alt"></i>
           </div>
+          <strong>4.8/5</strong>
+          <span>Rated by satisfied planners</span>
+          <router-link to="/about" class="secondary-btn dark-btn">Learn More</router-link>
         </div>
       </div>
     </section>
-  </div>
+
+    <section class="newsletter-section section-shell">
+      <div class="home-container newsletter-card">
+        <div class="newsletter-copy">
+          <span class="section-kicker">Newsletter</span>
+          <h2>Get fresh meal ideas in your inbox.</h2>
+          <p>Subscribe for recipe inspiration, planning tips, and smarter grocery ideas.</p>
+        </div>
+
+        <form class="newsletter-form" @submit.prevent>
+          <label for="newsletter-email" class="visually-hidden">Email address</label>
+          <input id="newsletter-email" type="email" placeholder="Your email address" />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </section>
+  </main>
 </template>
 
 <script>
@@ -244,21 +166,21 @@ export default {
         {
           imgSrc: 'Recipe-1.png',
           title: 'Recipes',
-          text: 'Explore diverse recipes for every occasion, from quick dinners to gourmet meals',
+          text: 'Explore diverse recipes for every occasion, from quick dinners to gourmet meals.',
           text2: 'View Recipes',
           destinationpage: '/recipes'
         },
         {
           imgSrc: 'MPlan-1.png',
           title: 'Meal Planner',
-          text: 'Organize weekly menus and ensure balanced meals with our intuitive meal planner',
+          text: 'Organize weekly menus and ensure balanced meals with an intuitive planner.',
           text2: 'Create a Plan',
           destinationpage: '/meal-planner'
         },
         {
           imgSrc: 'Groc-1.png',
           title: 'Grocery List',
-          text: 'Create smart grocery lists, add ingredients, and streamline your shopping experience',
+          text: 'Create smart grocery lists, add ingredients, and streamline your shopping.',
           text2: 'Create a List',
           destinationpage: '/grocery-list'
         }
@@ -277,24 +199,26 @@ export default {
           description: 'Award Winning'
         }
       ],
-      offers: [
+      features: [
         {
-          imgSrc: 'Promo-1.png',
-          title: '50% Off Meal Plans',
-          description: 'Sign up today and enjoy half-price on all meal plans for your first month.',
-          cta: 'Claim Offer'
+          icon: 'fa-solid fa-clock',
+          title: 'Save Time',
+          text: 'Plan meals and grocery tasks in fewer steps.'
         },
         {
-          imgSrc: 'Promo-2.png',
-          title: 'Free Recipe Book',
-          description: 'Sign up today to also get a free recipe book delivered to your doorstep.',
-          cta: 'Claim Offer'
+          icon: 'fa-solid fa-utensils',
+          title: 'Personalized Recipes',
+          text: 'Find meal ideas that fit your taste and routine.'
         },
         {
-          imgSrc: 'Promo-3.png',
-          title: 'Grocery List Rewards',
-          description: 'Earn points and get discounts on your favorite groceries with our rewards program.',
-          cta: 'Learn More'
+          icon: 'fa-solid fa-wallet',
+          title: 'Budget Smart',
+          text: 'Shop with focused lists and reduce wasted purchases.'
+        },
+        {
+          icon: 'fa-solid fa-people-group',
+          title: 'Community',
+          text: 'Share reviews and discover meals from other food lovers.'
         }
       ]
     };
@@ -302,1269 +226,769 @@ export default {
 };
 </script>
 
-<style>
-.yellowtxt {
-  color: #FFA33D;
+<style scoped>
+.home-page {
+  min-height: 100vh;
+  color: #111827;
+  background: #ffffff;
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
-.greengoods {
-  color: #17B97A;
+.home-container {
+  width: min(100% - 40px, 1180px);
+  margin: 0 auto;
 }
 
-/* Fixed Background Section */
-.fixed-bg-section {
-  height: 60vh;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../assets/img/Food-2.jpg');
-  /* Replace with your background image */
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
+.section-shell {
+  padding: 96px 0;
+}
+
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 14px;
+  padding: 8px 14px;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-hero {
+  min-height: 100vh;
   display: flex;
+  align-items: center;
+  padding: 120px 0 80px;
+  background:
+    radial-gradient(circle at top left, rgba(22, 101, 52, 0.12), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f8faf8 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 0.82fr);
+  gap: clamp(48px, 7vw, 92px);
   align-items: center;
 }
 
-.fixed-bg-section .content {
-  padding: 20px;
+.hero-copy {
+  text-align: left;
 }
 
-.fixed-bg-section h2 {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-}
-
-.fixed-bg-section p {
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-/* Fixed Background Section - Responsive */
-@media (max-width: 768px) {
-  .fixed-bg-section {
-    height: auto;
-    min-height: auto;
-    background-attachment: scroll;
-    padding: 50px 0;
-  }
-  
-  .fixed-bg-section .content {
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .fixed-bg-section h2 {
-    font-size: 1.8rem !important;
-  }
-  
-  .fixed-bg-section p.lead {
-    font-size: 1rem !important;
-  }
-  
-  .fixed-bg-section .row .col-4 {
-    flex: 0 0 100%;
-    max-width: 100%;
-    margin-bottom: 25px;
-  }
-  
-  .fixed-bg-section .card-title {
-    font-size: 2rem !important;
-  }
-  
-  .fixed-bg-section .card-text {
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .fixed-bg-section {
-    padding: 40px 0;
-  }
-  
-  .fixed-bg-section h2 {
-    font-size: 1.5rem !important;
-  }
-  
-  .fixed-bg-section .card-title {
-    font-size: 1.8rem !important;
-  }
-}
-
-/* Headmast Section Image Fade */
-.headmast img {
-  filter: brightness(80%);
-}
-
-/* Hero Banner - Responsive */
-@media (max-width: 768px) {
-  .headmast {
-    height: auto !important;
-    min-height: 100vh !important;
-    padding: 60px 0 40px;
-  }
-  
-  .banner-txt {
-    padding: 0 20px !important;
-  }
-  
-  .banner-txt h2 {
-    font-size: 1.3rem !important;
-    padding: 10px 0 !important;
-  }
-  
-  .banner-txt h1 {
-    font-size: 2.8rem !important;
-    line-height: 1.2;
-  }
-  
-  .banner-txt p {
-    font-size: 1.1rem !important;
-    line-height: 1.6;
-    padding: 0 10px;
-  }
-  
-  .banner-txt hr {
-    width: 70% !important;
-    margin: 15px auto;
-  }
-  
-  .scroll-indicator {
-    margin-top: 30px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .headmast {
-    min-height: 100vh !important;
-    padding: 50px 0 30px;
-  }
-  
-  .banner-txt h2 {
-    font-size: 1.1rem !important;
-  }
-  
-  .banner-txt h1 {
-    font-size: 2.2rem !important;
-  }
-  
-  .banner-txt p {
-    font-size: 1rem !important;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .banner-txt h2 {
-    font-size: 2rem !important;
-  }
-  
-  .banner-txt h1 {
-    font-size: 3rem !important;
-  }
-}
-
-/* Special Offers */
-.card img {
-  height: 200px;
-  object-fit: contain;
-}
-
-.why-choose-us {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-.why-choose-us::before {
-  content: '';
-  position: absolute;
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(46, 125, 50, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  top: -150px;
-  left: -150px;
-  filter: blur(80px);
-  pointer-events: none;
-}
-
-.why-choose-us::after {
-  content: '';
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(23, 185, 122, 0.04) 0%, transparent 70%);
-  border-radius: 50%;
-  bottom: -100px;
-  right: -100px;
-  filter: blur(60px);
-  pointer-events: none;
-}
-
-.why-choose-us .container {
-  position: relative;
-  z-index: 1;
-}
-
-/* Glass Image Card */
-.wcu-glass-image-card {
-  --bg-color: rgba(255, 255, 255, 0.5);
-  --highlight: rgba(255, 255, 255, 0.85);
-  position: relative;
-  border-radius: 28px;
-  overflow: hidden;
-  height: 420px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 1px 2px rgba(255, 255, 255, 0.6),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-}
-
-.wcu-glass-image-card .glass-filter {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(5px);
-  filter: url(#glass-distortion-wcu) saturate(130%) brightness(1.2) contrast(1.05);
-  z-index: 1;
-}
-
-.wcu-glass-image-card .glass-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-color);
-  z-index: 2;
-}
-
-.wcu-glass-image-card .glass-specular {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  box-shadow: inset 2px 2px 4px var(--highlight),
-              inset -1px -1px 2px rgba(0, 0, 0, 0.08);
-  z-index: 3;
-  pointer-events: none;
-}
-
-.wcu-glass-image-card .wcu-image {
-  position: relative;
-  z-index: 4;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 20px;
-}
-
-.wcu-glass-image-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(46, 125, 50, 0.15),
-              inset 0 1px 2px rgba(255, 255, 255, 0.7),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* Why Choose Us Content */
-.wcu-content {
-  padding: 0 20px;
-}
-
-.wcu-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 12px;
-  letter-spacing: -1px;
-}
-
-.wcu-highlight {
-  color: #2e7d32;
-  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.wcu-subtitle {
-  font-size: 1.1rem;
-  color: #4a4a4a;
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-/* Features Grid */
-.wcu-features {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.wcu-feature-item {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  padding: 20px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06),
-              inset 0 1px 1px rgba(255, 255, 255, 0.5);
-}
-
-.wcu-feature-item:hover {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(46, 125, 50, 0.3);
-  transform: translateX(8px);
-  box-shadow: 0 8px 24px rgba(46, 125, 50, 0.12),
-              inset 0 1px 1px rgba(255, 255, 255, 0.6);
-}
-
-.feature-icon {
-  width: 50px;
-  height: 50px;
-  min-width: 50px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(46, 125, 50, 0.15) 0%, rgba(46, 125, 50, 0.05) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #2e7d32;
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.wcu-feature-item:hover .feature-icon {
-  background: linear-gradient(135deg, rgba(46, 125, 50, 0.25) 0%, rgba(46, 125, 50, 0.15) 100%);
-  transform: scale(1.1);
-}
-
-.feature-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex-grow: 1;
-}
-
-.feature-content h4 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 6px;
-}
-
-.feature-content p {
-  font-size: 0.9rem;
-  color: #4a4a4a;
-  line-height: 1.5;
+.hero-copy h1,
+.section-heading h2,
+.story-copy h2,
+.why-content h2,
+.testimonial-copy h2,
+.newsletter-copy h2 {
   margin: 0;
+  color: #0f172a;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
 }
 
-/* Responsive Design */
-@media (max-width: 992px) {
-  .wcu-title {
-    font-size: 2rem;
-  }
-
-  .wcu-glass-image-card {
-    height: 350px;
-  }
-
-  .wcu-features {
-    gap: 16px;
-  }
-
-  .wcu-feature-item {
-    padding: 16px;
-    gap: 16px;
-  }
-
-  .feature-icon {
-    width: 45px;
-    height: 45px;
-  }
+.hero-copy h1 {
+  max-width: 760px;
+  font-size: clamp(3rem, 7vw, 6.7rem);
 }
 
-@media (max-width: 768px) {
-  .wcu-content {
-    padding: 0;
-    text-align: center;
-  }
-
-  .wcu-title {
-    font-size: 1.8rem;
-  }
-
-  .wcu-subtitle {
-    font-size: 1rem;
-  }
-
-  .wcu-glass-image-card {
-    height: 280px;
-    margin-bottom: 30px;
-  }
-
-  .wcu-feature-item {
-    padding: 18px;
-    gap: 16px;
-  }
-
-  .feature-icon {
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
-    font-size: 1.3rem;
-  }
-
-  .feature-content h4 {
-    font-size: 1.1rem;
-  }
-
-  .feature-content p {
-    font-size: 0.95rem;
-  }
-  
-  .why-choose-us {
-    padding: 50px 0 !important;
-  }
+.hero-copy p {
+  max-width: 660px;
+  margin: 26px 0 0;
+  color: #4b5563;
+  font-size: 18px;
+  line-height: 1.8;
 }
 
-@media (max-width: 480px) {
-  .wcu-title {
-    font-size: 1.5rem;
-  }
-
-  .wcu-subtitle {
-    font-size: 0.95rem;
-    margin-bottom: 24px;
-  }
-
-  .wcu-glass-image-card {
-    height: 240px;
-  }
-
-  .wcu-feature-item {
-    padding: 16px;
-    gap: 14px;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .feature-icon {
-    width: 55px;
-    height: 55px;
-    min-width: 55px;
-    font-size: 1.4rem;
-  }
-
-  .feature-content h4 {
-    font-size: 1.05rem;
-  }
-
-  .feature-content p {
-    font-size: 0.9rem;
-  }
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
 }
 
-.customer-rating {
-  background: url('../assets/img/Food-2.jpg') no-repeat center center fixed;
-  background-size: cover;
-  background-attachment: fixed;
-  padding: 60px 0;
-  position: relative;
-}
-
-.customer-rating::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  /* Dark overlay */
-  z-index: 1;
-}
-
-.customer-rating .container {
-  position: relative;
-  z-index: 2;
-}
-
-.customer-rating h2 {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.customer-rating .fa-star,
-.customer-rating .fa-star-half-alt {
-  color: #ffc107;
-  /* Star color */
-}
-
-/* Customer Rating Responsive */
-@media (max-width: 768px) {
-  .customer-rating {
-    padding: 50px 20px;
-    background-attachment: scroll;
-  }
-  
-  .customer-rating h2 {
-    font-size: 1.8rem !important;
-  }
-  
-  .customer-rating p.fs-5 {
-    font-size: 1rem !important;
-    line-height: 1.6;
-    padding: 0 10px;
-  }
-  
-  .customer-rating .fa-star,
-  .customer-rating .fa-star-half-alt {
-    font-size: 1.5rem !important;
-  }
-  
-  .rating-glass-link {
-    padding: 14px 32px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .customer-rating {
-    padding: 40px 15px;
-  }
-  
-  .customer-rating h2 {
-    font-size: 1.5rem !important;
-  }
-  
-  .customer-rating p.fs-5 {
-    font-size: 0.95rem !important;
-  }
-}
-
-/* Rating Glass Link */
-.rating-glass-link {
-  --bg-color: transparent;
-  position: relative;
-  border-radius: 24px;
-  overflow: hidden;
-  padding: 12px 36px;
-  height: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  color: white;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(46, 125, 50, 0.3),
-              inset 0 1px 2px rgba(255, 255, 255, 0.4),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
+.primary-btn,
+.secondary-btn,
+.card-link,
+.newsletter-form button {
+  min-height: 50px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
   text-decoration: none;
-  isolation: isolate;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
-.rating-glass-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(6px);
-  filter: url(#glass-distortion-rating) saturate(130%) brightness(1.2) contrast(1.05);
-  z-index: 1;
-  pointer-events: none;
+.primary-btn {
+  padding: 0 24px;
+  color: #ffffff;
+  background: #166534;
+  border: 1px solid #166534;
+  box-shadow: 0 16px 34px rgba(22, 101, 52, 0.26);
 }
 
-.rating-glass-link::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-color);
-  z-index: 2;
-  pointer-events: none;
-  box-shadow: inset 2px 2px 4px var(--highlight),
-              inset -1px -1px 2px rgba(0, 0, 0, 0.08);
+.secondary-btn {
+  padding: 0 22px;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
 }
 
-.rating-glass-link:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(46, 125, 50, 0.5),
-              inset 0 1px 2px rgba(255, 255, 255, 0.5),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.1);
-  --bg-color: rgba(46, 125, 50, 0.6);
-  color: white;
-  text-decoration: none;
+.primary-btn:hover,
+.secondary-btn:hover,
+.card-link:hover,
+.newsletter-form button:hover {
+  transform: translateY(-2px);
 }
 
-.rating-glass-link:active {
-  transform: translateY(0);
+.primary-btn:hover {
+  color: #ffffff;
+  background: #14532d;
+  box-shadow: 0 20px 40px rgba(22, 101, 52, 0.3);
 }
 
-.rating-text {
+.secondary-btn:hover {
+  color: #14532d;
+  border-color: #166534;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.hero-proof {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 640px;
+  margin-top: 44px;
+}
+
+.proof-item {
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.proof-item strong,
+.story-stat strong,
+.rating-panel strong {
+  display: block;
+  color: #14532d;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.proof-item span,
+.story-stat span,
+.rating-panel span {
+  display: block;
+  margin-top: 7px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.hero-visual {
   position: relative;
-  z-index: 10;
-  color: white;
-  font-weight: 600;
+  min-height: 620px;
+  border-radius: 42px;
+}
+
+.hero-visual img {
+  width: 100%;
+  height: 620px;
+  object-fit: cover;
+  border-radius: 42px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.18);
+}
+
+.hero-floating-card {
+  position: absolute;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(12px);
 }
 
-/* Services Section */
-.services-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-  position: relative;
-  overflow: hidden;
+.hero-floating-card i {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #166534;
+  background: #dcfce7;
+  border-radius: 14px;
 }
 
-.services-section::before {
-  content: '';
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(46, 125, 50, 0.06) 0%, transparent 70%);
-  border-radius: 50%;
-  top: -100px;
-  right: -100px;
-  filter: blur(60px);
-  pointer-events: none;
+.hero-floating-card strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
 }
 
-.services-section::after {
-  content: '';
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(23, 185, 122, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  bottom: -150px;
-  left: -150px;
-  filter: blur(80px);
-  pointer-events: none;
+.hero-floating-card span {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-/* Service Glass Card */
-.service-glass-card {
-  --bg-color: rgba(255, 255, 255, 0.55);
-  --highlight: rgba(255, 255, 255, 0.9);
-  position: relative;
-  border-radius: 28px;
-  overflow: hidden;
-  height: 100%;
-  min-height: 380px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 
-              inset 0 1px 2px rgba(255, 255, 255, 0.6),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+.hero-rating-card {
+  top: 24px;
+  right: -24px;
 }
 
-.service-glass-card .glass-filter {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(6px);
-  filter: url(#glass-distortion-services) saturate(130%) brightness(1.2) contrast(1.05);
-  z-index: 1;
+.hero-plan-card {
+  left: -28px;
+  bottom: 40px;
 }
 
-.service-glass-card .glass-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-color);
-  z-index: 2;
+.section-heading {
+  max-width: 780px;
+  margin: 0 auto 52px;
+  text-align: center;
 }
 
-.service-glass-card .glass-specular {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  box-shadow: inset 2px 2px 4px var(--highlight),
-              inset -1px -1px 2px rgba(0, 0, 0, 0.08);
-  z-index: 3;
-  pointer-events: none;
+.section-heading h2,
+.story-copy h2,
+.why-content h2,
+.testimonial-copy h2,
+.newsletter-copy h2 {
+  font-size: clamp(2.1rem, 4vw, 4rem);
 }
 
-.service-glass-card .service-content {
-  position: relative;
-  z-index: 4;
-  height: 100%;
-  padding: 36px 28px;
+.section-heading p,
+.story-copy p,
+.why-intro,
+.testimonial-copy p,
+.newsletter-copy p {
+  margin: 18px 0 0;
+  color: #4b5563;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.services-section,
+.why-section,
+.newsletter-section {
+  background: #ffffff;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.service-card {
+  min-height: 390px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  justify-content: space-between;
-  gap: 16px;
+  align-items: flex-start;
+  padding: 28px;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 30px;
+  box-shadow: 0 20px 54px rgba(15, 23, 42, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.service-glass-card:hover {
-  transform: translateY(-12px);
-  box-shadow: 0 16px 48px rgba(46, 125, 50, 0.18);
-}
-
-.service-icon-wrapper {
-  width: 100px;
-  height: 100px;
-  background: rgba(46, 125, 50, 0.1);
-  border: 1.5px solid rgba(46, 125, 50, 0.2);
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  transition: all 0.3s ease;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5),
-              0 2px 8px rgba(46, 125, 50, 0.1);
-}
-
-.service-glass-card:hover .service-icon-wrapper {
-  background: rgba(46, 125, 50, 0.15);
-  border-color: rgba(46, 125, 50, 0.3);
-  transform: scale(1.08);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6),
-              0 4px 12px rgba(46, 125, 50, 0.2);
+.service-card:hover,
+.feature-item:hover {
+  border-color: #bbf7d0;
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
+  transform: translateY(-6px);
 }
 
 .service-icon {
-  width: 70px;
-  height: 70px;
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 24px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 24px;
+}
+
+.service-icon img {
+  width: 56px;
+  height: 56px;
   object-fit: contain;
-  transition: all 0.3s ease;
 }
 
-.service-glass-card:hover .service-icon {
-  filter: drop-shadow(0 4px 12px rgba(46, 125, 50, 0.3));
+.service-card h3,
+.feature-item h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
-.service-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 12px;
-  letter-spacing: -0.5px;
+.service-card p,
+.feature-item p {
+  flex: 1;
+  margin: 14px 0 24px;
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
-.service-text {
-  font-size: 0.9rem;
-  color: #4a4a4a;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  flex-grow: 1;
+.card-link {
+  margin-top: auto;
+  padding: 0 18px;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
 }
 
-.service-btn {
-  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
-  color: white;
-  border: none;
-  padding: 10px 28px;
+.card-link:hover {
+  color: #ffffff;
+  background: #166534;
+  border-color: #166534;
+}
+
+.story-section {
+  padding: 86px 0;
+  background: #f8faf8;
+}
+
+.story-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 40px;
+  align-items: center;
+  padding: clamp(28px, 5vw, 56px);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 38px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.09);
+}
+
+.story-stats {
+  display: grid;
+  gap: 14px;
+}
+
+.story-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+}
+
+.story-stat span {
+  margin-top: 0;
+  text-align: right;
+}
+
+.why-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1fr);
+  gap: clamp(40px, 6vw, 72px);
+  align-items: center;
+}
+
+.why-image-card {
+  display: grid;
+  place-items: center;
+  min-height: 520px;
+  padding: 32px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 36px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
+}
+
+.why-image-card img {
+  width: 100%;
+  max-height: 440px;
+  object-fit: contain;
+}
+
+.why-content {
+  text-align: left;
+}
+
+.feature-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.feature-item {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  color: #166534;
+  background: #dcfce7;
   border-radius: 18px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
-  letter-spacing: 0.3px;
+  font-size: 22px;
+}
+
+.feature-item p {
+  margin: 8px 0 0;
+}
+
+.testimonial-section {
+  padding: 86px 0;
+  background: #f8faf8;
+}
+
+.testimonial-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 34px;
+  align-items: center;
+  padding: clamp(28px, 5vw, 56px);
+  background:
+    radial-gradient(circle at top right, rgba(22, 101, 52, 0.12), transparent 32%),
+    #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 38px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.09);
+}
+
+.rating-panel {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 28px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 30px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.stars {
+  display: flex;
+  gap: 6px;
+  color: #f59e0b;
+  font-size: 24px;
+}
+
+.rating-panel strong {
+  font-size: 48px;
+}
+
+.dark-btn {
   margin-top: 8px;
 }
 
-.service-btn:hover {
-  background: linear-gradient(135deg, #1b5e20 0%, #0d3817 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
+.newsletter-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  gap: 34px;
+  align-items: center;
+  padding: clamp(28px, 5vw, 54px);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 38px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.09);
 }
 
-.service-btn:active {
-  transform: translateY(0);
-}
-
-/* Responsive Design */
-@media (max-width: 1199px) {
-  .service-glass-card {
-    min-height: 360px;
-  }
-
-  .service-glass-card .service-content {
-    padding: 30px 24px;
-    gap: 12px;
-  }
-
-  .service-icon-wrapper {
-    width: 90px;
-    height: 90px;
-    margin-bottom: 12px;
-  }
-
-  .service-icon {
-    width: 60px;
-    height: 60px;
-  }
-
-  .service-title {
-    font-size: 1.2rem;
-  }
-
-  .service-text {
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .service-glass-card {
-    min-height: 320px;
-  }
-
-  .service-glass-card .service-content {
-    padding: 28px 24px;
-    gap: 12px;
-  }
-
-  .service-icon-wrapper {
-    width: 90px;
-    height: 90px;
-    margin-bottom: 12px;
-  }
-
-  .service-icon {
-    width: 60px;
-    height: 60px;
-  }
-
-  .service-title {
-    font-size: 1.3rem;
-    margin-bottom: 10px;
-  }
-
-  .service-text {
-    font-size: 0.95rem;
-    margin-bottom: 14px;
-    line-height: 1.6;
-  }
-
-  .service-btn {
-    padding: 12px 32px;
-    font-size: 1rem;
-  }
-  
-  .services-section h1 {
-    font-size: 1.8rem !important;
-  }
-  
-  .services-section p.lead {
-    font-size: 1rem !important;
-  }
-  
-  .services-section p.lead br {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .service-glass-card {
-    min-height: 300px;
-  }
-
-  .service-glass-card .service-content {
-    padding: 24px 20px;
-  }
-
-  .service-icon-wrapper {
-    width: 80px;
-    height: 80px;
-  }
-
-  .service-icon {
-    width: 55px;
-    height: 55px;
-  }
-
-  .service-title {
-    font-size: 1.2rem;
-  }
-
-  .service-text {
-    font-size: 0.9rem;
-  }
-
-  .service-btn {
-    padding: 10px 28px;
-    font-size: 0.95rem;
-  }
-  
-  .services-section h1 {
-    font-size: 1.5rem !important;
-  }
-  
-  .services-section .mb-5 {
-    margin-bottom: 2rem !important;
-  }
-}
-
-/* Newsletter Section */
-.newsletter-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-.newsletter-section::before {
-  content: '';
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(46, 125, 50, 0.06) 0%, transparent 70%);
-  border-radius: 50%;
-  top: -150px;
-  right: -150px;
-  filter: blur(80px);
-  pointer-events: none;
-}
-
-.newsletter-section::after {
-  content: '';
-  position: absolute;
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(23, 185, 122, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  bottom: -100px;
-  left: -100px;
-  filter: blur(60px);
-  pointer-events: none;
-}
-
-.newsletter-section .container {
-  position: relative;
-  z-index: 1;
-}
-
-.newsletter-content {
-  text-align: center;
-  padding: 40px;
-}
-
-.newsletter-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 12px;
-  letter-spacing: -1px;
-}
-
-.newsletter-subtitle {
-  font-size: 1.1rem;
-  color: #4a4a4a;
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-.newsletter-input-group {
+.newsletter-form {
   display: flex;
   gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
+  padding: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
 }
 
-.newsletter-input-wrapper {
-  --bg-color: rgba(255, 255, 255, 0.5);
-  --highlight: rgba(255, 255, 255, 0.85);
-  position: relative;
-  border-radius: 24px;
-  overflow: hidden;
+.newsletter-form input {
   flex: 1;
-  min-width: 240px;
-  max-width: 350px;
+  min-width: 0;
   height: 52px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 1px 2px rgba(255, 255, 255, 0.6),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.newsletter-input-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(5px);
-  filter: url(#glass-distortion-newsletter) saturate(130%) brightness(1.2) contrast(1.05);
-  z-index: 1;
-  pointer-events: none;
-}
-
-.newsletter-input-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-color);
-  z-index: 2;
-  pointer-events: none;
-}
-
-.newsletter-input {
-  position: relative;
-  z-index: 4;
-  width: 100%;
-  height: 100%;
-  border: none;
+  padding: 0 18px;
+  color: #111827;
   background: transparent;
-  padding: 0 20px;
-  font-size: 1rem;
-  color: #1a1a1a;
+  border: 0;
   outline: none;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
 }
 
-.newsletter-input::placeholder {
-  color: #4a4a4a;
-}
-
-.newsletter-input:focus {
-  outline: none;
-}
-
-.newsletter-btn {
-  --bg-color: rgba(46, 125, 50, 0.6);
-  --highlight: rgba(255, 255, 255, 0.9);
-  position: relative;
-  border-radius: 24px;
-  overflow: hidden;
-  padding: 12px 36px;
-  height: 52px;
-  border: none;
+.newsletter-form button {
+  min-width: 140px;
+  padding: 0 22px;
+  color: #ffffff;
+  background: #166534;
+  border: 1px solid #166534;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(46, 125, 50, 0.2),
-              inset 0 1px 2px rgba(255, 255, 255, 0.3),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.newsletter-form button:hover {
+  background: #14532d;
+  box-shadow: 0 14px 28px rgba(22, 101, 52, 0.22);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+  border: 0;
 }
 
-.newsletter-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(5px);
-  filter: url(#glass-distortion-newsletter) saturate(130%) brightness(1.15) contrast(1.05);
-  z-index: 1;
-  pointer-events: none;
-}
-
-.newsletter-btn::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-color);
-  z-index: 2;
-  pointer-events: none;
-}
-
-.newsletter-btn span {
-  position: relative;
-  z-index: 4;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.newsletter-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(46, 125, 50, 0.3),
-              inset 0 1px 2px rgba(255, 255, 255, 0.4),
-              inset 0 -1px 2px rgba(0, 0, 0, 0.1);
-  --bg-color: rgba(46, 125, 50, 0.75);
-}
-
-.newsletter-btn:active {
-  transform: translateY(0);
-}
-
-/* Responsive Design for Newsletter */
-@media (max-width: 768px) {
-  .newsletter-section {
-    padding: 50px 0;
-  }
-  
-  .newsletter-content {
-    padding: 24px 20px;
+@media (min-width: 1441px) {
+  .home-container {
+    width: min(100% - 80px, 1360px);
   }
 
-  .newsletter-title {
-    font-size: 1.8rem;
+  .hero-copy h1 {
+    font-size: 7.2rem;
   }
 
-  .newsletter-subtitle {
-    font-size: 1rem;
-    margin-bottom: 24px;
+  .hero-visual,
+  .hero-visual img {
+    min-height: 680px;
   }
 
-  .newsletter-input-group {
+  .section-shell {
+    padding: 120px 0;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .home-container {
+    width: min(100% - 64px, 1180px);
+  }
+
+  .home-hero {
+    padding-top: 118px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .home-container {
+    width: min(100% - 48px, 900px);
+  }
+
+  .home-hero {
+    min-height: auto;
+    padding: 116px 0 72px;
+  }
+
+  .hero-grid,
+  .story-card,
+  .why-grid,
+  .testimonial-card,
+  .newsletter-card {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy {
+    text-align: center;
+  }
+
+  .hero-copy p,
+  .hero-proof {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-visual {
+    min-height: auto;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .hero-visual img {
+    height: 520px;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .service-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .why-image-card {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-container {
+    width: min(100% - 32px, 100%);
+  }
+
+  .section-shell,
+  .story-section,
+  .testimonial-section {
+    padding: 64px 0;
+  }
+
+  .home-hero {
+    min-height: auto;
+    padding: 104px 0 56px;
+  }
+
+  .hero-grid,
+  .story-card,
+  .why-grid,
+  .testimonial-card,
+  .newsletter-card,
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy,
+  .section-heading,
+  .story-copy,
+  .why-content,
+  .testimonial-copy,
+  .newsletter-copy {
+    text-align: center;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.55rem, 16vw, 4rem);
+  }
+
+  .hero-copy p,
+  .section-heading p,
+  .story-copy p,
+  .why-intro,
+  .testimonial-copy p,
+  .newsletter-copy p {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
     flex-direction: column;
-    gap: 16px;
   }
 
-  .newsletter-input-wrapper {
-    max-width: 100%;
-    flex-basis: 100%;
-    height: 54px;
-  }
-  
-  .newsletter-input {
-    font-size: 1rem;
-  }
-
-  .newsletter-btn {
+  .primary-btn,
+  .secondary-btn {
     width: 100%;
-    height: 54px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .newsletter-section {
-    padding: 40px 0;
-  }
-  
-  .newsletter-content {
-    padding: 20px 15px;
   }
 
-  .newsletter-title {
-    font-size: 1.5rem;
+  .hero-proof {
+    grid-template-columns: 1fr;
+    margin-top: 30px;
   }
 
-  .newsletter-subtitle {
-    font-size: 0.95rem;
+  .hero-visual {
+    min-height: auto;
   }
-}
 
-/* Scroll Down Indicator */
-.scroll-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: fadeIn 1s ease-in-out 1.5s both;
-}
+  .hero-visual img {
+    height: 360px;
+    border-radius: 28px;
+  }
 
-.mouse {
-  width: 26px;
-  height: 40px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  border-radius: 15px;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
+  .hero-floating-card {
+    position: static;
+    margin-top: 12px;
+    justify-content: center;
+  }
 
-.mouse-wheel {
-  width: 4px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 2px;
-  margin-top: 8px;
-  animation: scroll 1.5s infinite;
-}
+  .section-heading {
+    margin-bottom: 34px;
+  }
 
-.scroll-text {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
-  margin-top: 1rem;
-}
+  .service-card {
+    min-height: auto;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+    border-radius: 24px;
+  }
 
-@keyframes scroll {
-  0% {
-    opacity: 0;
-    transform: translateY(0);
+  .story-card,
+  .testimonial-card,
+  .newsletter-card {
+    padding: 24px;
+    border-radius: 28px;
   }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-}
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+  .story-stat {
+    flex-direction: column;
+    text-align: center;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-@media (max-width: 768px) {
-  .mouse {
-    width: 24px;
-    height: 38px;
+  .story-stat span {
+    text-align: center;
   }
-  
-  .scroll-text {
-    font-size: 0.8rem;
-    letter-spacing: 1.5px;
-  }
-  
-  .scroll-indicator {
-    margin-top: 25px !important;
-  }
-}
 
-@media (max-width: 480px) {
-  .mouse {
-    width: 22px;
-    height: 34px;
+  .why-image-card {
+    min-height: 300px;
+    padding: 20px;
+    border-radius: 28px;
   }
-  
-  .mouse-wheel {
-    width: 3px;
-    height: 6px;
-    margin-top: 6px;
+
+  .feature-item {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
-  
-  .scroll-text {
-    font-size: 0.75rem;
+
+  .rating-panel {
+    padding: 22px;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+    border-radius: 24px;
+  }
+
+  .newsletter-form input,
+  .newsletter-form button {
+    width: 100%;
   }
 }
 </style>

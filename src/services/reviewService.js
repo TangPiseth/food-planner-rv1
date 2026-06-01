@@ -1,214 +1,185 @@
-// Review service for managing recipe reviews
-const API_URL = 'http://localhost:3001/api/reviews';
+import { getApiUrl } from './apiConfig';
 
-/**
- * Get stored auth token
- */
-const getToken = () => {
-  return localStorage.getItem('authToken');
+const API_URL = getApiUrl('/reviews');
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-/**
- * Create a new review
- */
+const safeJson = async (response) => {
+  try {
+    return await response.json();
+  } catch (_error) {
+    return {};
+  }
+};
+
 export const createReview = async (recipeId, recipeTitle, rating, comment) => {
   try {
-    const token = getToken();
-    if (!token) {
-      return { success: false, error: 'Please login to submit a review' };
-    }
-
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        ...getAuthHeader()
       },
       body: JSON.stringify({ recipeId, recipeTitle, rating, comment })
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       return { success: false, error: data.error || 'Failed to create review' };
     }
 
-    return { success: true, review: data.review };
+    return { success: true, review: data.review, message: data.message };
   } catch (error) {
     console.error('Create review error:', error);
     return { success: false, error: 'Network error. Please try again.' };
   }
 };
 
-/**
- * Get all reviews for a specific recipe
- */
+// Backward-compatible alias used by older components.
+export const submitReview = async (reviewData) => {
+  return createReview(
+    reviewData.recipeId,
+    reviewData.recipeTitle || '',
+    reviewData.rating,
+    reviewData.comment
+  );
+};
+
 export const getRecipeReviews = async (recipeId) => {
   try {
     const response = await fetch(`${API_URL}/recipe/${recipeId}`);
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
-      return { success: false, error: data.error || 'Failed to fetch reviews' };
+      return { success: false, error: data.error || 'Failed to fetch reviews', reviews: [] };
     }
 
-    return { success: true, reviews: data.reviews };
+    return { success: true, reviews: data.reviews || [] };
   } catch (error) {
-    console.error('Get reviews error:', error);
-    return { success: false, error: 'Network error. Please try again.' };
+    console.error('Get recipe reviews error:', error);
+    return { success: false, error: 'Network error. Please try again.', reviews: [] };
   }
 };
 
-/**
- * Get all reviews by the current user
- */
+// Backward-compatible alias used by older components.
+export const fetchApprovedReviews = async (recipeId) => getRecipeReviews(recipeId);
+
 export const getUserReviews = async () => {
   try {
-    const token = getToken();
-    if (!token) {
-      return { success: false, error: 'Please login to view your reviews' };
-    }
-
     const response = await fetch(`${API_URL}/user`, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        ...getAuthHeader()
       }
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
-      return { success: false, error: data.error || 'Failed to fetch user reviews' };
+      return { success: false, error: data.error || 'Failed to fetch your reviews', reviews: [] };
     }
 
-    return { success: true, reviews: data.reviews };
+    return { success: true, reviews: data.reviews || [] };
   } catch (error) {
     console.error('Get user reviews error:', error);
-    return { success: false, error: 'Network error. Please try again.' };
+    return { success: false, error: 'Network error. Please try again.', reviews: [] };
   }
 };
 
-/**
- * Update a review
- */
 export const updateReview = async (reviewId, rating, comment) => {
   try {
-    const token = getToken();
-    if (!token) {
-      return { success: false, error: 'Please login to update your review' };
-    }
-
     const response = await fetch(`${API_URL}/${reviewId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        ...getAuthHeader()
       },
       body: JSON.stringify({ rating, comment })
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       return { success: false, error: data.error || 'Failed to update review' };
     }
 
-    return { success: true, review: data.review };
+    return { success: true, review: data.review, message: data.message };
   } catch (error) {
     console.error('Update review error:', error);
     return { success: false, error: 'Network error. Please try again.' };
   }
 };
 
-/**
- * Delete a review
- */
 export const deleteReview = async (reviewId) => {
   try {
-    const token = getToken();
-    if (!token) {
-      return { success: false, error: 'Please login to delete your review' };
-    }
-
     const response = await fetch(`${API_URL}/${reviewId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`
+        ...getAuthHeader()
       }
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       return { success: false, error: data.error || 'Failed to delete review' };
     }
 
-    return { success: true };
+    return { success: true, message: data.message };
   } catch (error) {
     console.error('Delete review error:', error);
     return { success: false, error: 'Network error. Please try again.' };
   }
 };
 
-/**
- * Check if current user has reviewed a specific recipe
- */
 export const checkUserReview = async (recipeId) => {
   try {
-    const token = getToken();
-    if (!token) {
-      return { success: true, hasReviewed: false, review: null };
-    }
-
     const response = await fetch(`${API_URL}/check/${recipeId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        ...getAuthHeader()
       }
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       return { success: false, error: data.error || 'Failed to check review status' };
     }
 
-    return { 
-      success: true, 
-      hasReviewed: data.hasReviewed, 
-      review: data.review 
+    return {
+      success: true,
+      hasReviewed: !!data.hasReviewed,
+      review: data.review || null
     };
   } catch (error) {
-    console.error('Check review error:', error);
+    console.error('Check user review error:', error);
     return { success: false, error: 'Network error. Please try again.' };
   }
 };
 
-/**
- * Get average rating for a single recipe
- */
 export const getRecipeRating = async (recipeId) => {
   try {
     const response = await fetch(`${API_URL}/rating/${recipeId}`);
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
-      return { success: false, error: data.error || 'Failed to fetch rating' };
+      return { success: false, error: data.error || 'Failed to fetch recipe rating' };
     }
 
-    return { 
-      success: true, 
-      averageRating: data.averageRating, 
-      totalReviews: data.totalReviews 
+    return {
+      success: true,
+      averageRating: data.averageRating || 0,
+      totalReviews: data.totalReviews || 0
     };
   } catch (error) {
-    console.error('Get rating error:', error);
+    console.error('Get recipe rating error:', error);
     return { success: false, error: 'Network error. Please try again.' };
   }
 };
 
-/**
- * Get ratings for multiple recipes at once
- */
 export const getBatchRatings = async (recipeIds) => {
   try {
     const response = await fetch(`${API_URL}/ratings/batch`, {
@@ -219,26 +190,53 @@ export const getBatchRatings = async (recipeIds) => {
       body: JSON.stringify({ recipeIds })
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
-      return { success: false, error: data.error || 'Failed to fetch ratings' };
+      return { success: false, error: data.error || 'Failed to fetch batch ratings' };
     }
 
-    return { success: true, ratings: data.ratings };
+    return { success: true, ratings: data.ratings || {} };
   } catch (error) {
     console.error('Get batch ratings error:', error);
     return { success: false, error: 'Network error. Please try again.' };
   }
 };
 
+export const reportReview = async (reviewId, reason) => {
+  try {
+    const response = await fetch(`${API_URL}/${reviewId}/report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify({ reason })
+    });
+
+    const data = await safeJson(response);
+
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Failed to report review' };
+    }
+
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error('Report review error:', error);
+    return { success: false, error: 'Network error. Please try again.' };
+  }
+};
+
 export default {
   createReview,
+  submitReview,
   getRecipeReviews,
+  fetchApprovedReviews,
   getUserReviews,
   updateReview,
   deleteReview,
   checkUserReview,
   getRecipeRating,
-  getBatchRatings
+  getBatchRatings,
+  reportReview
 };
