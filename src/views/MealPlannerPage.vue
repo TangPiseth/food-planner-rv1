@@ -1,5 +1,5 @@
 <template>
-  <div class="EG-Default" style="margin-top: 80px;">
+  <div class="EG-Default meal-planner-page overflow-hidden">
     <!-- SVG Filters -->
     <svg style="display: none">
       <filter id="glass-distortion-calendar">
@@ -28,15 +28,15 @@
 
     <!-- Hero Section -->
     <div class="meal-planner-hero">
-      <div class="container text-center py-5">
-        <h1 class="fw-bold display-4 mb-3" data-aos="fade-down" style="color: #1a1a1a;">Plan Your Meals</h1>
-        <p class="lead text-muted mb-0" data-aos="fade-up">Organize your week intuitively. Select a date to add or print your meals!</p>
+      <div class="container text-center py-4 py-md-5 px-3 px-md-4">
+        <h1 class="fw-bold display-4 mb-3 text-wrap" data-aos="fade-down" style="color: #1a1a1a;">Plan Your Meals</h1>
+        <p class="lead text-muted mb-0 text-wrap" data-aos="fade-up">Organize your week intuitively. Select a date to add or print your meals!</p>
       </div>
     </div>
 
     <!-- Main Content Section -->
-    <div class="meal-planner-section py-5">
-      <div class="container">
+    <div class="meal-planner-section py-4 py-md-5">
+      <div class="container px-3 px-md-4">
         <div class="calendar-glass-card" data-aos="zoom-in">
           <div class="glass-filter"></div>
           <div class="glass-overlay"></div>
@@ -172,12 +172,12 @@
         <h3 class="fw-bold mb-4" style="color: #2e7d32;">Print Multi-Day Plan</h3>
         <p class="text-muted mb-4">Select the span of days to include in your meal plan printout. (Max 3 days)</p>
         
-        <div class="d-flex justify-content-center gap-3 mb-4">
-          <div>
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-4">
+          <div class="flex-fill">
             <label class="form-label text-dark fw-bold text-start w-100 fs-sm">Start Date</label>
             <input type="date" v-model="printStartDate" class="form-control glass-input" />
           </div>
-          <div>
+          <div class="flex-fill">
             <label class="form-label text-dark fw-bold text-start w-100 fs-sm">End Date</label>
             <input type="date" v-model="printEndDate" class="form-control glass-input" :min="printStartDate" :max="maxEndDate" />
           </div>
@@ -535,6 +535,11 @@ export default {
 
 <style scoped>
 /* Core Page Overrides for Premium Aesthetic */
+.meal-planner-page {
+  padding-top: clamp(90px, 12vw, 120px);
+  overflow-x: hidden;
+}
+
 .breadcrumb-section {
   background: #ffffff;
   padding: 20px 0;
@@ -827,6 +832,27 @@ export default {
 
   .picker-grid {
     grid-template-columns: 1fr;
+  }
+
+  .calendar-content {
+    padding: 16px 12px;
+  }
+
+  .calendar-grid {
+    gap: 4px;
+  }
+
+  .weekday {
+    font-size: 0.72rem;
+    padding: 6px 0;
+  }
+
+  .day-number {
+    font-size: 0.78rem;
+  }
+
+  .glass-modal {
+    padding: 22px 18px;
   }
 }
 

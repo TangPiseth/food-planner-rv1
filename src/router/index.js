@@ -13,8 +13,6 @@ import RegisterPage from '@/views/RegisterPage.vue';
 import ProfilePage from '@/views/ProfilePage.vue';
 import AdminDashboard from '@/views/AdminDashboard.vue';
 import ImageScannerPage from '@/views/ImageScannerPage.vue';
-// import BlogPage from '@/views/BlogSection.vue';
-// import BlogDetail from '@/views/BlogDetail.vue';
 
 const routes = [
   { path: '/', redirect: '/home-page' },
@@ -57,8 +55,6 @@ const routes = [
     component: AdminDashboard,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
-  // { path: '/blog', name: 'Blog', component: BlogPage },
-  // { path: '/blog/:id', name: 'BlogDetail', component: BlogDetail, props: true },
   //{ path: '/:catchAll(.*)', redirect: '/home-page' }, // catch all routes and redirect to home page.
 ];
 

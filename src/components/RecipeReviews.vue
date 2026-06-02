@@ -3,7 +3,7 @@
     <div class="reviews-header">
       <div>
         <span class="reviews-eyebrow">Community voice</span>
-        <h4 class="review-title">Customer Reviews</h4>
+        <h4 class="review-title text-wrap">Customer Reviews</h4>
       </div>
       <span class="reviews-count">{{ totalReviews }} {{ totalReviews === 1 ? 'review' : 'reviews' }}</span>
     </div>
@@ -95,7 +95,7 @@
             <div class="review-topline">
               <div class="reviewer-info">
                 <div class="reviewer-row">
-                  <h6>{{ review.username || review.name || 'Food lover' }}</h6>
+                  <h6 class="text-wrap text-break">{{ review.username || review.name || 'Food lover' }}</h6>
                   <span v-if="isCurrentUserReview(review)" class="you-badge">You</span>
                 </div>
                 <div class="review-date">
@@ -115,7 +115,7 @@
               </div>
             </div>
 
-            <p class="review-comment">{{ review.comment }}</p>
+            <p class="review-comment text-wrap text-break">{{ review.comment }}</p>
 
             <div class="review-footer">
               <button

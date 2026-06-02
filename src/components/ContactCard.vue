@@ -1,9 +1,9 @@
 <template>
-    <div class="bg-white rounded-5 text-center p-4" :data-aos="animation" :data-aos-duration="duration">
+    <div class="bg-white rounded-5 text-center p-3 p-md-4 p-xxl-5 h-100" :data-aos="animation" :data-aos-duration="duration">
         <i :class="['text-success big-i', iconClass]"></i>
-        <div class="pt-3">
-            <h4 class="fw-bold">{{ title }}</h4>
-            <p class="text-muted mb-0">{{ content }}</p>
+        <div class="pt-3 pt-md-3">
+            <h4 class="fw-bold fs-5 fs-md-4 text-wrap">{{ title }}</h4>
+            <p class="text-muted mb-0 text-wrap">{{ content }}</p>
         </div>
     </div>
 </template>
@@ -37,6 +37,6 @@ export default {
 
 <style scoped>
 .big-i {
-    font-size: 4rem;
+    font-size: clamp(2.75rem, 8vw, 4rem);
 }
 </style>

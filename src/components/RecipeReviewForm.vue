@@ -4,8 +4,8 @@
       <div class="review-form-icon">
         <i class="fa-solid fa-lock"></i>
       </div>
-      <h5>Login to Leave a Review</h5>
-      <p>Please login to share your thoughts about this recipe.</p>
+      <h5 class="text-wrap">Login to Leave a Review</h5>
+      <p class="text-wrap">Please login to share your thoughts about this recipe.</p>
       <router-link to="/login" class="review-submit-btn">
         <i class="fa-solid fa-sign-in-alt"></i>
         <span>Login Now</span>
@@ -27,9 +27,9 @@
       <div class="review-form-header">
         <div class="review-form-header-text">
           <span class="review-eyebrow">Your feedback</span>
-          <h4>{{ isEditMode ? 'Edit Your Review' : 'Leave a Review' }}</h4>
-          <p v-if="isEditMode">Update your rating and notes for this recipe.</p>
-          <p v-else>
+          <h4 class="text-wrap">{{ isEditMode ? 'Edit Your Review' : 'Leave a Review' }}</h4>
+          <p v-if="isEditMode" class="text-wrap">Update your rating and notes for this recipe.</p>
+          <p v-else class="text-wrap text-break">
             Reviewing as <strong>{{ currentUser?.username }}</strong>
           </p>
         </div>
@@ -66,7 +66,7 @@
         <div class="review-field">
           <label>Your Review *</label>
           <textarea
-            class="review-textarea"
+            class="review-textarea w-100"
             :class="{ 'is-invalid': errors.review }"
             v-model="formData.review"
             rows="5"

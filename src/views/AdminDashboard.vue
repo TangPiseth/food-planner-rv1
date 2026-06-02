@@ -1,7 +1,7 @@
 <template>
-  <div class="EG-Default" style="margin-top: 80px;">
+  <div class="EG-Default admin-dashboard-page overflow-hidden">
     <div class="breadcrumb-section">
-      <div class="container">
+      <div class="container px-3 px-md-4">
         <div class="text-center">
           <nav>
             <ol class="breadcrumb justify-content-center mb-0">
@@ -14,34 +14,44 @@
     </div>
 
     <div class="admin-hero-section">
-      <div class="container text-center py-5">
-        <h1 class="fw-bold display-5 mb-3">Moderation Dashboard</h1>
-        <p class="lead text-muted mb-0">Manage reviews, reported reviews, users, and moderation logs.</p>
+      <div class="container text-center py-4 py-md-5 px-3 px-md-4">
+        <h1 class="fw-bold display-5 mb-3 text-wrap">Moderation Dashboard</h1>
+        <p class="lead text-muted mb-0 text-wrap">Manage reviews, reported reviews, users, and moderation logs.</p>
       </div>
     </div>
 
-    <div class="admin-content-section py-5">
-      <div class="container">
-        <div class="stats-grid mb-4">
-          <div class="stat-card">
-            <h5>Users</h5>
-            <p>{{ users.length }}</p>
+    <div class="admin-content-section py-4 py-md-5">
+      <div class="container-fluid container-xl px-3 px-md-4 px-xxl-5">
+        <div class="row g-3 g-md-4 mb-4">
+          <div class="col-6 col-sm-4 col-xl">
+            <div class="stat-card">
+              <h5>Users</h5>
+              <p>{{ users.length }}</p>
+            </div>
           </div>
-          <div class="stat-card">
-            <h5>Pending Reports</h5>
-            <p>{{ pendingReports.length }}</p>
+          <div class="col-6 col-sm-4 col-xl">
+            <div class="stat-card">
+              <h5>Pending Reports</h5>
+              <p>{{ pendingReports.length }}</p>
+            </div>
           </div>
-          <div class="stat-card">
-            <h5>Pending Recipes</h5>
-            <p>{{ pendingRecipeCount }}</p>
+          <div class="col-6 col-sm-4 col-xl">
+            <div class="stat-card">
+              <h5>Pending Recipes</h5>
+              <p>{{ pendingRecipeCount }}</p>
+            </div>
           </div>
-          <div class="stat-card">
-            <h5>User Recipes</h5>
-            <p>{{ recipes.length }}</p>
+          <div class="col-6 col-sm-4 col-xl">
+            <div class="stat-card">
+              <h5>User Recipes</h5>
+              <p>{{ recipes.length }}</p>
+            </div>
           </div>
-          <div class="stat-card">
-            <h5>Moderation Logs</h5>
-            <p>{{ logs.length }}</p>
+          <div class="col-12 col-sm-4 col-xl">
+            <div class="stat-card">
+              <h5>Moderation Logs</h5>
+              <p>{{ logs.length }}</p>
+            </div>
           </div>
         </div>
 
@@ -1117,6 +1127,11 @@ export default {
 </script>
 
 <style scoped>
+.admin-dashboard-page {
+  padding-top: clamp(90px, 12vw, 120px);
+  overflow-x: hidden;
+}
+
 .breadcrumb-section,
 .admin-hero-section,
 .admin-content-section {
@@ -1135,7 +1150,7 @@ export default {
   border-radius: 24px;
   backdrop-filter: blur(16px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-  padding: 2rem;
+  padding: clamp(1.1rem, 2.5vw, 2rem);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -1297,13 +1312,43 @@ export default {
 }
 
 @media (max-width: 992px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .glass-card,
   .action-dialog-card {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-nav-tabs {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-nav-tabs .nav-link {
+    white-space: nowrap;
+    padding: 0.5rem 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stat-card {
+    padding: 1.1rem 0.75rem;
+  }
+
+  .stat-card p {
+    font-size: 1.9rem;
+  }
+
+  .table td,
+  .table thead th {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+
+  .action-dialog-card {
+    padding: 1.25rem;
+    border-radius: 18px;
   }
 }
 </style>

@@ -1,26 +1,28 @@
 ﻿<template>
-  <div class="recipe-page">
+  <div class="recipe-page overflow-hidden">
     <section class="recipe-page-hero">
-      <div class="container">
+      <div class="container px-3 px-md-4">
         <nav class="recipe-breadcrumb" aria-label="breadcrumb">
           <router-link to="/">Home</router-link>
           <i class="fa-solid fa-chevron-right"></i>
           <span>Recipes</span>
         </nav>
 
-        <div class="hero-grid" data-aos="fade-up">
-          <div class="hero-copy">
-            <h1>Find your next favorite meal.</h1>
-            <p>
-              From quick weeknight dinners to weekend feasts — discover thousands of recipes by cuisine, category, or ingredient. Your next delicious idea is just a search away.
-            </p>
+        <div class="row justify-content-center" data-aos="fade-up">
+          <div class="col-12 col-lg-10 col-xl-9">
+            <div class="hero-copy">
+              <h1 class="text-wrap">Find your next favorite meal.</h1>
+              <p class="text-wrap">
+                From quick weeknight dinners to weekend feasts — discover thousands of recipes by cuisine, category, or ingredient. Your next delicious idea is just a search away.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <section class="recipe-content-section">
-      <div class="container">
+      <div class="container px-3 px-md-4">
         <RecipeList />
       </div>
     </section>
@@ -46,10 +48,11 @@ export default {
 <style scoped>
 .recipe-page {
   min-height: 100vh;
-  padding-top: 80px;
+  padding-top: clamp(90px, 12vw, 120px);
   color: #111827;
   background: #ffffff;
   font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
 .recipe-page .container {
@@ -181,10 +184,6 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .recipe-page {
-    padding-top: 70px;
-  }
-
   .recipe-page-hero {
     padding: 26px 0 42px;
   }

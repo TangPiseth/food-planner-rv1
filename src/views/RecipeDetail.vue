@@ -1,5 +1,5 @@
 <template>
-  <div class="recipe-detail-page" data-aos="fade-up">
+  <div class="recipe-detail-page overflow-hidden" data-aos="fade-up">
     <!-- Toast Notification - at root level for proper z-index -->
     <teleport to="body">
       <transition name="toast-fade">
@@ -2292,7 +2292,8 @@ export default {
 .recipe-detail-page {
   background: #ffffff;
   color: #111827;
-  padding-top: 80px;
+  padding-top: clamp(90px, 12vw, 120px);
+  overflow-x: hidden;
   font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
 
@@ -2911,7 +2912,7 @@ export default {
 
 @media (max-width: 576px) {
   .recipe-detail-page {
-    padding-top: 70px;
+    padding-top: clamp(80px, 22vw, 100px);
   }
 
   .recipe-meta {

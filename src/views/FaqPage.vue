@@ -1,5 +1,5 @@
 <template>
-    <div class="EG-Default faq-page-liquid">
+    <div class="EG-Default faq-page-liquid overflow-hidden">
         <!-- SVG Filter for Glass Distortion -->
         <svg style="display: none">
             <filter id="glass-distortion">
@@ -10,9 +10,9 @@
 
         <!-- Hero Section with Gradient -->
         <div class="faq-hero-section">
-            <div class="container py-5">
+            <div class="container py-4 py-md-5">
                 <div class="row justify-content-center">
-                    <div class="col-xl-7 col-lg-8 col-md-10 col-12">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-7">
                         <div class="text-center" data-aos="fade-up" data-aos-duration="1300">
                             <nav>
                                 <ol class="breadcrumb justify-content-center">
@@ -21,8 +21,8 @@
                                     <li class="breadcrumb-item link-secondary active" aria-current="page">FAQ</li>
                                 </ol>
                             </nav>
-                            <h1 class="fw-bold pb-3 display-1 hero-title">Got Questions?</h1>
-                            <p class="hero-subtitle">At EatsBuddy, we're here to simplify your cooking experience with
+                            <h1 class="fw-bold pb-3 display-1 hero-title text-wrap">Got Questions?</h1>
+                            <p class="hero-subtitle text-wrap">At EatsBuddy, we're here to simplify your cooking experience with
                                 our Recipe Viewer, Meal Planner, and Grocery List Creation service. Find answers below.</p>
                         </div>
                     </div>
@@ -32,12 +32,12 @@
 
         <!-- FAQ Content with Authentic Liquid Glass Style -->
         <div class="faq-content-section">
-            <div class="container py-5">
+            <div class="container py-4 py-md-5">
                 <div class="row justify-content-center">
-                    <div class="col-xl-8 col-lg-9 col-md-11 col-12">
-                        <div class="mb-5 text-center">
-                            <h2 class="fw-bold pb-2 section-title">Check Our FAQs Below</h2>
-                            <p class="section-subtitle">Feel free to reach out for any inquiries or support</p>
+                    <div class="col-12 col-md-11 col-lg-9 col-xl-8">
+                        <div class="mb-4 mb-md-5 text-center">
+                            <h2 class="fw-bold pb-2 section-title text-wrap">Check Our FAQs Below</h2>
+                            <p class="section-subtitle text-wrap">Feel free to reach out for any inquiries or support</p>
                         </div>
 
                         <!-- Glass FAQ List -->
@@ -188,7 +188,7 @@ export default {
     background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
     min-height: 100vh;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 /* Hero Section */
@@ -198,15 +198,16 @@ export default {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     position: relative;
     z-index: 1;
-    padding: 60px 0;
+    padding: clamp(90px, 12vw, 120px) 0 60px;
 }
 
 .hero-title {
     color: #1a1a1a;
     font-weight: 700;
-    font-size: 3.5rem !important;
+    font-size: clamp(2rem, 6vw, 3.5rem) !important;
     margin-bottom: 1rem;
     letter-spacing: -1px;
+    overflow-wrap: break-word;
 }
 
 .hero-subtitle {
@@ -225,9 +226,10 @@ export default {
 
 .section-title {
     color: #1a1a1a;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
     margin-bottom: 0.5rem;
+    overflow-wrap: break-word;
 }
 
 .section-subtitle {
