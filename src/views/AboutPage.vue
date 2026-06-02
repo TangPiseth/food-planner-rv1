@@ -9,8 +9,8 @@
         </svg>
 
         <!-- Hero Section -->
-        <div class="breadcrumb-section py-5">
-            <div class="container py-5">
+        <div class="breadcrumb-section py-4 py-md-5">
+            <div class="container px-3 px-md-4 py-4 py-md-5">
                 <div class="row justify-content-center">
                     <div class="col-xl-7 col-lg-8 col-md-10 col-12">
                         <div class="text-center" data-aos="fade-up" data-aos-duration="1300">
@@ -21,8 +21,8 @@
                                     <li class="breadcrumb-item link-secondary active" aria-current="page">ABOUT</li>
                                 </ol>
                             </nav>
-                            <h1 class="fw-bold pb-2 display-1 hero-title">About Us</h1>
-                            <p class="hero-subtitle">At EatsBuddy, we're here to simplify your cooking experience with
+                            <h1 class="fw-bold pb-2 display-1 hero-title text-wrap">About Us</h1>
+                            <p class="hero-subtitle text-wrap">At EatsBuddy, we're here to simplify your cooking experience with
                                 our Recipe Viewer, Meal Planner, and Grocery List Creation service. Join us in making
                                 meal preparation easy and enjoyable!</p>
                         </div>
@@ -32,12 +32,12 @@
         </div>
 
         <!-- Story Section -->
-        <div class="story-section py-5">
-            <div class="container py-5">
-                <div class="row align-items-center g-5 g-md-5 text-start">
-                    <div class="col-lg-6 col-12" data-aos="fade-right" data-aos-duration="1300">
+        <div class="story-section py-4 py-md-5">
+            <div class="container px-3 px-md-4 py-4 py-md-5">
+                <div class="row align-items-center g-4 g-md-5 text-start">
+                    <div class="col-12 col-lg-6" data-aos="fade-right" data-aos-duration="1300">
                         <h6 class="story-badge">OUR STORY</h6>
-                        <h1 class="fw-bold py-3 display-4 story-title">Cooking Up Convenience and Joy, One Meal at a
+                        <h1 class="fw-bold py-3 display-4 story-title text-wrap">Cooking Up Convenience and Joy, One Meal at a
                             Time.</h1>
                         <p class="story-text lead">EatsBuddy was born from a love for food and a desire to make meal planning and
                             preparation effortless for everyone. What began as a small project to help friends and
@@ -50,7 +50,7 @@
                             innovation and expanding our offerings.
                         </p>
                     </div>
-                    <div class="col-lg-6 col-12">
+                    <div class="col-12 col-lg-6">
                         <div class="glass-image-card">
                             <div class="glass-filter"></div>
                             <div class="glass-overlay"></div>
@@ -64,20 +64,20 @@
         </div>
 
         <!-- Chefs Section -->
-        <div class="chefs-section py-5">
-            <div class="container py-5">
-                <div class="row justify-content-center mb-5">
-                    <div class="col-xl-7 col-lg-8 col-md-10 col-12">
+        <div class="chefs-section py-4 py-md-5">
+            <div class="container px-3 px-md-4 py-4 py-md-5">
+                <div class="row justify-content-center mb-4 mb-md-5">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-7">
                         <div class="text-center">
-                            <h1 class="fw-bold pb-2 chefs-title display-5">Our Qualified Chefs</h1>
+                            <h1 class="fw-bold pb-2 chefs-title display-5 text-wrap">Our Qualified Chefs</h1>
                             <p class="chefs-subtitle lead">Meet the minds behind EatsBuddy! Our talented duo blends
                                 creativity and expertise to bring you the best in cooking convenience.
                             </p>
                         </div>
                     </div>
                 </div>
-                <div class="row align-items-center justify-content-center g-4" id="chef-container">
-                    <div class="col-lg-4 col-md-6 col-12" v-for="chef in chefs" :key="chef.name">
+                <div class="row align-items-center justify-content-center g-3 g-md-4" id="chef-container">
+                    <div class="col-12 col-sm-6 col-lg-4" v-for="chef in chefs" :key="chef.name">
                         <div class="glass-chef-card">
                             <div class="glass-filter"></div>
                             <div class="glass-overlay"></div>
@@ -127,6 +127,7 @@
     min-height: 100vh;
     position: relative;
     overflow: hidden;
+    padding-top: clamp(70px, 9vw, 90px);
 }
 
 /* Decorative Blur Circles */
@@ -168,7 +169,7 @@
 .hero-title {
     color: #1a1a1a;
     font-weight: 700;
-    font-size: 3.5rem !important;
+    font-size: clamp(2rem, 7vw, 3.5rem) !important;
     margin-bottom: 1rem;
     letter-spacing: -1px;
 }
@@ -221,6 +222,7 @@
 .story-title {
     color: #1a1a1a;
     font-weight: 700;
+    font-size: clamp(1.5rem, 4.5vw, 2.5rem);
 }
 
 .story-text {
@@ -289,6 +291,7 @@
 .chefs-title {
     color: #1a1a1a;
     font-weight: 700;
+    font-size: clamp(1.5rem, 4.5vw, 2.5rem);
 }
 
 .chefs-subtitle {

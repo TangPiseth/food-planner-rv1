@@ -1,157 +1,193 @@
 ﻿<template>
-  <main class="home-page">
-    <section class="home-hero">
-      <div class="home-container hero-grid">
-        <div class="hero-copy" data-aos="fade-up">
-          <span class="section-kicker">Meal planning made simple</span>
-          <h1>Plan better meals with less effort.</h1>
-          <p>
-            EatsBuddy brings recipes, weekly planning, and grocery lists into one clean workspace so every meal feels easier.
-          </p>
+  <main class="home-page overflow-hidden">
+    <!-- HERO -->
+    <section class="home-hero py-5" style="margin-top: 70px;">
+      <div class="container">
+        <div class="row align-items-center g-4 g-lg-5">
+          <div class="col-12 col-lg-6 hero-copy text-center text-lg-start" data-aos="fade-up">
+            <span class="section-kicker">Meal planning made simple</span>
+            <h1 class="hero-title fw-bold lh-1 text-wrap mb-0">Plan better meals with less effort.</h1>
+            <p class="hero-lead text-wrap mt-3 mb-0">
+              EatsBuddy brings recipes, weekly planning, and grocery lists into one clean workspace so every meal feels easier.
+            </p>
 
-          <div class="hero-actions">
-            <router-link to="/recipes" class="primary-btn">
-              Explore Recipes
-              <i class="fa-solid fa-arrow-right"></i>
-            </router-link>
-            <router-link to="/meal-planner" class="secondary-btn">
-              Start Planning
-            </router-link>
-          </div>
-
-          <div class="hero-proof">
-            <div v-for="stat in abouts" :key="stat.title" class="proof-item">
-              <strong>{{ stat.title }}</strong>
-              <span>{{ stat.description }}</span>
+            <div class="hero-actions d-flex flex-column flex-sm-row flex-wrap justify-content-center justify-content-lg-start gap-2 gap-sm-3 mt-4">
+              <router-link to="/recipes" class="primary-btn">
+                Explore Recipes
+                <i class="fa-solid fa-arrow-right"></i>
+              </router-link>
+              <router-link to="/meal-planner" class="secondary-btn">
+                Start Planning
+              </router-link>
             </div>
-          </div>
-        </div>
 
-        <div class="hero-visual" data-aos="zoom-in">
-          <img src="../assets/img/Food-1.png" alt="Fresh meal on a table" />
-          <div class="hero-floating-card hero-rating-card">
-            <i class="fa-solid fa-star"></i>
-            <div>
-              <strong>4.8/5</strong>
-              <span>User rating</span>
-            </div>
-          </div>
-          <div class="hero-floating-card hero-plan-card">
-            <i class="fa-solid fa-calendar-check"></i>
-            <div>
-              <strong>Weekly plans</strong>
-              <span>Ready in minutes</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="services-section section-shell">
-      <div class="home-container">
-        <div class="section-heading">
-          <span class="section-kicker">Services</span>
-          <h2>Everything you need for a smarter kitchen.</h2>
-          <p>Move from inspiration to shopping with tools that stay clear, fast, and easy to use.</p>
-        </div>
-
-        <div class="services-grid">
-          <article v-for="item in items" :key="item.title" class="service-card">
-            <div class="service-icon">
-              <img :src="require(`@/assets/img/${item.imgSrc}`)" :alt="item.title" />
-            </div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.text }}</p>
-            <router-link :to="item.destinationpage" class="card-link">
-              {{ item.text2 }}
-              <i class="fa-solid fa-arrow-right"></i>
-            </router-link>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="story-section">
-      <div class="home-container story-card">
-        <div class="story-copy">
-          <span class="section-kicker">Eat well, live better</span>
-          <h2>Spend less time deciding and more time enjoying food.</h2>
-          <p>
-            Build a routine that supports your schedule. Discover recipes, organize your week, and turn meal ideas into a grocery list without extra steps.
-          </p>
-        </div>
-
-        <div class="story-stats">
-          <div v-for="stat in abouts" :key="stat.description" class="story-stat">
-            <strong>{{ stat.title }}</strong>
-            <span>{{ stat.description }}</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="why-section section-shell">
-      <div class="home-container why-grid">
-        <div class="why-image-card" data-aos="fade-right">
-          <img src="../assets/img/WCU-2.png" alt="Meal planning illustration" />
-        </div>
-
-        <div class="why-content" data-aos="fade-left">
-          <span class="section-kicker">Why choose EatsBuddy</span>
-          <h2>Designed for real daily cooking.</h2>
-          <p class="why-intro">Clear workflows, strong organization, and practical features help you stay consistent without overthinking dinner.</p>
-
-          <div class="feature-list">
-            <article v-for="feature in features" :key="feature.title" class="feature-item">
-              <div class="feature-icon">
-                <i :class="feature.icon"></i>
+            <div class="row hero-proof g-2 g-sm-3 mt-3 mt-sm-4">
+              <div v-for="stat in abouts" :key="stat.title" class="col-12 col-sm-4">
+                <div class="proof-item h-100">
+                  <strong>{{ stat.title }}</strong>
+                  <span>{{ stat.description }}</span>
+                </div>
               </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-6 hero-visual" data-aos="zoom-in">
+            <img src="../assets/img/Food-1.png" class="img-fluid" alt="Fresh meal on a table" />
+            <div class="hero-floating-card hero-rating-card d-none d-md-flex">
+              <i class="fa-solid fa-star"></i>
               <div>
-                <h3>{{ feature.title }}</h3>
-                <p>{{ feature.text }}</p>
+                <strong>4.8/5</strong>
+                <span>User rating</span>
               </div>
+            </div>
+            <div class="hero-floating-card hero-plan-card d-none d-md-flex">
+              <i class="fa-solid fa-calendar-check"></i>
+              <div>
+                <strong>Weekly plans</strong>
+                <span>Ready in minutes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="services-section section-shell">
+      <div class="container">
+        <div class="section-heading text-center mx-auto mb-4 mb-md-5">
+          <span class="section-kicker">Services</span>
+          <h2 class="section-title fw-bold text-wrap">Everything you need for a smarter kitchen.</h2>
+          <p class="section-sub text-wrap mt-3 mb-0">Move from inspiration to shopping with tools that stay clear, fast, and easy to use.</p>
+        </div>
+
+        <div class="row g-3 g-md-4">
+          <div v-for="item in items" :key="item.title" class="col-12 col-sm-6 col-xl-4">
+            <article class="service-card h-100">
+              <div class="service-icon">
+                <img :src="require(`@/assets/img/${item.imgSrc}`)" :alt="item.title" />
+              </div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.text }}</p>
+              <router-link :to="item.destinationpage" class="card-link">
+                {{ item.text2 }}
+                <i class="fa-solid fa-arrow-right"></i>
+              </router-link>
             </article>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="testimonial-section">
-      <div class="home-container testimonial-card" data-aos="fade-up">
-        <div class="testimonial-copy">
-          <span class="section-kicker">Customer testimonials</span>
-          <h2>People use EatsBuddy to make meals feel manageable.</h2>
-          <p>"A clean way to plan food for the week, save time, and keep grocery trips focused."</p>
-        </div>
+    <!-- STORY -->
+    <section class="story-section py-5">
+      <div class="container">
+        <div class="story-card p-3 p-sm-4 p-xxl-5">
+          <div class="row align-items-center g-4 g-lg-5">
+            <div class="col-12 col-lg-7 story-copy text-center text-lg-start">
+              <span class="section-kicker">Eat well, live better</span>
+              <h2 class="section-title fw-bold text-wrap">Spend less time deciding and more time enjoying food.</h2>
+              <p class="section-sub text-wrap mt-3 mb-0">
+                Build a routine that supports your schedule. Discover recipes, organize your week, and turn meal ideas into a grocery list without extra steps.
+              </p>
+            </div>
 
-        <div class="rating-panel">
-          <div class="stars" aria-label="4.8 out of 5 stars">
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star-half-alt"></i>
+            <div class="col-12 col-lg-5">
+              <div class="d-grid gap-3 story-stats">
+                <div v-for="stat in abouts" :key="stat.description" class="story-stat">
+                  <strong>{{ stat.title }}</strong>
+                  <span>{{ stat.description }}</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <strong>4.8/5</strong>
-          <span>Rated by satisfied planners</span>
-          <router-link to="/about" class="secondary-btn dark-btn">Learn More</router-link>
         </div>
       </div>
     </section>
 
-    <section class="newsletter-section section-shell">
-      <div class="home-container newsletter-card">
-        <div class="newsletter-copy">
-          <span class="section-kicker">Newsletter</span>
-          <h2>Get fresh meal ideas in your inbox.</h2>
-          <p>Subscribe for recipe inspiration, planning tips, and smarter grocery ideas.</p>
-        </div>
+    <!-- WHY -->
+    <section class="why-section section-shell">
+      <div class="container">
+        <div class="row align-items-center g-4 g-lg-5">
+          <div class="col-12 col-lg-5" data-aos="fade-right">
+            <div class="why-image-card">
+              <img src="../assets/img/WCU-2.png" class="img-fluid" alt="Meal planning illustration" />
+            </div>
+          </div>
 
-        <form class="newsletter-form" @submit.prevent>
-          <label for="newsletter-email" class="visually-hidden">Email address</label>
-          <input id="newsletter-email" type="email" placeholder="Your email address" />
-          <button type="submit">Subscribe</button>
-        </form>
+          <div class="col-12 col-lg-7 why-content text-center text-lg-start" data-aos="fade-left">
+            <span class="section-kicker">Why choose EatsBuddy</span>
+            <h2 class="section-title fw-bold text-wrap">Designed for real daily cooking.</h2>
+            <p class="why-intro section-sub text-wrap mt-3 mb-0">Clear workflows, strong organization, and practical features help you stay consistent without overthinking dinner.</p>
+
+            <div class="row g-3 mt-3 mt-md-4">
+              <div v-for="feature in features" :key="feature.title" class="col-12 col-md-6">
+                <article class="feature-item h-100">
+                  <div class="feature-icon">
+                    <i :class="feature.icon"></i>
+                  </div>
+                  <div>
+                    <h3>{{ feature.title }}</h3>
+                    <p>{{ feature.text }}</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIAL -->
+    <section class="testimonial-section py-5">
+      <div class="container">
+        <div class="testimonial-card p-3 p-sm-4 p-xxl-5" data-aos="fade-up">
+          <div class="row align-items-center g-4 g-lg-5">
+            <div class="col-12 col-lg-7 testimonial-copy text-center text-lg-start">
+              <span class="section-kicker">Customer testimonials</span>
+              <h2 class="section-title fw-bold text-wrap">People use EatsBuddy to make meals feel manageable.</h2>
+              <p class="section-sub text-wrap mt-3 mb-0">"A clean way to plan food for the week, save time, and keep grocery trips focused."</p>
+            </div>
+
+            <div class="col-12 col-lg-5">
+              <div class="rating-panel">
+                <div class="stars" aria-label="4.8 out of 5 stars">
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star-half-alt"></i>
+                </div>
+                <strong>4.8/5</strong>
+                <span>Rated by satisfied planners</span>
+                <router-link to="/about" class="secondary-btn dark-btn">Learn More</router-link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="newsletter-section section-shell">
+      <div class="container">
+        <div class="newsletter-card p-3 p-sm-4 p-xxl-5">
+          <div class="row align-items-center g-4 g-lg-5">
+            <div class="col-12 col-lg-6 newsletter-copy text-center text-lg-start">
+              <span class="section-kicker">Newsletter</span>
+              <h2 class="section-title fw-bold text-wrap">Get fresh meal ideas in your inbox.</h2>
+              <p class="section-sub text-wrap mt-3 mb-0">Subscribe for recipe inspiration, planning tips, and smarter grocery ideas.</p>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <form class="newsletter-form d-flex flex-column flex-sm-row gap-2" @submit.prevent>
+                <label for="newsletter-email" class="visually-hidden">Email address</label>
+                <input id="newsletter-email" type="email" placeholder="Your email address" />
+                <button type="submit">Subscribe</button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -232,16 +268,12 @@ export default {
   color: #111827;
   background: #ffffff;
   font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  overflow-x: hidden;
 }
 
-.home-container {
-  width: min(100% - 40px, 1180px);
-  margin: 0 auto;
-}
-
+/* Fluid vertical rhythm scales across all requested breakpoints */
 .section-shell {
-  padding: 96px 0;
+  padding-top: clamp(56px, 8vw, 120px);
+  padding-bottom: clamp(56px, 8vw, 120px);
 }
 
 .section-kicker {
@@ -260,59 +292,27 @@ export default {
   text-transform: uppercase;
 }
 
+/* HERO */
 .home-hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  padding: 120px 0 80px;
+  padding-top: clamp(104px, 12vw, 120px);
+  padding-bottom: clamp(56px, 8vw, 80px);
   background:
     radial-gradient(circle at top left, rgba(22, 101, 52, 0.12), transparent 32%),
     linear-gradient(180deg, #ffffff 0%, #f8faf8 100%);
   border-bottom: 1px solid #e5e7eb;
 }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(380px, 0.82fr);
-  gap: clamp(48px, 7vw, 92px);
-  align-items: center;
-}
-
-.hero-copy {
-  text-align: left;
-}
-
-.hero-copy h1,
-.section-heading h2,
-.story-copy h2,
-.why-content h2,
-.testimonial-copy h2,
-.newsletter-copy h2 {
-  margin: 0;
+.hero-title {
   color: #0f172a;
-  font-weight: 900;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.05em;
   line-height: 0.98;
+  font-size: clamp(2.55rem, 6vw, 6.7rem);
 }
 
-.hero-copy h1 {
-  max-width: 760px;
-  font-size: clamp(3rem, 7vw, 6.7rem);
-}
-
-.hero-copy p {
-  max-width: 660px;
-  margin: 26px 0 0;
+.hero-lead {
   color: #4b5563;
-  font-size: 18px;
+  font-size: clamp(15px, 1.4vw, 18px);
   line-height: 1.8;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 34px;
 }
 
 .primary-btn,
@@ -365,12 +365,12 @@ export default {
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
 }
 
-.hero-proof {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  max-width: 640px;
-  margin-top: 44px;
+/* Make CTA buttons full width only when stacked on mobile */
+@media (max-width: 575.98px) {
+  .hero-actions .primary-btn,
+  .hero-actions .secondary-btn {
+    width: 100%;
+  }
 }
 
 .proof-item {
@@ -404,13 +404,11 @@ export default {
 
 .hero-visual {
   position: relative;
-  min-height: 620px;
-  border-radius: 42px;
 }
 
 .hero-visual img {
   width: 100%;
-  height: 620px;
+  height: clamp(320px, 45vw, 620px);
   object-fit: cover;
   border-radius: 42px;
   border: 1px solid #e5e7eb;
@@ -419,7 +417,6 @@ export default {
 
 .hero-floating-card {
   position: absolute;
-  display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
@@ -455,53 +452,40 @@ export default {
 
 .hero-rating-card {
   top: 24px;
-  right: -24px;
+  right: -12px;
 }
 
 .hero-plan-card {
-  left: -28px;
+  left: -12px;
   bottom: 40px;
 }
 
+/* SECTION HEADINGS / TYPOGRAPHY */
 .section-heading {
   max-width: 780px;
-  margin: 0 auto 52px;
-  text-align: center;
 }
 
-.section-heading h2,
-.story-copy h2,
-.why-content h2,
-.testimonial-copy h2,
-.newsletter-copy h2 {
-  font-size: clamp(2.1rem, 4vw, 4rem);
+.section-title {
+  color: #0f172a;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  font-size: clamp(1.9rem, 4vw, 4rem);
 }
 
-.section-heading p,
-.story-copy p,
-.why-intro,
-.testimonial-copy p,
-.newsletter-copy p {
-  margin: 18px 0 0;
+.section-sub {
   color: #4b5563;
-  font-size: 16px;
+  font-size: clamp(15px, 1.2vw, 16px);
   line-height: 1.75;
 }
 
+/* SERVICES */
 .services-section,
 .why-section,
 .newsletter-section {
   background: #ffffff;
 }
 
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
 .service-card {
-  min-height: 390px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -570,26 +554,18 @@ export default {
   border-color: #166534;
 }
 
+/* STORY */
 .story-section {
-  padding: 86px 0;
   background: #f8faf8;
 }
 
-.story-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 420px;
-  gap: 40px;
-  align-items: center;
-  padding: clamp(28px, 5vw, 56px);
+.story-card,
+.testimonial-card,
+.newsletter-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 38px;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.09);
-}
-
-.story-stats {
-  display: grid;
-  gap: 14px;
 }
 
 .story-stat {
@@ -608,18 +584,11 @@ export default {
   text-align: right;
 }
 
-.why-grid {
-  display: grid;
-  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1fr);
-  gap: clamp(40px, 6vw, 72px);
-  align-items: center;
-}
-
+/* WHY */
 .why-image-card {
   display: grid;
   place-items: center;
-  min-height: 520px;
-  padding: 32px;
+  padding: clamp(20px, 3vw, 32px);
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 36px;
@@ -627,19 +596,8 @@ export default {
 }
 
 .why-image-card img {
-  width: 100%;
   max-height: 440px;
   object-fit: contain;
-}
-
-.why-content {
-  text-align: left;
-}
-
-.feature-list {
-  display: grid;
-  gap: 16px;
-  margin-top: 30px;
 }
 
 .feature-item {
@@ -670,23 +628,15 @@ export default {
   margin: 8px 0 0;
 }
 
+/* TESTIMONIAL */
 .testimonial-section {
-  padding: 86px 0;
   background: #f8faf8;
 }
 
 .testimonial-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 34px;
-  align-items: center;
-  padding: clamp(28px, 5vw, 56px);
   background:
     radial-gradient(circle at top right, rgba(22, 101, 52, 0.12), transparent 32%),
     #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 38px;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.09);
 }
 
 .rating-panel {
@@ -716,21 +666,8 @@ export default {
   margin-top: 8px;
 }
 
-.newsletter-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
-  gap: 34px;
-  align-items: center;
-  padding: clamp(28px, 5vw, 54px);
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 38px;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.09);
-}
-
+/* NEWSLETTER */
 .newsletter-form {
-  display: flex;
-  gap: 12px;
   padding: 8px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -764,6 +701,18 @@ export default {
   box-shadow: 0 14px 28px rgba(22, 101, 52, 0.22);
 }
 
+/* Round corners when the newsletter input/button stack on mobile */
+@media (max-width: 575.98px) {
+  .newsletter-form {
+    border-radius: 24px;
+  }
+
+  .newsletter-form input,
+  .newsletter-form button {
+    width: 100%;
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -776,184 +725,11 @@ export default {
   border: 0;
 }
 
-@media (min-width: 1441px) {
-  .home-container {
-    width: min(100% - 80px, 1360px);
-  }
-
-  .hero-copy h1 {
-    font-size: 7.2rem;
-  }
-
-  .hero-visual,
-  .hero-visual img {
-    min-height: 680px;
-  }
-
-  .section-shell {
-    padding: 120px 0;
-  }
-}
-
-@media (min-width: 1025px) and (max-width: 1440px) {
-  .home-container {
-    width: min(100% - 64px, 1180px);
-  }
-
-  .home-hero {
-    padding-top: 118px;
-  }
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-  .home-container {
-    width: min(100% - 48px, 900px);
-  }
-
-  .home-hero {
-    min-height: auto;
-    padding: 116px 0 72px;
-  }
-
-  .hero-grid,
-  .story-card,
-  .why-grid,
-  .testimonial-card,
-  .newsletter-card {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-copy {
-    text-align: center;
-  }
-
-  .hero-copy p,
-  .hero-proof {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .hero-actions {
-    justify-content: center;
-  }
-
-  .hero-visual {
-    min-height: auto;
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .hero-visual img {
-    height: 520px;
-  }
-
-  .services-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .service-card:last-child {
-    grid-column: 1 / -1;
-  }
-
-  .why-image-card {
-    min-height: 420px;
-  }
-}
-
-@media (max-width: 640px) {
-  .home-container {
-    width: min(100% - 32px, 100%);
-  }
-
-  .section-shell,
-  .story-section,
-  .testimonial-section {
-    padding: 64px 0;
-  }
-
-  .home-hero {
-    min-height: auto;
-    padding: 104px 0 56px;
-  }
-
-  .hero-grid,
-  .story-card,
-  .why-grid,
-  .testimonial-card,
-  .newsletter-card,
-  .services-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-copy,
-  .section-heading,
-  .story-copy,
-  .why-content,
-  .testimonial-copy,
-  .newsletter-copy {
-    text-align: center;
-  }
-
-  .hero-copy h1 {
-    font-size: clamp(2.55rem, 16vw, 4rem);
-  }
-
-  .hero-copy p,
-  .section-heading p,
-  .story-copy p,
-  .why-intro,
-  .testimonial-copy p,
-  .newsletter-copy p {
-    font-size: 15px;
-    line-height: 1.7;
-  }
-
-  .hero-actions {
-    flex-direction: column;
-  }
-
-  .primary-btn,
-  .secondary-btn {
-    width: 100%;
-  }
-
-  .hero-proof {
-    grid-template-columns: 1fr;
-    margin-top: 30px;
-  }
-
-  .hero-visual {
-    min-height: auto;
-  }
-
-  .hero-visual img {
-    height: 360px;
-    border-radius: 28px;
-  }
-
-  .hero-floating-card {
-    position: static;
-    margin-top: 12px;
-    justify-content: center;
-  }
-
-  .section-heading {
-    margin-bottom: 34px;
-  }
-
+/* Mobile niceties for stacked cards */
+@media (max-width: 575.98px) {
   .service-card {
-    min-height: auto;
     align-items: center;
     text-align: center;
-    padding: 24px;
-    border-radius: 24px;
-  }
-
-  .story-card,
-  .testimonial-card,
-  .newsletter-card {
-    padding: 24px;
-    border-radius: 28px;
   }
 
   .story-stat {
@@ -965,30 +741,10 @@ export default {
     text-align: center;
   }
 
-  .why-image-card {
-    min-height: 300px;
-    padding: 20px;
-    border-radius: 28px;
-  }
-
   .feature-item {
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
-  }
-
-  .rating-panel {
-    padding: 22px;
-  }
-
-  .newsletter-form {
-    flex-direction: column;
-    border-radius: 24px;
-  }
-
-  .newsletter-form input,
-  .newsletter-form button {
-    width: 100%;
   }
 }
 </style>

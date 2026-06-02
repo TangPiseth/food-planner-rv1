@@ -1,7 +1,7 @@
 <template>
-  <div class="scanner-page">
+  <div class="scanner-page overflow-hidden">
     <section class="scanner-hero">
-      <div class="container">
+      <div class="container px-3 px-md-4">
         <nav class="scanner-breadcrumb" aria-label="breadcrumb">
           <router-link to="/">Home</router-link>
           <i class="fa-solid fa-chevron-right"></i>
@@ -11,8 +11,8 @@
         <div class="scanner-hero-grid">
           <div class="scanner-hero-copy" data-aos="fade-up">
             <span class="scanner-eyebrow">Smart meal recognition</span>
-            <h1>Scan a meal photo and discover what to cook next.</h1>
-            <p>
+            <h1 class="text-wrap">Scan a meal photo and discover what to cook next.</h1>
+            <p class="text-wrap">
               Upload a dish image, preview the scan, and jump straight into matching recipe searches.
             </p>
           </div>
@@ -27,7 +27,7 @@
     </section>
 
     <section class="scanner-workspace">
-      <div class="container">
+      <div class="container px-3 px-md-4">
         <div class="scanner-panel" data-aos="fade-up">
           <div class="scanner-upload-card">
             <input
@@ -235,10 +235,11 @@ export default {
 <style scoped>
 .scanner-page {
   min-height: 100vh;
-  padding-top: 80px;
+  padding-top: clamp(90px, 12vw, 120px);
   color: #111827;
   background: #ffffff;
   font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
 .scanner-page .container {
@@ -577,10 +578,6 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .scanner-page {
-    padding-top: 70px;
-  }
-
   .scanner-hero {
     padding: 26px 0 42px;
   }

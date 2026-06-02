@@ -121,8 +121,14 @@
       <p>Try fewer filters or a broader ingredient.</p>
     </div>
 
-    <div v-show="!loading && sortedRecipes.length > 0" class="recipe-results-grid">
-      <RecipeItem v-for="recipe in paginatedRecipes" :key="recipe.id" :recipe="recipe" />
+    <div v-show="!loading && sortedRecipes.length > 0" class="row g-3 g-md-4">
+      <div
+        v-for="recipe in paginatedRecipes"
+        :key="recipe.id"
+        class="col-12 col-sm-6 col-lg-4 col-xxl-3 d-flex"
+      >
+        <RecipeItem :recipe="recipe" />
+      </div>
     </div>
 
     <nav v-show="!loading && totalPages > 1" aria-label="Recipe pagination" class="pagination-shell">
@@ -590,12 +596,6 @@ export default {
   font-weight: 700;
 }
 
-.recipe-results-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
 .state-card {
   min-height: 280px;
   display: grid;
@@ -666,10 +666,6 @@ export default {
   .advanced-filter-menu {
     grid-template-columns: 1fr 1fr;
   }
-
-  .recipe-results-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 768px) {
@@ -685,8 +681,7 @@ export default {
   }
 
   .search-row,
-  .advanced-filter-menu,
-  .recipe-results-grid {
+  .advanced-filter-menu {
     grid-template-columns: 1fr;
   }
 

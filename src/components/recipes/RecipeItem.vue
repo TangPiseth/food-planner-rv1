@@ -1,5 +1,5 @@
 ﻿<template>
-  <article class="recipe-card">
+  <article class="recipe-card h-100 w-100">
     <router-link :to="{ name: 'RecipeDetail', params: { id: recipe.id } }" class="recipe-card-link">
       <div class="recipe-image-wrap">
         <img v-if="recipe.image" :src="recipe.image" :alt="recipe.title" class="recipe-image" loading="lazy" />
@@ -15,7 +15,7 @@
           <span><i class="fa-solid fa-clock"></i>{{ totalTime }} min</span>
         </div>
 
-        <h3>{{ recipe.title }}</h3>
+        <h3 class="text-wrap">{{ recipe.title }}</h3>
         <p>{{ recipe.description || 'A delicious recipe ready for your kitchen.' }}</p>
 
         <div class="recipe-card-stats">

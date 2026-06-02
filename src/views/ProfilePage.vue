@@ -1,10 +1,10 @@
 <template>
-  <div class="profile-page EG-Default">
-    <div class="container py-5">
-      <div class="row g-4">
+  <div class="profile-page EG-Default overflow-hidden">
+    <div class="container px-3 px-md-4 py-4 py-md-5">
+      <div class="row g-3 g-md-4">
         <!-- Sidebar / Navigation -->
-        <div class="col-lg-4">
-          <div class="glass-card profile-sidebar text-center p-4">
+        <div class="col-12 col-lg-4">
+          <div class="glass-card profile-sidebar text-center p-3 p-md-4">
             <div class="profile-avatar-wrapper mb-3">
               <div class="profile-avatar">
                 <i class="fas fa-user"></i>
@@ -63,8 +63,8 @@
         </div>
 
         <!-- Content Area -->
-        <div class="col-lg-8">
-          <div class="glass-card content-card p-4 p-md-5">
+        <div class="col-12 col-lg-8">
+          <div class="glass-card content-card p-3 p-md-4 p-xxl-5">
             
             <!-- REVIEWS TAB -->
             <transition name="fade" mode="out-in">
@@ -165,12 +165,13 @@
                   <p class="text-muted mt-3">Loading your recipes...</p>
                 </div>
 
-                <div v-else-if="userRecipes.length > 0" class="my-recipes-list">
+                <div v-else-if="userRecipes.length > 0" class="row g-3 g-md-4 my-recipes-list">
                   <div
-                    class="my-recipe-card glass-card"
+                    class="col-12 col-xxl-6"
                     v-for="recipe in userRecipes"
                     :key="recipe.id"
                   >
+                   <div class="my-recipe-card glass-card h-100">
                     <div class="recipe-status-row">
                       <span class="recipe-status-pill" :class="recipeStatusClass(recipe)">
                         {{ recipeStatus(recipe) }}
@@ -196,6 +197,7 @@
                         </div>
                       </div>
                     </div>
+                   </div>
                   </div>
                 </div>
 
@@ -752,8 +754,12 @@ export default {
   background-image: 
     radial-gradient(at 0% 0%, rgba(46, 125, 50, 0.03) 0px, transparent 50%),
     radial-gradient(at 100% 100%, rgba(46, 125, 50, 0.03) 0px, transparent 50%);
-  padding-top: 100px;
+  padding-top: clamp(90px, 12vw, 120px);
   padding-bottom: 60px;
+}
+
+.section-title {
+  font-size: clamp(1.15rem, 3.5vw, 1.5rem);
 }
 
 /* Glass Card Global */
@@ -930,11 +936,6 @@ export default {
 .review-recipe-title:hover { color: #2e7d32; }
 
 /* My Recipes */
-.my-recipes-list {
-  display: grid;
-  gap: 16px;
-}
-
 .my-recipe-card {
   padding: 18px;
   border: 1px solid rgba(0,0,0,0.04);

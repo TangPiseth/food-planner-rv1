@@ -19,7 +19,7 @@
             <div class="list-title-section">
               <div class="title-with-toggle">
                 <i class="fa-solid expand-icon" :class="isExpanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
-                <h3 class="list-title">{{ list.name }}</h3>
+                <h3 class="list-title text-wrap text-break">{{ list.name }}</h3>
               </div>
               <p class="list-date">{{ formatDate(list.date) }} • {{ list.items.length }} items</p>
             </div>
@@ -88,7 +88,7 @@
                 <div v-for="(item, index) in list.items" :key="index" class="grocery-item" :class="{ 'item-checked': item.checked }">
                   <div class="item-content">
                     <input class="item-checkbox" type="checkbox" v-model="item.checked" @change="updateItemStatus(item)" />
-                    <span class="item-text" :class="{ 'text-strikethrough': item.checked }">
+                    <span class="item-text text-wrap text-break" :class="{ 'text-strikethrough': item.checked }">
                       {{ item.name }} - {{ item.quantity }} {{ item.unit }}
                     </span>
                   </div>

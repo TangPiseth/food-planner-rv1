@@ -9,10 +9,10 @@
         </svg>
 
         <!-- Breadcrumb section -->
-        <div class="breadcrumb-section py-5">
-            <div class="container py-5">
+        <div class="breadcrumb-section py-4 py-md-5">
+            <div class="container px-3 px-md-4 py-4 py-md-5">
                 <div class="row justify-content-center">
-                    <div class="col-xl-7 col-lg-8 col-md-10 col-12">
+                    <div class="col-12 col-md-10 col-lg-8 col-xl-7">
                         <div class="text-center" data-aos="fade-up" data-aos-duration="1300">
                             <nav>
                                 <ol class="breadcrumb justify-content-center">
@@ -20,8 +20,8 @@
                                     <li class="breadcrumb-item link-secondary active" aria-current="page">CONTACT</li>
                                 </ol>
                             </nav>
-                            <h1 class="fw-bold pb-2 display-1 hero-title">Contact Us</h1>
-                            <p class="hero-subtitle">Reach out to us for any inquiries or support.</p>
+                            <h1 class="fw-bold pb-2 display-1 hero-title text-wrap">Contact Us</h1>
+                            <p class="hero-subtitle text-wrap">Reach out to us for any inquiries or support.</p>
                         </div>
                     </div>
                 </div>
@@ -29,10 +29,10 @@
         </div>
 
         <!-- Contact Information section -->
-        <div class="contact-info-section pt-5">
-            <div class="container pt-5">
-                <div class="row justify-content-center">
-                    <div class="col-lg-4 col-md-6 col-12 d-flex justify-content-center">
+        <div class="contact-info-section pt-4 pt-md-5">
+            <div class="container px-3 px-md-4 pt-4 pt-md-5">
+                <div class="row justify-content-center g-3 g-md-4">
+                    <div class="col-12 col-sm-6 col-lg-4 d-flex justify-content-center">
                         <div class="glass-card">
                             <div class="glass-filter"></div>
                             <div class="glass-overlay"></div>
@@ -45,7 +45,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 col-12 d-flex justify-content-center">
+                    <div class="col-12 col-sm-6 col-lg-4 d-flex justify-content-center">
                         <div class="glass-card">
                             <div class="glass-filter"></div>
                             <div class="glass-overlay"></div>
@@ -58,7 +58,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 col-12 d-flex justify-content-center">
+                    <div class="col-12 col-sm-6 col-lg-4 d-flex justify-content-center">
                         <div class="glass-card">
                             <div class="glass-filter"></div>
                             <div class="glass-overlay"></div>
@@ -75,12 +75,12 @@
             </div>
         </div>
 
-        <div class="contact-form-section py-5">
-            <div class="container py-5">
-                <div class="row g-5 align-items-center">
-                    <div class="col-lg-6 col-12" data-aos="fade-right" data-aos-duration="1300">
-                        <div class="mb-5">
-                            <h2 class="fw-bold section-title pb-2">Have any questions?</h2>
+        <div class="contact-form-section py-4 py-md-5">
+            <div class="container px-3 px-md-4 py-4 py-md-5">
+                <div class="row g-4 g-md-5 align-items-center">
+                    <div class="col-12 col-lg-6" data-aos="fade-right" data-aos-duration="1300">
+                        <div class="mb-4 mb-md-5">
+                            <h2 class="fw-bold section-title pb-2 text-wrap">Have any questions?</h2>
                             <p class="section-subtitle">Feel free to contact us for any inquiries or support. We're here to
                                 help!</p>
                         </div>
@@ -131,7 +131,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-12" data-aos="flip-left" data-aos-duration="1300">
+                    <div class="col-12 col-lg-6" data-aos="flip-left" data-aos-duration="1300">
                         <!-- Liquid Glass Contact Form -->
                         <div class="glass-form">
                             <div class="glass-filter"></div>
@@ -297,6 +297,7 @@ export default {
     min-height: 100vh;
     position: relative;
     overflow: hidden;
+    padding-top: clamp(70px, 9vw, 90px);
 }
 
 /* Decorative Blur Circles */
@@ -338,7 +339,7 @@ export default {
 .hero-title {
     color: #1a1a1a;
     font-weight: 700;
-    font-size: 3.5rem !important;
+    font-size: clamp(2rem, 7vw, 3.5rem) !important;
     margin-bottom: 1rem;
     letter-spacing: -1px;
 }
@@ -484,7 +485,7 @@ export default {
 
 .section-title {
     color: #1a1a1a;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
 }
 

@@ -9,7 +9,7 @@
         </svg>
 
         <!-- Section: Social media -->
-        <section class="social-media-section d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
+        <section class="social-media-section d-flex flex-column flex-lg-row align-items-center justify-content-center justify-content-lg-between gap-3 gap-lg-0 p-3 p-md-4 p-xxl-5 border-bottom">
             <!-- Left -->
             <div class="me-5 d-none d-lg-block social-text">
                 <span>Get connected with us <br> on our social media networks:</span>
@@ -73,11 +73,11 @@
 
         <!-- Section: Links  -->
         <section class="footer-links-section">
-            <div class="container text-center text-md-start mt-5">
+            <div class="container text-center text-md-start mt-4 mt-md-5">
                 <!-- Grid row -->
-                <div class="row mt-3">
+                <div class="row g-3 g-md-4 mt-2 mt-md-3">
                     <!-- Grid column -->
-                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                    <div class="col-12 col-sm-6 col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
                         <!-- Content -->
                         <h6 class="text-uppercase fw-bold mb-4">
                             EatsBuddy
@@ -90,7 +90,7 @@
                     <!-- Grid column -->
 
                     <!-- Grid column -->
-                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                    <div class="col-12 col-sm-6 col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">
                             Trending Recipes
                         </h6>
@@ -104,7 +104,7 @@
                     <!-- Grid column -->
 
                     <!-- Grid column -->
-                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                    <div class="col-12 col-sm-6 col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                         <!-- Links -->
                         <h6 class="text-uppercase fw-bold mb-4">
                             Useful links
@@ -125,11 +125,11 @@
                     <!-- Grid column -->
 
                     <!-- Grid column -->
-                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                         <!-- Links -->
                         <h6 class="text-uppercase fw-bold mb-4">Contact</h6>
-                        <p><i class="fas fa-home me-3"></i> Phnom Penh 120201, Cambodia</p>
-                        <p>
+                        <p class="text-wrap"><i class="fas fa-home me-3"></i> Phnom Penh 120201, Cambodia</p>
+                        <p class="text-wrap text-break">
                             <i class="fas fa-envelope me-3"></i>
                             info@eatsbuddy.com
                         </p>

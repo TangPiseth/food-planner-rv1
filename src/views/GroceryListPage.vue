@@ -1,5 +1,5 @@
 <template>
-  <div class="EG-Default grocery-page" style="margin-top: 80px;">
+  <div class="EG-Default grocery-page overflow-hidden">
     <!-- SVG Filters -->
     <svg style="display: none">
       <filter id="glass-distortion-grocery-form">
@@ -32,28 +32,28 @@
 
     <!-- Hero Section -->
     <div class="grocery-hero-section">
-      <div class="container text-center py-5">
+      <div class="container text-center py-4 py-md-5 px-3 px-md-4">
         <div class="hero-copy mx-auto" data-aos="fade-up">
           <span class="eyebrow">Grocery Planner</span>
-          <h1 class="fw-bold display-4 mb-3" data-aos="fade-down">Manage Your Grocery Lists</h1>
-          <p class="lead text-muted mb-0" data-aos="fade-up">Create, organize, print, and carry your grocery lists with ease.</p>
+          <h1 class="fw-bold display-4 mb-3 text-wrap" data-aos="fade-down">Manage Your Grocery Lists</h1>
+          <p class="lead text-muted mb-0 text-wrap" data-aos="fade-up">Create, organize, print, and carry your grocery lists with ease.</p>
         </div>
       </div>
     </div>
 
     <!-- Main Content Section -->
-    <div class="grocery-section py-5">
-      <div class="container">
-        <div class="page-panel mb-5" data-aos="zoom-in">
-          <div class="row g-4 align-items-center">
-            <div class="col-lg-5">
+    <div class="grocery-section py-4 py-md-5">
+      <div class="container px-3 px-md-4">
+        <div class="page-panel mb-4 mb-md-5" data-aos="zoom-in">
+          <div class="row g-3 g-md-4 align-items-center">
+            <div class="col-12 col-lg-5">
               <div class="panel-copy">
                 <span class="panel-label">Quick capture</span>
                 <h3 class="fw-bold mb-3">Create a clean grocery list in seconds.</h3>
                 <p class="text-muted mb-0">Keep shopping organized, print what you need, and bring a polished list with you when you leave the house.</p>
               </div>
             </div>
-            <div class="col-lg-7">
+            <div class="col-12 col-lg-7">
               <div class="grocery-form-glass-card">
                 <div class="glass-filter"></div>
                 <div class="glass-overlay"></div>
@@ -174,6 +174,8 @@ export default {
 <style scoped>
 .grocery-page {
   background: #ffffff;
+  padding-top: clamp(90px, 12vw, 120px);
+  overflow-x: hidden;
 }
 
 /* Breadcrumb Section */

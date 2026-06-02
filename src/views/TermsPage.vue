@@ -1,5 +1,5 @@
 <template>
-  <div class="terms-page" data-aos="fade-up">
+  <div class="terms-page overflow-hidden" data-aos="fade-up">
     <!-- SVG Filters -->
     <svg style="display: none">
       <filter id="glass-distortion-terms-hero">
@@ -20,8 +20,8 @@
           <i class="fa-solid fa-chevron-left"></i> Back
         </button>
         <div class="hero-content">
-          <h1 class="hero-title">Terms & Conditions</h1>
-          <p class="hero-subtitle">Please read these terms carefully before using our service</p>
+          <h1 class="hero-title text-wrap">Terms & Conditions</h1>
+          <p class="hero-subtitle text-wrap">Please read these terms carefully before using our service</p>
         </div>
       </div>
     </div>
@@ -260,9 +260,10 @@ export default {
 <style scoped>
 /* Base Styles */
 .terms-page {
-  padding-top: 80px;
+  padding-top: clamp(90px, 12vw, 120px);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Hero Section */
@@ -312,11 +313,12 @@ export default {
 }
 
 .hero-title {
-  font-size: 56px;
+  font-size: clamp(2rem, 6vw, 56px);
   font-weight: 800;
   color: #1a1a1a;
   margin: 0 0 16px;
   line-height: 1.1;
+  overflow-wrap: break-word;
 }
 
 .hero-subtitle {
@@ -394,7 +396,7 @@ export default {
 
 .toc-nav {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
   gap: 16px;
 }
 
